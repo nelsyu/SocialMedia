@@ -1,0 +1,94 @@
+﻿@using Service.ViewModels
+@model PostViewModel
+
+<style>
+    .username {
+        width: 200px;
+    }
+
+    .title {
+        width: 200px;
+    }
+
+    .content {
+        width: 600px;
+    }
+
+    .post-date {
+        width: 200px;
+    }
+
+    .edit-form {
+        display: inline; /* 讓表單顯示為行內元素，使得按鈕在同一行 */
+    }
+
+    .reply {
+        width: 600px;
+    }
+</style>
+
+<h2>Post</h2>
+
+<div class="container">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col" class="username">Username</th>
+                <th scope="col" class="title">Title</th>
+                <th scope="col" class="content">Content</th>
+                <th scope="col" class="post-date">Post Date</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="username">@Model.UserViewModel?.Username</td>
+                <td class="title">@Model.Title</td>
+                <td class="content">@Model.Content</td>
+                <td class="post-date">@Model.PostDate.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(ViewContext.HttpContext.Session.GetString("Username")) && Model.UserViewModel?.Username == ViewContext.HttpContext.Session.GetString("Username"))
+                    {
+                        <form class="edit-form" method="post" asp-controller="Post" asp-action="EditPost">
+                            <input type="hidden" name="postId" value="@Model.PostId" />
+                            <button type="submit" class="btn btn-danger">Edit</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Reply Section -->
+    <div class="container">
+        <h3>Replies</h3>
+        @foreach (var reply in Model.ReplyViewModels)
+        {
+            <div>
+                <p>Reply ID: @reply.ReplyId</p>
+                <p>User ID: @reply.UserId</p>
+                <p>Content: @reply.Content</p>
+                <p>Reply Date: @reply.ReplyDate.ToString("yyyy-MM-dd HH:mm:ss")</p>
+                <!-- Add other properties as needed -->
+            </div>
+        }
+    </div>
+
+    <table class="table">
+        <tr>
+            <td colspan="4">
+                <form method="post" asp-controller="Post" asp-action="AddReply">
+                    <input type="hidden" name="postId" value="@Model.PostId" />
+
+                    <div class="form-group">
+                        <label for="replyContent">Add Reply:</label>
+                        <textarea class="form-control" id="replyContent" name="replyContent" rows="3" placeholder="Type your reply here..." required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Submit Reply</button>
+                </form>
+            </td>
+        </tr>
+    </table>
+</div>
+

@@ -1,0 +1,73 @@
+﻿@using Service.ViewModels
+@model List<PostViewModel>
+
+<style>
+    .username {
+        width: 200px;
+    }
+
+    .title {
+        width: 200px;
+    }
+
+    .content {
+        width: 600px;
+    }
+
+    .post-date {
+        width: 200px;
+    }
+
+    .delete-form {
+        display: inline; /* 讓表單顯示為行內元素，使得按鈕在同一行 */
+    }
+</style>
+
+<h2>My Posts</h2>
+
+<div class="container">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col" class="username">Username</th>
+                <th scope="col" class="title">Title</th>
+                <th scope="col" class="content">Content</th>
+                <th scope="col" class="post-date">Post Date</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var postVM in Model)
+            {
+                <tr>
+                    <td class="user-id">@postVM.UserViewModel?.Username</td>
+                    <td class="title">
+                        <a href="@Url.Action("DetailPost", "Post", new { postId = postVM.PostId })">
+                            @postVM.Title
+                        </a>
+                    </td>
+                    <td class="content">@postVM.Content</td>
+                    <td class="post-date">@postVM.PostDate.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                    <td>
+                        <form class="delete-form" method="post" asp-controller="Post" asp-action="DeletePost">
+                            <input type="hidden" name="postId" value="@postVM.PostId" />
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <!-- Pagination Section -->
+    <nav class="d-flex justify-content-center">
+        <ul class="pagination">
+            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+            {
+                <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
+                    <a class="page-link" href="?page=@i">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+</div>

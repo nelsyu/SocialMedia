@@ -1,0 +1,81 @@
+﻿@using Service.ViewModels
+@model List<PostViewModel>
+
+<style>
+    .username {
+        width: 100px;
+    }
+
+    .title {
+        width: 100px;
+    }
+
+    .content {
+        width: 300px;
+    }
+
+    .post-date {
+        width: 100px;
+    }
+
+    .pagination {
+        display: flex;
+        list-style: none;
+        padding: 0;
+    }
+
+    .page-item {
+        margin: 0 5px;
+    }
+
+    .page-link {
+        padding: 5px 10px;
+        background-color: #007bff;
+        color: #fff;
+        border: 1px solid #007bff;
+        border-radius: 3px;
+        cursor: pointer;
+    }
+</style>
+
+<h2>All Posts</h2>
+
+<div class="container">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col" class="username">Username</th>
+                <th scope="col" class="title">Title</th>
+                <th scope="col" class="content">Content</th>
+                <th scope="col" class="post-date">Post Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var postVM in Model)
+            {
+                <tr>
+                    <td class="username">@postVM.UserViewModel?.Username</td>
+                    <td class="title">
+                        <a href="@Url.Action("DetailPost", "Post", new { postId = postVM.PostId })">
+                            @postVM.Title
+                        </a>
+                    </td>
+                    <td class="content">@postVM.Content</td>
+                    <td class="post-date">@postVM.PostDate.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <!-- Pagination Section -->
+    <nav class="d-flex justify-content-center">
+        <ul class="pagination">
+            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+            {
+                <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
+                    <a class="page-link" href="?page=@i">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+</div>
