@@ -39,19 +39,15 @@ namespace Service.Services.Implements
             return postVMResults;
         }
 
-        public List<PostViewModel> GetAllPosts(int page, int pageSize)
+        public List<PostViewModel> GetAllPosts()
         {
-            // 計算跳過的資料量
-            int skipAmount = (page - 1) * pageSize;
+            List<Post> posts = new();
+            posts = _dbContext.Posts
+            .Include(p => p.User)
+            .OrderByDescending(p => p.PostDate)
+            .ToList();
 
-            var posts = _dbContext.Posts
-                .Include(p => p.User)
-                .OrderByDescending(p => p.PostDate)
-                .Skip(skipAmount)
-                .Take(pageSize)
-                .ToList();
-
-            var postVMResults = _mapper.Map<List<PostViewModel>>(posts);
+            List<PostViewModel> postVMResults = _mapper.Map<List<PostViewModel>>(posts);
             // 沒有用automapper的話，如下
             //List<PostViewModel> postVMResults = new List<PostViewModel>();
             //foreach (var post in posts)
@@ -66,27 +62,50 @@ namespace Service.Services.Implements
             return postVMResults;
         }
 
-        public List<PostViewModel> GetMyPosts(int page, int pageSize)
+        public List<PostViewModel> GetAllPosts(int topicId)
         {
-            // 計算跳過的資料量
-            int skipAmount = (page - 1) * pageSize;
+            List<Post> posts = new();
+            posts = _dbContext.Posts
+            .Include(p => p.User)
+            .Where(p => p.TopicId == topicId)
+            .OrderByDescending(p => p.PostDate)
+            .ToList();
 
-            var posts = new List<Post>();
+            List<PostViewModel> postVMResults = _mapper.Map<List<PostViewModel>>(posts);
+
+            return postVMResults;
+        }
+
+        public List<PostViewModel> GetMyPosts()
+        {
+            List<Post> posts = new();
 
             if (!string.IsNullOrEmpty(_httpContextAccessor.HttpContext?.Session.GetString("Username")))
             {
                 string username = _httpContextAccessor.HttpContext.Session.GetString("Username") ?? string.Empty;
 
                 posts = _dbContext.Posts
-                    .Where(p => p.User != null && p.User.Username == username)
                     .Include(p => p.User)
+                    .Where(p => p.User != null && p.User.Username == username)
                     .OrderByDescending (p => p.PostDate)
-                    .Skip(skipAmount)
-                    .Take(pageSize)
                     .ToList();
             }
 
             var postVMResults = _mapper.Map<List<PostViewModel>>(posts);
+            return postVMResults;
+        }
+
+        public List<PostViewModel> Paging(List<PostViewModel> postVMs, int page, int pageSize)
+        {
+            int skipAmount = (page - 1) * pageSize;
+
+            List<PostViewModel> postVMResults = new();
+
+            postVMResults = postVMs
+                .Skip(skipAmount)
+                .Take(pageSize)
+                .ToList();
+
             return postVMResults;
         }
 
@@ -116,9 +135,9 @@ namespace Service.Services.Implements
             }
         }
 
-        public int GetTotalPostCount()
-        {
-            return _dbContext.Posts.Count();
+        public int GetTotalPostCount(List<PostViewModel> postVMs)
+        { 
+            return postVMs.Count;
         }
     }
 }

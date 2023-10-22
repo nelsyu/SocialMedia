@@ -83,7 +83,7 @@ namespace Service.Services.Implements
                 if (User != null)
                 {
                     var UserVM = _mapper.Map<UserViewModel>(User);
-                    _httpContextAccessor.HttpContext.Session.SetString("Username", UserVM.Username);
+                    _httpContextAccessor.HttpContext?.Session.SetString("Username", UserVM.Username);
                 }
             }
             return result;
@@ -91,14 +91,14 @@ namespace Service.Services.Implements
 
         public bool IsLogin()
         {
-            bool IsLogin = !string.IsNullOrEmpty(_httpContextAccessor.HttpContext.Session.GetString("Username"));
+            bool IsLogin = !string.IsNullOrEmpty(_httpContextAccessor.HttpContext?.Session.GetString("Username"));
                 return IsLogin;
         }
 
         public void Logout()
         {
             // 清除 Session 中的 Username
-            _httpContextAccessor.HttpContext.Session.Remove("Username");
+            _httpContextAccessor.HttpContext?.Session.Remove("Username");
         }
     }
 }

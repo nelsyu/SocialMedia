@@ -16,7 +16,9 @@ namespace Data.Entities
         public string Content { get; set; } = null!;
         public DateTime PostDate { get; set; }
         public DateTime? LastEditDate { get; set; }
+        public int TopicId { get; set; }
 
+        public virtual Topic Topic { get; set; } = null!;
         public virtual User? User { get; set; }
         public virtual ICollection<Reply> Replies { get; set; }
     }

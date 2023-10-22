@@ -12,13 +12,15 @@ namespace SocialMedia.Controllers
         private readonly IPostService _postService;
         private readonly IUserService _userService;
         private readonly IReplyService _replyService;
+        private readonly ITopicService _topicService;
 
-        public PostController(ILogger<PostController> logger, IPostService postService, IUserService userService, IReplyService replyService)
+        public PostController(ILogger<PostController> logger, IPostService postService, IUserService userService, IReplyService replyService, ITopicService topicService)
         {
             _logger = logger;
             _postService = postService;
             _userService = userService;
             _replyService = replyService;
+            _topicService = topicService;
         }
 
         public IActionResult Index()
@@ -29,11 +31,12 @@ namespace SocialMedia.Controllers
         public IActionResult MyPost(int page = 1)
         {
             if (!_userService.IsLogin())
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Login", "User");
 
             int pageSize = 5;
-            var postVMs = _postService.GetMyPosts(page, pageSize);
-            int totalPosts = _postService.GetTotalPostCount();
+            List<PostViewModel> postVMs = _postService.GetMyPosts();
+            int totalPosts = _postService.GetTotalPostCount(postVMs);
+            postVMs = _postService.Paging(postVMs, page, pageSize);
             int totalPages = (int)Math.Ceiling((double)totalPosts / pageSize);
 
             // 傳遞資料到 View
@@ -48,24 +51,23 @@ namespace SocialMedia.Controllers
         public IActionResult CreatePost()
         {
             if (!_userService.IsLogin())
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Login", "User");
 
-            return View();
+            PostViewModel postVM = new()
+            {
+                TopicViewModels = _topicService.GetAllTopics()
+            };
+
+            return View(postVM);
         }
 
         [HttpPost]
         public IActionResult CreatePost(PostViewModel postVM)
         {
-            if(ModelState.IsValid)
-            {
-                _postService.CreatePost(postVM);
+            postVM.TopicViewModels = _topicService.GetAllTopics();
+            _postService.CreatePost(postVM);
 
-                return RedirectToAction("Index", "Home");
-            }
-            else
-            {
-                return View();
-            }
+            return RedirectToAction("Index", "Home");
         }
 
         public IActionResult DeletePost(PostViewModel postVM)
@@ -77,18 +79,23 @@ namespace SocialMedia.Controllers
 
         public IActionResult DetailPost(int postId)
         {
-            var postVM = _postService.GetPost(postId);
+            PostViewModel postVM = _postService.GetPost(postId);
             if (postVM == null)
                 return NotFound();
 
             return View(postVM);
         }
 
+        public IActionResult EditPost(PostViewModel postVM, int postId)
+        {
+            return View();
+        }
+
         [HttpPost]
         public IActionResult AddReply(ReplyViewModel replyVM, int postId, string replyContent)
         {
             if (!_userService.IsLogin())
-                return RedirectToAction("DetailPost", "Post", new { postId });
+                return RedirectToAction("Login", "User");
 
             replyVM.PostId = postId;
             replyVM.Content = replyContent;

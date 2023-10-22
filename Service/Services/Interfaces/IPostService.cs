@@ -10,10 +10,12 @@ namespace Service.Services.Interfaces
     public interface IPostService
     {
         PostViewModel GetPost(int postId);
-        List<PostViewModel> GetAllPosts(int page, int pageSize);
-        List<PostViewModel> GetMyPosts(int page, int pageSize);
+        List<PostViewModel> GetAllPosts();
+        List<PostViewModel> GetAllPosts(int topicId);
+        List<PostViewModel> GetMyPosts();
+        List<PostViewModel> Paging(List<PostViewModel> postVMs, int page, int pageSize);
         void CreatePost(PostViewModel postVM);
         void DeletePost(PostViewModel postVM);
-        int GetTotalPostCount();
+        int GetTotalPostCount(List<PostViewModel> postVMs);
     }
 }

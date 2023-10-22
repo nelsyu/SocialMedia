@@ -22,7 +22,7 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        <!-- 新增 "More" 按鈕 -->
+                        <!-- "More" dropdown -->
                         <li class="nav-item">
                             <div class="nav-item dropdown">
                                 <a class="nav-link text-dark dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -31,11 +31,11 @@
                                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                                     <a class="nav-link text-dark" asp-area="" asp-controller="Post" asp-action="MyPost">My posts</a>
                                     <a class="nav-link text-dark" asp-area="" asp-controller="Post" asp-action="CreatePost">New post</a>
-                                    
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Topic" asp-action="Index">Topics</a>
                                 </div>
                             </div>
                         </li>
-                        <!-- /新增 "More" 按鈕 -->
+                        <!-- /"More" dropdown -->
                     </ul>
                     <ul class="navbar-nav ml-auto">
                         @if (string.IsNullOrEmpty(ViewContext.HttpContext.Session.GetString("Username")))
@@ -49,7 +49,7 @@
                         }
                         else
                         {
-                            <!-- 新增 "More" 按鈕 -->
+                            <!-- Username dropdown -->
                             <li class="nav-item">
                                 <div class="nav-item dropdown">
                                     <a class="nav-link text-dark dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -61,7 +61,7 @@
                                     </div>
                                 </div>
                             </li>
-                            <!-- /新增 "More" 按鈕 -->
+                            <!-- /Username dropdown -->
                         }
                     </ul>
                 </div>

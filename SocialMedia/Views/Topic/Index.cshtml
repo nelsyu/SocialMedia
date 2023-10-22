@@ -1,0 +1,42 @@
+﻿@using Service.ViewModels
+@model List<TopicViewModel>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topic List</title>
+</head>
+<body>
+
+    <h2>Topic List</h2>
+
+    <div class="container">
+        <ul>
+            @foreach (var topicVM in Model)
+            {
+                <li>
+                    <a href="@Url.Action("DetailTopic", "Topic", new { topicId = topicVM.TopicId })">@topicVM.Title</a>
+                </li>
+            }
+        </ul>
+    </div>
+
+    <table class="table">
+        <tr>
+            <td colspan="4">
+                <form method="post" asp-controller="Topic" asp-action="CreateTopic">
+                    <div class="form-group">
+                        <label for="title">Create Topic:</label>
+                        <textarea class="form-control" id="title" name="title" rows="3" placeholder="Type here..." required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>

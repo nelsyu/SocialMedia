@@ -26,6 +26,7 @@ builder.Services.AddScoped<IMapper, Mapper>();
 builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IReplyService, ReplyService>();
+builder.Services.AddScoped<ITopicService, TopicService>();
 
 // 添加 Session 服務
 builder.Services.AddDistributedMemoryCache(); // 使用內存作為 Session 存儲

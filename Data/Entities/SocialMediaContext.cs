@@ -26,7 +26,7 @@ namespace Data.Entities
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
                 optionsBuilder.UseSqlServer(DbConfig.GetConnectionString());
             }
         }
@@ -51,7 +51,15 @@ namespace Data.Entities
                     .HasMaxLength(255)
                     .HasColumnName("title");
 
+                entity.Property(e => e.TopicId).HasColumnName("topicId");
+
                 entity.Property(e => e.UserId).HasColumnName("userId");
+
+                entity.HasOne(d => d.Topic)
+                    .WithMany(p => p.Posts)
+                    .HasForeignKey(d => d.TopicId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__Posts__topicId__76969D2E");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Posts)
@@ -99,6 +107,7 @@ namespace Data.Entities
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Topics)
                     .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK__Topics__userId__72C60C4A");
             });
 
