@@ -1,5 +1,4 @@
-﻿@using Service.ViewModels
-@model PostViewModel
+﻿@model Service.ViewModels.PostViewModel
 
 <style>
     .username {
@@ -49,10 +48,7 @@
                 <td>
                     @if (!string.IsNullOrEmpty(ViewContext.HttpContext.Session.GetString("Username")) && Model.UserViewModel?.Username == ViewContext.HttpContext.Session.GetString("Username"))
                     {
-                        <form class="edit-form" method="post" asp-controller="Post" asp-action="EditPost">
-                            <input type="hidden" name="postId" value="@Model.PostId" />
-                            <button type="submit" class="btn btn-danger">Edit</button>
-                        </form>
+                        <a class="btn btn-danger" href="@Url.Action("EditPost", "Post", new { postId = Model.PostId })">Edit</a>
                     }
                 </td>
             </tr>
@@ -65,8 +61,7 @@
         @foreach (var reply in Model.ReplyViewModels)
         {
             <div>
-                <p>Reply ID: @reply.ReplyId</p>
-                <p>User ID: @reply.UserId</p>
+                <p>Username: @(reply.UserViewModel?.Username ?? "已刪除用戶")</p>
                 <p>Content: @reply.Content</p>
                 <p>Reply Date: @reply.ReplyDate.ToString("yyyy-MM-dd HH:mm:ss")</p>
                 <!-- Add other properties as needed -->

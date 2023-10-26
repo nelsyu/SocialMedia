@@ -41,7 +41,7 @@ namespace SocialMedia.Controllers
             return View();
         }
 
-        public IActionResult Test()
+        public IActionResult Settings()
         {
             return View();
         }

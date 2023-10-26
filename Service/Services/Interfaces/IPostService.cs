@@ -15,6 +15,7 @@ namespace Service.Services.Interfaces
         List<PostViewModel> GetMyPosts();
         List<PostViewModel> Paging(List<PostViewModel> postVMs, int page, int pageSize);
         void CreatePost(PostViewModel postVM);
+        void UpdatePost(PostViewModel postVM, int postId);
         void DeletePost(PostViewModel postVM);
         int GetTotalPostCount(List<PostViewModel> postVMs);
     }

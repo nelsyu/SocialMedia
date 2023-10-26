@@ -18,9 +18,7 @@ namespace Service.ViewModels
         public string Username { get; set; } = null!;
         public string Password { get; set; } = null!;
 
-        [Required(ErrorMessage = "Please confirm your password")]
-        [Compare("Password", ErrorMessage = "Passwords do not match")]
-        [DataType(DataType.Password)]
+        // My property
         public string ConfirmPassword { get; set; } = null!;
 
         public virtual ICollection<PostViewModel> PostsViewModels { get; set; }

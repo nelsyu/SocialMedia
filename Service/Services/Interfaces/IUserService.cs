@@ -10,10 +10,11 @@ namespace Service.Services.Interfaces
 {
     public interface IUserService
     {
-        List<string> ValidateRegister(string email, string Username);
+        List<string> ValidateRegister(string email, string username, string password, string confirmPassword);
         void Register(UserViewModel userVM);
         List<string> ValidateLogin(string email, string password);
         bool IsLogin();
         void Logout();
+        void DeleteAccount(UserViewModel userVM);
     }
 }

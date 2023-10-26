@@ -60,7 +60,7 @@
             @foreach (var postVM in Model)
             {
                 <tr>
-                    <td class="username">@postVM.UserViewModel?.Username</td>
+                    <td class="username">@(postVM.UserViewModel?.Username ?? "已刪除用戶")</td>
                     <td class="title">
                         <a href="@Url.Action("DetailPost", "Post", new { postId = postVM.PostId })">
                             @postVM.Title

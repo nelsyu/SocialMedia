@@ -26,22 +26,33 @@ namespace Service.Services.Implements
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public List<string> ValidateRegister(string email, string Username)
+        public List<string> ValidateRegister(string email, string username, string password, string confirmPassword)
         {
-            var IsEmailUnique = !_dbContext.Users.Any(u => u.Email == email);
-            var IsUsernameUnique = !_dbContext.Users.Any(u => u.Username == Username);
-            
+            var IsEmailInvalid = _dbContext.Users.Any(u => u.Email == email) || email == null;
+            var IsUsernameInvalid = _dbContext.Users.Any(u => u.Username == username) || username == null;
+            var IsPasswordInvalid = string.IsNullOrEmpty(password);
+            var IsConfirmPasswordInvalid = string.IsNullOrEmpty(confirmPassword) || password != confirmPassword;
             List<string> result = new();
 
-            if (!IsEmailUnique)
+            if (IsEmailInvalid)
             {
                 result.Add("Email");
-                result.Add("Email is already registered.");
+                result.Add("Email is invalid.");
             }
-            else if (!IsUsernameUnique)
+            else if (IsUsernameInvalid)
             {
                 result.Add("Username");
-                result.Add("Username is already registered.");
+                result.Add("Username is invalid.");
+            }
+            else if(IsPasswordInvalid)
+            {
+                result.Add("Password");
+                result.Add("Password is invalid.");
+            }
+            else if (IsConfirmPasswordInvalid)
+            {
+                result.Add("ConfirmPassword");
+                result.Add("ConfirmPassword is invalid.");
             }
             else
                 result.Add("");
@@ -60,17 +71,17 @@ namespace Service.Services.Implements
 
         public List<string> ValidateLogin(string email, string password)
         {
-            var IsEmailValid = _dbContext.Users.Any(u => u.Email == email);
-            var IsPasswordValid = _dbContext.Users.Any(u => u.Password == password);
+            var IsEmailInvalid = !_dbContext.Users.Any(u => u.Email == email);
+            var IsPasswordInvalid = !_dbContext.Users.Any(u => u.Password == password);
 
             List<string> result = new();
 
-            if (!IsEmailValid)
+            if (IsEmailInvalid)
             {
                 result.Add("Email");
                 result.Add("Email is invalid.");
             }
-            else if (!IsPasswordValid)
+            else if (IsPasswordInvalid)
             {
                 result.Add("Password");
                 result.Add("Password is invalid.");
@@ -99,6 +110,19 @@ namespace Service.Services.Implements
         {
             // 清除 Session 中的 Username
             _httpContextAccessor.HttpContext?.Session.Remove("Username");
+        }
+
+        public void DeleteAccount(UserViewModel userVM)
+        {
+            string username = _httpContextAccessor.HttpContext?.Session.GetString("Username") ?? string.Empty;
+            var user = _dbContext.Users.Where(u => u.Username == username).FirstOrDefault();
+            
+            if(user != null)
+            {
+                _dbContext.Users.Remove(user);
+                _dbContext.SaveChanges();
+                _httpContextAccessor.HttpContext?.Session.Remove("Username");
+            }
         }
     }
 }

@@ -36,27 +36,25 @@ namespace SocialMedia.Controllers
         [HttpPost]
         public IActionResult Register(UserViewModel userVM)
         {
-            List<string> result = _userService.ValidateRegister(userVM.Email, userVM.Username);
+            List<string> result = _userService.ValidateRegister(userVM.Email, userVM.Username, userVM.Password, userVM.ConfirmPassword);
 
             // 如果 UserId 或 Email 已經存在，返回原始註冊頁面
             if (result[0] != "")
             {
                 ModelState.AddModelError(result[0], result[1]);
+
                 return View(userVM);
             }
             else
             {
-                // 提交資料庫變更
                 _userService.Register(userVM);
 
-                // 註冊成功，導向到其他頁面
                 return RedirectToAction("Index", "Home");
             }
         }
 
         public IActionResult Login()
         {
-            // 若為登入狀態則跳轉到首頁
             if (_userService.IsLogin())
                 return RedirectToAction("Index", "Home");
 
@@ -84,6 +82,13 @@ namespace SocialMedia.Controllers
         public IActionResult Logout()
         {
             _userService.Logout();
+            return RedirectToAction("Index", "Home");
+        }
+
+        [HttpPost]
+        public IActionResult DeleteAccount(UserViewModel userVM)
+        {
+            _userService.DeleteAccount(userVM);
             return RedirectToAction("Index", "Home");
         }
 

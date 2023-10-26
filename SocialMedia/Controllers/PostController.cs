@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Data.Entities;
+using Microsoft.AspNetCore.Mvc;
 using Service.Services.Interfaces;
 using Service.ViewModels;
 using SocialMedia.Models;
@@ -64,7 +65,6 @@ namespace SocialMedia.Controllers
         [HttpPost]
         public IActionResult CreatePost(PostViewModel postVM)
         {
-            postVM.TopicViewModels = _topicService.GetAllTopics();
             _postService.CreatePost(postVM);
 
             return RedirectToAction("Index", "Home");
@@ -86,9 +86,26 @@ namespace SocialMedia.Controllers
             return View(postVM);
         }
 
+        public IActionResult EditPost(int postId)
+        {
+            if (!_userService.IsLogin())
+                return RedirectToAction("Login", "User");
+
+            PostViewModel postVM = _postService.GetPost(postId);
+            postVM.TopicViewModels = _topicService.GetAllTopics();
+
+            if (postVM == null)
+                return NotFound();
+            else
+                return View(postVM);
+        }
+
+        [HttpPost]
         public IActionResult EditPost(PostViewModel postVM, int postId)
         {
-            return View();
+            _postService.UpdatePost(postVM, postId);
+
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpPost]

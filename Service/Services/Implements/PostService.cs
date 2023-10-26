@@ -31,7 +31,7 @@ namespace Service.Services.Implements
             var post = _dbContext.Posts
                 .Where(p => p.PostId == postId)
                 .Include(p => p.User)
-                .Include(p => p.Replies)
+                .Include(p => p.Replies).ThenInclude(r => r.User)
                 .FirstOrDefault();
 
             var postVMResults = _mapper.Map<PostViewModel>(post);
@@ -98,10 +98,10 @@ namespace Service.Services.Implements
         public List<PostViewModel> Paging(List<PostViewModel> postVMs, int page, int pageSize)
         {
             int skipAmount = (page - 1) * pageSize;
+            _ = new
+            List<PostViewModel>();
 
-            List<PostViewModel> postVMResults = new();
-
-            postVMResults = postVMs
+            List<PostViewModel> postVMResults = postVMs
                 .Skip(skipAmount)
                 .Take(pageSize)
                 .ToList();
@@ -121,6 +121,22 @@ namespace Service.Services.Implements
             _dbContext.Posts.Add(postMap);
             _dbContext.SaveChanges();
         }
+
+        public void UpdatePost(PostViewModel postVM, int postId)
+        {
+            var postToUpdate = _dbContext.Posts.Find(postId);
+
+            if (postToUpdate != null)
+            {
+                postToUpdate.TopicId = postVM.TopicId;
+                postToUpdate.Title = postVM.Title;
+                postToUpdate.Content = postVM.Content;
+                postToUpdate.LastEditDate = DateTime.Now;
+
+                _dbContext.SaveChanges();
+            }
+        }
+
 
         public void DeletePost(PostViewModel postVM)
         {
