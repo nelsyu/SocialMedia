@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Library.Extensions;
 
 namespace Service.Services.Implements
 {
@@ -27,22 +28,23 @@ namespace Service.Services.Implements
 
         public List<TopicViewModel> GetAllTopics()
         {
-            List<Topic> topics = _dbContext.Topics
+            List<Topic> topicEntL = _dbContext.Topics
                 .Include(t => t.User)
                 .ToList();
-            List<TopicViewModel> topicVMs = _mapper.Map<List<TopicViewModel>>(topics);
-            return topicVMs;
+            List<TopicViewModel> topicVML = _mapper.Map<List<TopicViewModel>>(topicEntL);
+
+            return topicVML;
         }
 
         public void CreateTopic(TopicViewModel topicVM, string title)
         {
-            string username = _httpContextAccessor.HttpContext?.Session.GetString("Username") ?? string.Empty;
+            UserViewModel userVM = _httpContextAccessor.HttpContext?.Session.GetObject<UserViewModel>("UserNowVM") ?? new();
 
-            topicVM.UserId = _dbContext.Users.Where(u => u.Username == username).Select(u => u.UserId).FirstOrDefault();
+            topicVM.UserId = userVM.UserId;
             topicVM.Title = title;
 
-            var topicMap = _mapper.Map<Topic>(topicVM);
-            _dbContext.Add(topicMap);
+            var topicEnt = _mapper.Map<Topic>(topicVM);
+            _dbContext.Add(topicEnt);
             _dbContext.SaveChanges();
         }
     }

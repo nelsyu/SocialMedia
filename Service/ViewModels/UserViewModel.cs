@@ -17,9 +17,13 @@ namespace Service.ViewModels
         public string Email { get; set; } = null!;
         public string Username { get; set; } = null!;
         public string Password { get; set; } = null!;
+        public string? Totp { get; set; }
 
         // My property
         public string ConfirmPassword { get; set; } = null!;
+        public string ConfirmCaptcha { get; set; } = null!;
+        public string confirmQRCodeOTP { get; set; } = null!;
+        // /My property
 
         public virtual ICollection<PostViewModel> PostsViewModels { get; set; }
         public virtual ICollection<ReplyViewModel> RepliesViewModels { get; set; }

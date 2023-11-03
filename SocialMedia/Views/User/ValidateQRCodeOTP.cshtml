@@ -1,0 +1,13 @@
+﻿@model Service.ViewModels.UserViewModel
+
+<h2>ValidateQRCodeOTP</h2>
+
+<form asp-action="ValidateQRCodeOTP" method="post">
+    <div class="form-group">
+        <label asp-for="confirmQRCodeOTP"></label>
+        <input asp-for="confirmQRCodeOTP" class="form-control" />
+        <span asp-validation-for="confirmQRCodeOTP" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Confirm</button>
+</form>

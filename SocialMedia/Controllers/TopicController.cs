@@ -24,8 +24,8 @@ namespace SocialMedia.Controllers
 
         public IActionResult Index()
         {
-            List<TopicViewModel> topicVMs = _topicService.GetAllTopics();
-            return View(topicVMs);
+            List<TopicViewModel> topicVML = _topicService.GetAllTopics();
+            return View(topicVML);
         }
 
         [HttpPost]
@@ -39,23 +39,26 @@ namespace SocialMedia.Controllers
             return RedirectToAction("Index", "Topic");
         }
 
-        public IActionResult DetailTopic(int topicId, int page = 1)
+        public IActionResult DetailTopic(int topicId, int currentPage = 1)
         {
-            if (page < 1)
-                return NotFound();
+            if (currentPage < 1)
+                currentPage = 1;
             int pageSize = 5;
-            List<PostViewModel> postVMs = _postService.GetAllPosts(topicId);
-            int totalPosts = _postService.GetTotalPostCount(postVMs);
-            postVMs = _postService.Paging(postVMs, page, pageSize);
+            List<PostViewModel> postVML = _postService.GetAllPosts(topicId);
+            int totalPosts = postVML.Count;
+            postVML = _postService.Paging(postVML, currentPage, pageSize);
             int totalPages = (int)Math.Ceiling((double)totalPosts / pageSize);
 
-            // 傳遞資料到 View
-            ViewBag.TotalPages = totalPages;
-            ViewBag.CurrentPage = page;
-            ViewBag.PageSize = pageSize;
+            PageViewModel pageVM = new()
+            {
+                CurrentPage = currentPage,
+                PageSize = pageSize,
+                TotalPages = totalPages
+            };
+
             ViewBag.TopicId = topicId;
 
-            return View(postVMs);
+            return View((postVML, pageVM));
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

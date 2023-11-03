@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using OtpNet;
 using Service.Services.Implements;
 using Service.Services.Interfaces;
 using Service.ViewModels;
@@ -36,9 +37,8 @@ namespace SocialMedia.Controllers
         [HttpPost]
         public IActionResult Register(UserViewModel userVM)
         {
-            List<string> result = _userService.ValidateRegister(userVM.Email, userVM.Username, userVM.Password, userVM.ConfirmPassword);
+            List<string> result = _userService.ValidateRegister(userVM);
 
-            // 如果 UserId 或 Email 已經存在，返回原始註冊頁面
             if (result[0] != "")
             {
                 ModelState.AddModelError(result[0], result[1]);
@@ -58,23 +58,85 @@ namespace SocialMedia.Controllers
             if (_userService.IsLogin())
                 return RedirectToAction("Index", "Home");
 
+            // 生成 captcha 圖片
+            byte[] captchaImage = _userService.GenerateCaptchaImage(out string captchaCode);
+            ViewBag.CaptchaImage = captchaImage;
+            TempData["CaptchaCode"] = captchaCode;
+
             return View();
         }
 
         [HttpPost]
         public IActionResult Login(UserViewModel userVM)
         {
-            List<string> result = _userService.ValidateLogin(userVM.Email, userVM.Password);
+            List<string> result = _userService.ValidateLogin(userVM, TempData["CaptchaCode"] ?? "");
 
-            // 如果 Email 或 Password 不存在，返回原始註冊頁面
             if (result[0] != "")
             {
                 ModelState.AddModelError(result[0], result[1]);
+
+                // 生成 captcha 圖片
+                byte[] captchaImage = _userService.GenerateCaptchaImage(out string captchaCode);
+                ViewBag.CaptchaImage = captchaImage;
+                TempData["CaptchaCode"] = captchaCode;
+
                 return View(userVM);
             }
             else
             {
-                // 登入成功，導向到其他頁面
+                HttpContext.Session.SetString("UserVMEmail", userVM.Email);
+
+                return RedirectToAction("ValidateQRCodeOTP", "User");
+            }
+        }
+
+        [HttpPost]
+        public IActionResult SaveQRCodeOTP([FromForm] string QRCodeOTPSK)
+        {
+             _userService.SaveQRCodeOTP(QRCodeOTPSK);
+
+            return RedirectToAction("Index", "Home");
+        }
+
+        public IActionResult ValidateQRCodeOTP()
+        {
+            string userVMEmail = HttpContext.Session.GetString("UserVMEmail") ?? "";
+
+            if (string.IsNullOrEmpty(userVMEmail))
+                return RedirectToAction("Login", "User");
+
+            if (_userService.IsQRCodeOTPSecretKey(userVMEmail) == null)
+            {
+                _userService.LoginSuccessful(userVMEmail);
+
+                return RedirectToAction("Index", "Home");
+            }
+            else
+            {
+                return View();
+            }
+        }
+
+        [HttpPost]
+        public IActionResult ValidateQRCodeOTP(UserViewModel userVM)
+        {
+            string userVMEmail = HttpContext.Session.GetString("UserVMEmail") ?? "";
+
+            if (string.IsNullOrEmpty(userVMEmail))
+                return RedirectToAction("Login", "User");
+
+            List<string> result = _userService.VerifyQRCodeOTP(userVMEmail, userVM.confirmQRCodeOTP);
+
+            if (result[0] != "")
+            {
+                ModelState.AddModelError(result[0], result[1]);
+
+                return View(userVM);
+            }
+            else
+            {
+                _userService.LoginSuccessful(userVMEmail);
+
                 return RedirectToAction("Index", "Home");
             }
         }

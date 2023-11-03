@@ -25,5 +25,6 @@ namespace Service.ViewModels
 
         // My Property
         public ICollection<TopicViewModel> TopicViewModels { get; set; }
+        // /My Property
     }
 }

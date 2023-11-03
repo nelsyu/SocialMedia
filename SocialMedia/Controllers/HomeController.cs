@@ -1,5 +1,6 @@
 ﻿using Data.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Service.Services.Implements;
 using Service.Services.Interfaces;
 using Service.ViewModels;
 using SocialMedia.Models;
@@ -11,29 +12,33 @@ namespace SocialMedia.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IPostService _postService;
+        private readonly IUserService _userService;
 
-        public HomeController(ILogger<HomeController> logger, IPostService postService)
+        public HomeController(ILogger<HomeController> logger, IPostService postService, IUserService userService)
         {
             _logger = logger;
             _postService = postService;
+            _userService = userService;
         }
 
-        public IActionResult Index(int page = 1)
+        public IActionResult Index(int currentPage = 1)
         {
-            if (page < 1)
-                return NotFound();
+            if (currentPage < 1)
+                return RedirectToAction("Index", "Home");
             int pageSize = 5;
-            List<PostViewModel> postVMs = _postService.GetAllPosts();
-            int totalPosts = _postService.GetTotalPostCount(postVMs);
-            postVMs = _postService.Paging(postVMs, page, pageSize);
+            List<PostViewModel> postVML = _postService.GetAllPosts();
+            int totalPosts = postVML.Count;
+            postVML = _postService.Paging(postVML, currentPage, pageSize);
             int totalPages = (int)Math.Ceiling((double)totalPosts / pageSize);
 
-            // 傳遞資料到 View
-            ViewBag.TotalPages = totalPages;
-            ViewBag.CurrentPage = page;
-            ViewBag.PageSize = pageSize;
+            PageViewModel pageVM = new()
+            {
+                CurrentPage = currentPage,
+                PageSize = pageSize,
+                TotalPages = totalPages
+            };
 
-            return View(postVMs);
+            return View((postVML, pageVM));
         }
 
         public IActionResult Privacy()
@@ -43,7 +48,18 @@ namespace SocialMedia.Controllers
 
         public IActionResult Settings()
         {
-            return View();
+            if (!_userService.IsLogin())
+                return RedirectToAction("Index", "Home");
+
+            byte[] oTPQRCode = _userService.GenerateOTPQRCode(out string secretKey);
+
+            OTPViewModel oTPVM = new()
+            {
+                OTPQRCode = oTPQRCode,
+                OTPQRCodeSK = secretKey
+            };
+
+            return View(oTPVM);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

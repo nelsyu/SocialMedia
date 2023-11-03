@@ -1,4 +1,9 @@
-﻿<!DOCTYPE html>
+﻿@using Library.Extensions
+@using Service.ViewModels
+@using Service.Services.Interfaces;
+@inject IUserService _userService
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -29,8 +34,8 @@
                                     More
                                 </a>
                                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Post" asp-action="MyPost">My posts</a>
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Post" asp-action="CreatePost">New post</a>
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Post" asp-action="MyPost" onclick="checkLogin()">My posts</a>
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Post" asp-action="CreatePost" onclick="checkLogin()">New post</a>
                                     <a class="nav-link text-dark" asp-area="" asp-controller="Topic" asp-action="Index">Topics</a>
                                 </div>
                             </div>
@@ -38,7 +43,7 @@
                         <!-- /"More" dropdown -->
                     </ul>
                     <ul class="navbar-nav ml-auto">
-                        @if (string.IsNullOrEmpty(ViewContext.HttpContext.Session.GetString("Username")))
+                        @if (string.IsNullOrEmpty(ViewContext.HttpContext.Session.GetObject<UserViewModel>("UserNowVM")?.Username))
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Login">Login</a>
@@ -53,7 +58,7 @@
                             <li class="nav-item">
                                 <div class="nav-item dropdown">
                                     <a class="nav-link text-dark dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        @ViewContext.HttpContext.Session.GetString("Username")
+                                        @(ViewContext.HttpContext.Session.GetObject<UserViewModel>("UserNowVM")?.Username)
                                     </a>
                                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                                         <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Logout">Logout</a>
@@ -83,5 +88,14 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    <script>
+        function checkLogin() {
+            var isUserLoggedIn = @(Json.Serialize(_userService.IsLogin()));
+            if (!isUserLoggedIn) {
+                window.alert("請先登入帳號");
+            }
+        }
+    </script>
 </body>
 </html>

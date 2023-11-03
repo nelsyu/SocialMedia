@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Library.Extensions;
 
 namespace Service.Services.Implements
 {
@@ -26,13 +27,16 @@ namespace Service.Services.Implements
 
         public void CreateReply(ReplyViewModel replyVM)
         {
-            string username = _httpContextAccessor.HttpContext?.Session.GetString("Username") ?? string.Empty;
+            UserViewModel userNowVM = _httpContextAccessor.HttpContext?.Session.GetObject<UserViewModel>("UserNowVM") ?? new();
 
-            replyVM.UserId = _dbContext.Users.Where(u => u.Username == username).Select(u => u.UserId).FirstOrDefault();
+            replyVM.UserId = _dbContext.Users
+                .Where(u => u.Username == userNowVM.Username)
+                .Select(u => u.UserId)
+                .FirstOrDefault();
             replyVM.ReplyDate = DateTime.Now;
 
-            var replyMap = _mapper.Map<Reply>(replyVM);
-            _dbContext.Replies.Add(replyMap);
+            var replyEnt = _mapper.Map<Reply>(replyVM);
+            _dbContext.Replies.Add(replyEnt);
             _dbContext.SaveChanges();
         }
     }

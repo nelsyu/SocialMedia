@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Library.Extensions;
+using System.Linq.Expressions;
 
 namespace Service.Services.Implements
 {
@@ -28,132 +30,97 @@ namespace Service.Services.Implements
 
         public PostViewModel GetPost(int postId)
         {
-            var post = _dbContext.Posts
+            Post? postEnt = _dbContext.Posts
                 .Where(p => p.PostId == postId)
                 .Include(p => p.User)
                 .Include(p => p.Replies).ThenInclude(r => r.User)
                 .FirstOrDefault();
 
-            var postVMResults = _mapper.Map<PostViewModel>(post);
+            var postVM = _mapper.Map<PostViewModel>(postEnt);
 
-            return postVMResults;
+            return postVM;
         }
 
         public List<PostViewModel> GetAllPosts()
         {
-            List<Post> posts = new();
-            posts = _dbContext.Posts
-            .Include(p => p.User)
-            .OrderByDescending(p => p.PostDate)
-            .ToList();
-
-            List<PostViewModel> postVMResults = _mapper.Map<List<PostViewModel>>(posts);
-            // 沒有用automapper的話，如下
-            //List<PostViewModel> postVMResults = new List<PostViewModel>();
-            //foreach (var post in posts)
-            //{
-            //    postVMResults.Add(new PostViewModel()
-            //    {
-            //        PostId = post.PostId,
-            //        UserId = post.UserId,
-            //        ...
-            //    });
-            //}
-            return postVMResults;
+            return GetPosts(p => true);
         }
 
         public List<PostViewModel> GetAllPosts(int topicId)
         {
-            List<Post> posts = new();
-            posts = _dbContext.Posts
-            .Include(p => p.User)
-            .Where(p => p.TopicId == topicId)
-            .OrderByDescending(p => p.PostDate)
-            .ToList();
-
-            List<PostViewModel> postVMResults = _mapper.Map<List<PostViewModel>>(posts);
-
-            return postVMResults;
+            return GetPosts(p => p.TopicId == topicId);
         }
 
-        public List<PostViewModel> GetMyPosts()
+        public List<PostViewModel> GetAllPosts(UserViewModel userNowVM)
         {
-            List<Post> posts = new();
-
-            if (!string.IsNullOrEmpty(_httpContextAccessor.HttpContext?.Session.GetString("Username")))
-            {
-                string username = _httpContextAccessor.HttpContext.Session.GetString("Username") ?? string.Empty;
-
-                posts = _dbContext.Posts
-                    .Include(p => p.User)
-                    .Where(p => p.User != null && p.User.Username == username)
-                    .OrderByDescending (p => p.PostDate)
-                    .ToList();
-            }
-
-            var postVMResults = _mapper.Map<List<PostViewModel>>(posts);
-            return postVMResults;
+            return GetPosts(p => p.User != null && p.User.UserId == userNowVM.UserId);
         }
 
-        public List<PostViewModel> Paging(List<PostViewModel> postVMs, int page, int pageSize)
+        private List<PostViewModel> GetPosts(Expression<Func<Post, bool>> condition)
         {
-            int skipAmount = (page - 1) * pageSize;
-            _ = new
-            List<PostViewModel>();
+            List<Post> postL = _dbContext.Posts
+                .Where(condition)
+                .OrderByDescending(p => p.PostDate)
+                .Include(p => p.User)
+                .ToList();
 
-            List<PostViewModel> postVMResults = postVMs
-                .Skip(skipAmount)
+            List<PostViewModel> postVML = _mapper.Map<List<PostViewModel>>(postL);
+
+            return postVML;
+        }
+
+        public List<PostViewModel> Paging(List<PostViewModel> postVML, int page, int pageSize)
+        {
+            int skipPosts = (page - 1) * pageSize;
+            
+            postVML = postVML
+                .Skip(skipPosts)
                 .Take(pageSize)
                 .ToList();
 
-            return postVMResults;
+            return postVML;
         }
 
         public void CreatePost(PostViewModel postVM)
         {
-            string username = _httpContextAccessor.HttpContext?.Session.GetString("Username") ?? string.Empty;
+            UserViewModel? userNowVM = _httpContextAccessor.HttpContext?.Session.GetObject<UserViewModel>("UserNowVM");
+            
+            if(userNowVM != null)
+            {
+                postVM.UserId = userNowVM.UserId;
+                postVM.PostDate = DateTime.Now;
+                postVM.LastEditDate = DateTime.Now;
 
-            postVM.PostDate = DateTime.Now;
-            postVM.LastEditDate = DateTime.Now;
-            postVM.UserId = _dbContext.Users.Where(u => u.Username == username).Select(u => u.UserId).FirstOrDefault();
-
-            var postMap = _mapper.Map<Post>(postVM);
-            _dbContext.Posts.Add(postMap);
-            _dbContext.SaveChanges();
+                var postEnt = _mapper.Map<Post>(postVM);
+                _dbContext.Posts.Add(postEnt);
+                _dbContext.SaveChanges();
+            }
         }
 
         public void UpdatePost(PostViewModel postVM, int postId)
         {
-            var postToUpdate = _dbContext.Posts.Find(postId);
+            var postEnt = _dbContext.Posts.Find(postId);
 
-            if (postToUpdate != null)
+            if (postEnt != null)
             {
-                postToUpdate.TopicId = postVM.TopicId;
-                postToUpdate.Title = postVM.Title;
-                postToUpdate.Content = postVM.Content;
-                postToUpdate.LastEditDate = DateTime.Now;
+                postEnt.TopicId = postVM.TopicId;
+                postEnt.Title = postVM.Title;
+                postEnt.Content = postVM.Content;
+                postEnt.LastEditDate = DateTime.Now;
 
                 _dbContext.SaveChanges();
             }
         }
-
 
         public void DeletePost(PostViewModel postVM)
         {
-            // 根據 PostId 查詢相應的貼文
-            var post = _dbContext.Posts.FirstOrDefault(p => p.PostId == postVM.PostId);
+            var postEnt = _dbContext.Posts.FirstOrDefault(p => p.PostId == postVM.PostId);
 
-            if (post != null)
+            if (postEnt != null)
             {
-                // 如果找到了貼文，則從資料庫中刪除
-                _dbContext.Posts.Remove(post);
+                _dbContext.Posts.Remove(postEnt);
                 _dbContext.SaveChanges();
             }
-        }
-
-        public int GetTotalPostCount(List<PostViewModel> postVMs)
-        { 
-            return postVMs.Count;
         }
     }
 }

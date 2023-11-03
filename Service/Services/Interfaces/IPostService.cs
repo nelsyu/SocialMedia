@@ -11,12 +11,11 @@ namespace Service.Services.Interfaces
     {
         PostViewModel GetPost(int postId);
         List<PostViewModel> GetAllPosts();
+        List<PostViewModel> GetAllPosts(UserViewModel userNowVM);
         List<PostViewModel> GetAllPosts(int topicId);
-        List<PostViewModel> GetMyPosts();
         List<PostViewModel> Paging(List<PostViewModel> postVMs, int page, int pageSize);
         void CreatePost(PostViewModel postVM);
         void UpdatePost(PostViewModel postVM, int postId);
         void DeletePost(PostViewModel postVM);
-        int GetTotalPostCount(List<PostViewModel> postVMs);
     }
 }

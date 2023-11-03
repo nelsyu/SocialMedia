@@ -1,5 +1,5 @@
 ﻿@using Service.ViewModels
-@model List<PostViewModel>
+@model (List<PostViewModel> postVML, PageViewModel pageVM)
 
 <style>
     .username {
@@ -57,7 +57,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var postVM in Model)
+            @foreach (var postVM in Model.postVML)
             {
                 <tr>
                     <td class="username">@(postVM.UserViewModel?.Username ?? "已刪除用戶")</td>
@@ -76,10 +76,10 @@
     <!-- Pagination Section -->
     <nav class="d-flex justify-content-center">
         <ul class="pagination">
-            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+            @for (int i = 1; i <= Model.pageVM.TotalPages; i++)
             {
-                <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
-                    <a class="page-link" href="?page=@i">@i</a>
+                <li class="page-item @(Model.pageVM.CurrentPage == i ? "active" : "")">
+                    <a class="page-link" href="?currentPage=@i">@i</a>
                 </li>
             }
         </ul>

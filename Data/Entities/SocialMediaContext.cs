@@ -26,7 +26,7 @@ namespace Data.Entities
         {
             if (!optionsBuilder.IsConfigured)
             {
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+                //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
                 optionsBuilder.UseSqlServer(DbConfig.GetConnectionString());
             }
         }
@@ -64,6 +64,7 @@ namespace Data.Entities
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Posts)
                     .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("FK__Posts__userId__6FE99F9F");
             });
 
@@ -86,11 +87,13 @@ namespace Data.Entities
                 entity.HasOne(d => d.Post)
                     .WithMany(p => p.Replies)
                     .HasForeignKey(d => d.PostId)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK__Replies__postId__70DDC3D8");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Replies)
                     .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("FK__Replies__userId__71D1E811");
             });
 
@@ -122,6 +125,8 @@ namespace Data.Entities
                 entity.Property(e => e.Password)
                     .HasMaxLength(255)
                     .HasColumnName("password");
+
+                entity.Property(e => e.Totp).HasColumnName("TOTP");
 
                 entity.Property(e => e.Username)
                     .HasMaxLength(255)
