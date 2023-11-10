@@ -2,37 +2,81 @@
 @model (List<PostViewModel> postVML, PageViewModel pageVM)
 
 <style>
-    .username, .title, .post-date {
-        width: 200px;
+    body {
+        background-color: #f8f9fa;
+        font-family: 'Lato', sans-serif;
+    }
+
+    h2 {
+        text-align: center;
+        margin: 20px 0;
+        color: #007bff;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        min-height: 300px;
+    }
+
+    th, td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+        transition: background-color 0.3s ease;
+    }
+
+    .username, .title, .content, .post-date {
+        width: auto;
+        max-width: 150px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .content {
-        width: 600px;
+        max-width: 300px;
     }
 
-    .delete-form {
-        display: inline;
+    .pagination {
+        display: flex;
+        justify-content: center;
+        list-style: none;
+        padding: 0;
+        margin-bottom: 20px;
+    }
+
+    .page-item {
+        margin: 0 5px;
     }
 
     .page-link {
-        padding: 5px 10px;
-        background-color: #fff;
-        color: #000000;
-        border: 1px solid #fff;
+        padding: 8px 16px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
         border-radius: 3px;
         cursor: pointer;
+        transition: background-color 0.3s ease;
     }
 
     .page-item.active .page-link {
-        background-color: #000000;
-        border-color: #000000;
-        color: #fff;
+        background-color: #0056b3;
+    }
+
+    .page-link:hover {
+        background-color: #0056b3;
+    }
+
+    /* New styles for additional interactivity */
+    table tr:hover {
+        background-color: rgba(0, 123, 255, 0.1);
     }
 </style>
 
-<h2>My Posts</h2>
-
 <div class="container">
+    <h2>My Posts</h2>
     <table class="table">
         <thead>
             <tr>
@@ -40,14 +84,13 @@
                 <th scope="col" class="title">Title</th>
                 <th scope="col" class="content">Content</th>
                 <th scope="col" class="post-date">Post Date</th>
-                <th scope="col">Actions</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var postVM in Model.postVML)
             {
                 <tr>
-                    <td class="user-id">@postVM.UserViewModel?.Username</td>
+                    <td class="username">@(postVM.UserViewModel?.Username ?? "已刪除用戶")</td>
                     <td class="title">
                         <a href="@Url.Action("DetailPost", "Post", new { postId = postVM.PostId })">
                             @postVM.Title
@@ -55,40 +98,13 @@
                     </td>
                     <td class="content">@postVM.Content</td>
                     <td class="post-date">@postVM.PostDate.ToString("yyyy-MM-dd HH:mm:ss")</td>
-                    <td>
-                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deletePostModal_@postVM.PostId">
-                            Delete
-                        </button>
-
-                        <!-- Modal -->
-                        <div class="modal fade" id="deletePostModal_@postVM.PostId" tabindex="-1" aria-labelledby="deletePostModalLabel_@postVM.PostId" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="deletePostModalLabel_@postVM.PostId">Confirm Delete Post</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <p>Are you sure you want to delete this post? This action cannot be undone.</p>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                        <form class="delete-form" method="post" asp-controller="Post" asp-action="DeletePost">
-                                            <input type="hidden" name="postId" value="@postVM.PostId" />
-                                            <button type="submit" class="btn btn-danger">Delete</button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </td>
                 </tr>
             }
         </tbody>
     </table>
 
     <!-- Pagination Section -->
-    <nav class="d-flex justify-content-center">
+    <nav>
         <ul class="pagination">
             @for (int i = 1; i <= Model.pageVM.TotalPages; i++)
             {

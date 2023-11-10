@@ -125,7 +125,7 @@ namespace SocialMedia.Controllers
             if (string.IsNullOrEmpty(userVMEmail))
                 return RedirectToAction("Login", "User");
 
-            List<string> result = _userService.VerifyQRCodeOTP(userVMEmail, userVM.confirmQRCodeOTP);
+            List<string> result = _userService.VerifyQRCodeOTP(userVMEmail, userVM.ConfirmQRCodeOTP);
 
             if (result[0] != "")
             {

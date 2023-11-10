@@ -1,29 +1,73 @@
 ﻿@model Service.ViewModels.UserViewModel
 
-<h2>Login</h2>
+<style>
+    .card {
+        border: none;
+        border-radius: 30px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
 
-<p>Don't have an account? <a asp-action="Register" asp-controller="User">Register here</a>.</p>
+    .card-header {
+        border-radius: 15px 15px 15px 15px;
+    }
 
-<form asp-action="Login" method="post">
-    <div class="form-group">
-        <label asp-for="Email"></label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
+    .form-label {
+        font-weight: bold;
+    }
+
+    .form-control {
+        border-radius: 15px 15px 15px 15px;
+    }
+
+    .captcha-image {
+        border-radius: 30px 30px 30px 30px;
+    }
+
+    .btn-primary {
+        border-radius: 15px 15px 15px 15px;
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <h2 class="card-header text-center bg-primary text-white">Login</h2>
+
+                <div class="card-body">
+                    <form asp-action="Login" method="post">
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label">Email</label>
+                            <input asp-for="Email" class="form-control" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Password" class="form-label">Password</label>
+                            <input asp-for="Password" type="password" class="form-control" />
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ConfirmCaptcha" class="form-label">Confirm Captcha</label>
+
+                            <div class="input-group">
+                                <input asp-for="ConfirmCaptcha" class="form-control" />
+                                <img src="data:image/png;base64,@Convert.ToBase64String(ViewBag.CaptchaImage)" alt="Captcha Image" class="captcha-image rounded" style="max-width: 100px; height: auto;" />
+                            </div>
+
+                            <span asp-validation-for="ConfirmCaptcha" class="text-danger"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-block">Login</button>
+                    </form>
+                </div>
+
+                <div class="card-footer text-center">
+                    <p class="mb-0">Don't have an account? <a asp-action="Register" asp-controller="User">Register here</a>.</p>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <div class="form-group">
-        <label asp-for="Password"></label>
-        <input asp-for="Password" type="password" class="form-control" />
-        <span asp-validation-for="Password" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="ConfirmCaptcha"></label>
-        <input asp-for="ConfirmCaptcha" class="form-control" />
-        <span asp-validation-for="ConfirmCaptcha" class="text-danger"></span>
-    </div>
-
-    <img src="data:image/png;base64,@Convert.ToBase64String(ViewBag.CaptchaImage)" alt="Captcha Image" />
-
-    <button type="submit" class="btn btn-primary">Login</button>
-</form>
+</div>

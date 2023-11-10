@@ -2,26 +2,49 @@
 @model (List<PostViewModel> postVML, PageViewModel pageVM)
 
 <style>
-    .username {
-        width: 100px;
+    body {
+        background-color: #f8f9fa;
+        font-family: 'Lato', sans-serif;
     }
 
-    .title {
-        width: 100px;
+    h2 {
+        text-align: center;
+        margin: 20px 0;
+        color: #007bff;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        min-height: 300px;
+    }
+
+    th, td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+        transition: background-color 0.3s ease;
+    }
+
+    .username, .title, .content, .post-date {
+        width: auto;
+        max-width: 150px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .content {
-        width: 300px;
-    }
-
-    .post-date {
-        width: 100px;
+        max-width: 300px;
     }
 
     .pagination {
         display: flex;
+        justify-content: center;
         list-style: none;
         padding: 0;
+        margin-bottom: 20px;
     }
 
     .page-item {
@@ -29,24 +52,28 @@
     }
 
     .page-link {
-        padding: 5px 10px;
-        background-color: #fff;
-        color: #000000;
-        border: 1px solid #fff;
+        padding: 8px 16px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
         border-radius: 3px;
         cursor: pointer;
+        transition: background-color 0.3s ease;
     }
 
-    .page-item.active .page-link {
-        background-color: #000000;
-        border-color: #000000;
-        color: #fff;
+        .page-item.active .page-link,
+        .page-link:hover {
+            background-color: #0056b3;
+        }
+
+    /* New styles for additional interactivity */
+    table tr:hover {
+        background-color: rgba(0, 123, 255, 0.1);
     }
 </style>
 
-<h2>All Posts</h2>
-
 <div class="container">
+    <h2>All Posts</h2>
     <table class="table">
         <thead>
             <tr>
@@ -60,7 +87,7 @@
             @foreach (var postVM in Model.postVML)
             {
                 <tr>
-                    <td class="username">@(postVM.UserViewModel?.Username ?? "已刪除用戶")</td>
+                    <td class="username">@(postVM.UserViewModel?.Username ?? "Deleted User")</td>
                     <td class="title">
                         <a href="@Url.Action("DetailPost", "Post", new { postId = postVM.PostId })">
                             @postVM.Title
@@ -74,11 +101,11 @@
     </table>
 
     <!-- Pagination Section -->
-    <nav class="d-flex justify-content-center">
+    <nav>
         <ul class="pagination">
             @for (int i = 1; i <= Model.pageVM.TotalPages; i++)
             {
-                <li class="page-item @(Model.pageVM.CurrentPage == i ? "active" : "")">
+                <li class="page-item @(i == Model.pageVM.CurrentPage ? "active" : "")">
                     <a class="page-link" href="?currentPage=@i">@i</a>
                 </li>
             }

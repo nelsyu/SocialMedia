@@ -1,30 +1,110 @@
 ﻿@model Service.ViewModels.PostViewModel
 
-<h2>Add Post</h2>
+<style>
+    body {
+        background-color: #f8f9fa;
+        font-family: 'Lato', sans-serif;
+    }
 
-<form asp-action="CreatePost" method="post">
-    <div class="form-group">
-        <label asp-for="TopicId">Topic:</label>
-        @if (Model.TopicViewModels != null)
-        {
-            <select asp-for="TopicId" asp-items="@(new SelectList(Model.TopicViewModels, "TopicId", "Title"))" class="form-control">
-                <option value=""></option>
-            </select>
+    h2 {
+        text-align: center;
+        margin: 20px 0;
+        color: #007bff;
+    }
+
+    .form-container {
+        background-color: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        margin: 50px auto;
+        max-width: 1000px;
+    }
+
+    .form-label {
+        color: #007bff;
+    }
+
+    .form-control, .form-select {
+        border: 2px solid #007bff;
+        border-radius: 15px;
+        resize: vertical;
+    }
+
+    .form-select {
+        background-color: #ffffff;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border: none;
+        border-radius: 15px;
+        padding: 10px 20px;
+    }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
         }
-        else
-        {
-            <p>No Topics available.</p>
-        }
-    </div>
-    <div class="form-group">
-        <label asp-for="Title">Title:</label>
-        <input asp-for="Title" class="form-control" />
-    </div>
 
-    <div class="form-group">
-        <label asp-for="Content">Content:</label>
-        <textarea asp-for="Content" class="form-control"></textarea>
-    </div>
+    textarea {
+        resize: none;
+    }
+</style>
 
-    <button type="submit" class="btn btn-primary">Confirm</button>
-</form>
+<div class="form-container">
+    <h2>Create Post</h2>
+
+    <form asp-action="CreatePost" method="post" class="needs-validation" novalidate>
+        <div class="mb-3">
+            <label for="topicId" class="form-label">Topic:</label>
+            @if (Model.TopicViewModels != null && Model.TopicViewModels.Any())
+            {
+                <select id="topicId" name="TopicId" class="form-select" required>
+                    <option value="" disabled selected>Select a topic</option>
+                    @foreach (var topic in Model.TopicViewModels)
+                    {
+                        <option value="@topic.TopicId">@topic.Title</option>
+                    }
+                </select>
+                <div class="invalid-feedback">Please select a topic.</div>
+            }
+            else
+            {
+                <p class="text-muted">No Topics available.</p>
+            }
+        </div>
+
+        <div class="mb-3">
+            <label for="title" class="form-label">Title:</label>
+            <input type="text" id="title" name="Title" class="form-control" required />
+            <div class="invalid-feedback">Please provide a title.</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="content" class="form-label">Content:</label>
+            <textarea id="content" name="Content" class="form-control" rows="10" required></textarea>
+            <div class="invalid-feedback">Please provide content.</div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Confirm</button>
+    </form>
+</div>
+
+<script>
+    (function () {
+        'use strict';
+
+        var forms = document.querySelectorAll('.needs-validation');
+
+        Array.from(forms).forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+
+                form.classList.add('was-validated');
+            }, false);
+        });
+    })();
+</script>

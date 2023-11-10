@@ -56,19 +56,6 @@ namespace Service.Services.Implements
             return GetPosts(p => p.User != null && p.User.UserId == userNowVM.UserId);
         }
 
-        private List<PostViewModel> GetPosts(Expression<Func<Post, bool>> condition)
-        {
-            List<Post> postL = _dbContext.Posts
-                .Where(condition)
-                .OrderByDescending(p => p.PostDate)
-                .Include(p => p.User)
-                .ToList();
-
-            List<PostViewModel> postVML = _mapper.Map<List<PostViewModel>>(postL);
-
-            return postVML;
-        }
-
         public List<PostViewModel> Paging(List<PostViewModel> postVML, int page, int pageSize)
         {
             int skipPosts = (page - 1) * pageSize;
@@ -79,6 +66,37 @@ namespace Service.Services.Implements
                 .ToList();
 
             return postVML;
+        }
+
+        public List<string> ValidatePost(PostViewModel postVM)
+        {
+            bool isTopicIdInvalid = !_dbContext.Topics.Any(t => t.TopicId == postVM.TopicId);
+            bool isTitleInvalid = string.IsNullOrEmpty(postVM.Title);
+            bool isContentInvalid = string.IsNullOrEmpty(postVM.Content);
+
+            List<string> result = new();
+
+            if (isTopicIdInvalid)
+            {
+                result.Add("TopicId");
+                result.Add("TopicId is invalid.");
+            }
+            else if (isTitleInvalid)
+            {
+                result.Add("Title");
+                result.Add("Title is invalid.");
+            }
+            else if (isContentInvalid)
+            {
+                result.Add("Content");
+                result.Add("Content is invalid");
+            }
+            else
+            {
+                result.Add("");
+            }
+
+            return result;
         }
 
         public void CreatePost(PostViewModel postVM)
@@ -122,5 +140,20 @@ namespace Service.Services.Implements
                 _dbContext.SaveChanges();
             }
         }
+
+        #region private methods
+        private List<PostViewModel> GetPosts(Expression<Func<Post, bool>> condition)
+        {
+            List<Post> postL = _dbContext.Posts
+                .Where(condition)
+                .OrderByDescending(p => p.PostDate)
+                .Include(p => p.User)
+                .ToList();
+
+            List<PostViewModel> postVML = _mapper.Map<List<PostViewModel>>(postL);
+
+            return postVML;
+        }
+        #endregion
     }
 }

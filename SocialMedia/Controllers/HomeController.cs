@@ -62,6 +62,16 @@ namespace SocialMedia.Controllers
             return View(oTPVM);
         }
 
+        public IActionResult GenerateOTPQRCode()
+        {
+            if (!_userService.IsLogin())
+                return RedirectToAction("Index", "Home");
+
+            byte[] oTPQRCode = _userService.GenerateOTPQRCode(out string secretKey);
+
+            return Json(new { oTPQRCode = Convert.ToBase64String(oTPQRCode), oTPQRCodeSK = secretKey });
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

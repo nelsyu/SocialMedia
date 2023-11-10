@@ -1,104 +1,181 @@
 ﻿@using Service.ViewModels
 @model (PostViewModel PostVM, ReplyViewModel ReplyVM)
 @using Library.Extensions
+@using Service.Services.Interfaces
+@inject IUserService _userService
 
 <style>
-    .username {
-        width: 200px;
+    /* 共用樣式 */
+    .rounded {
+        border-radius: 15px;
     }
 
-    .title {
-        width: 200px;
+    /* 卡片樣式 */
+    .card {
+        border: none;
+        border-radius: 30px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-top: 15px;
     }
 
-    .content {
-        width: 600px;
+    .card-header {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 15px 15px 15px 15px;
+        padding: 15px;
     }
 
-    .post-date {
-        width: 200px;
+    .card-footer {
+        background-color: #dddddd;
+        color: #000000;
+        border: none;
+        border-radius: 15px 15px 15px 15px;
+        padding: 15px;
     }
 
-    .edit-form {
-        display: inline; /* 讓表單顯示為行內元素，使得按鈕在同一行 */
+    .card-body, .card-footer, .table td, .table th {
+        border: none;
+        padding: 15px;
     }
 
-    .reply-date {
-        width: 200px;
+    /* 表格樣式 */
+    .table {
+        border: none;
+        border-radius: 30px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-top: 15px;
     }
+
+        .table thead th {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 15px 15px 15px 15px;
+            padding: 15px;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+    /* 按鈕樣式 */
+    .btn-rounded {
+        border-radius: 15px;
+        border: none;
+    }
+
+    .btn-danger:hover {
+        background-color: #c82333;
+    }
+
+    .btn-primary:hover {
+        background-color: #007bff;
+    }
+
+    /* 表單樣式 */
+    .form-group label {
+        font-weight: bold;
+        color: #007bff;
+    }
+
+    .form-control {
+        border: 2px solid #007bff;
+        border-radius: 30px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-top: 10px;
+    }
+
+    .scrollable-section {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
 </style>
 
-<h2>Post</h2>
-
-<div class="container">
-    <table class="table">
-        <thead>
-            <tr>
-                <th scope="col" class="username">Username</th>
-                <th scope="col" class="title">Title</th>
-                <th scope="col" class="content">Content</th>
-                <th scope="col" class="post-date">Post Date</th>
-                <th scope="col">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td class="username">@Model.PostVM.UserViewModel?.Username</td>
-                <td class="title">@Model.PostVM.Title</td>
-                <td class="content">@Model.PostVM.Content</td>
-                <td class="post-date">@Model.PostVM.PostDate.ToString("yyyy-MM-dd HH:mm:ss")</td>
-                <td>
-                    @if (!string.IsNullOrEmpty(ViewContext.HttpContext.Session.GetObject<UserViewModel>("UserNowVM")?.Username) && Model.PostVM.UserViewModel?.Username == ViewContext.HttpContext.Session.GetObject<UserViewModel>("UserNowVM")?.Username)
-                    {
-                        <a class="btn btn-danger" href="@Url.Action("EditPost", "Post", new { postId = Model.PostVM.PostId })">Edit</a>
-                    }
-                </td>
-            </tr>
-        </tbody>
-    </table>
-
-    <!-- Reply Section -->
-    <div class="container">
-        <h3>Replies</h3>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th scope="col" class="username">Username</th>
-                    <th scope="col" class="content">Content</th>
-                    <th scope="col" class="reply-date">Reply Date</th>
-                    <!-- Add other properties as needed -->
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var reply in Model.PostVM.ReplyViewModels.OrderByDescending(rVM => rVM.ReplyDate))
+<div class="container mt-4">
+    <!-- 主卡片 -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">@Model.PostVM.Title</h5>
+        </div>
+        <div class="card-body">
+            <p class="card-text">@Model.PostVM.Content</p>
+        </div>
+        <div class="card-footer">
+            <span class="username">@Model.PostVM.UserViewModel?.Username</span>
+            <span class="post-date">@Model.PostVM.PostDate.ToString("yyyy-MM-dd HH:mm:ss")</span>
+            <div class="float-end">
+                @if (!string.IsNullOrEmpty(ViewContext.HttpContext.Session.GetObject<UserViewModel>("UserNowVM")?.Username) && Model.PostVM.UserViewModel?.Username == ViewContext.HttpContext.Session.GetObject<UserViewModel>("UserNowVM")?.Username)
                 {
-                    <tr>
-                        <td class="username">@(reply.UserViewModel?.Username ?? "已刪除用戶")</td>
-                        <td class="content">@reply.Content</td>
-                        <td class="reply-date">@reply.ReplyDate.ToString("yyyy-MM-dd HH:mm:ss")</td>
-                        <!-- Add other properties as needed -->
-                    </tr>
+                    <a class="btn btn-danger btn-rounded" href="@Url.Action("EditPost", "Post", new { postId = Model.PostVM.PostId })">Edit</a>
                 }
-            </tbody>
-        </table>
+            </div>
+        </div>
     </div>
 
+    <!-- 回覆表單觸發按鈕 -->
+    <button type="button" class="btn btn-primary btn-rounded mt-4" data-bs-toggle="modal" data-bs-target="#replyModal">
+        Reply
+    </button>
 
-    <table class="table">
-        <tr>
-            <td colspan="4">
-                <form method="post" asp-controller="Post" asp-action="AddReply">
-                    <input type="hidden" name="PostId" value="@Model.PostVM.PostId" />
-
-                    <div class="form-group">
-                        <label for="replyContent">Add Reply:</label>
-                        <textarea class="form-control" id="replyContent" name="Content" rows="3" placeholder="Type your reply here..." required></textarea>
+    <!-- 回覆表單 Modal -->
+    <div class="modal fade" id="replyModal" tabindex="-1" aria-labelledby="replyModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="replyModalLabel">Add Reply</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="post" asp-controller="Post" asp-action="AddReply" onsubmit="return checkLogin();">
+                    <div class="modal-body">
+                        <input type="hidden" name="PostId" value="@Model.PostVM.PostId" />
+                        <div class="form-group">
+                            <textarea class="form-control" id="replyContent" name="Content" rows="3" placeholder="Type your reply here..." required></textarea>
+                        </div>
                     </div>
-
-                    <button type="submit" class="btn btn-primary">Submit Reply</button>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary btn-rounded">Submit Reply</button>
+                    </div>
                 </form>
-            </td>
-        </tr>
-    </table>
-</div>
+            </div>
+        </div>
+    </div>
 
+    <!-- 回覆區域 -->
+    <div id="replies-section" class="mt-4">
+        <h3>Replies</h3>
+        <div class="scrollable-section">
+            @foreach (var reply in Model.PostVM.ReplyViewModels.OrderByDescending(rVM => rVM.ReplyDate))
+            {
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <span class="username">@(reply.UserViewModel?.Username ?? "已刪除用戶")</span>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">@reply.Content</p>
+                    </div>
+                    <div class="card-footer">
+                        <span class="reply-date">@reply.ReplyDate.ToString("yyyy-MM-dd HH:mm:ss")</span>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- JavaScript檢查登入 -->
+    <script>
+        function checkLogin() {
+            var isUserLoggedIn = @(Json.Serialize(_userService.IsLogin()));
+            if (!isUserLoggedIn) {
+                window.alert("Please log in to your account first.");
+                return false;
+            }
+            return true;
+        }
+    </script>
+</div>

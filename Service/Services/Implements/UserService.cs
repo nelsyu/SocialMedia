@@ -19,6 +19,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static QRCoder.PayloadGenerator;
 using Library.Extensions;
+using System.Text.RegularExpressions;
 
 namespace Service.Services.Implements
 {
@@ -37,16 +38,16 @@ namespace Service.Services.Implements
 
         public List<string> ValidateRegister(UserViewModel userVM)
         {
-            bool IsEmailInvalid = _dbContext.Users.Any(u => u.Email == userVM.Email) || userVM.Email == null;
+            string IsEmailValidate = IsValidEmail(userVM.Email);
             bool IsUsernameInvalid = _dbContext.Users.Any(u => u.Username == userVM.Username) || userVM.Username == null;
             bool IsPasswordInvalid = string.IsNullOrEmpty(userVM.Password);
             bool IsConfirmPasswordInvalid = string.IsNullOrEmpty(userVM.ConfirmPassword) || userVM.Password != userVM.ConfirmPassword;
             List<string> result = new();
 
-            if (IsEmailInvalid)
+            if (IsEmailValidate != "true")
             {
                 result.Add("Email");
-                result.Add("Email is invalid.");
+                result.Add(IsEmailValidate);
             }
             else if (IsUsernameInvalid)
             {
@@ -65,6 +66,7 @@ namespace Service.Services.Implements
             }
             else
                 result.Add("");
+
             return result;
         }
 
@@ -79,7 +81,7 @@ namespace Service.Services.Implements
         {
             bool IsEmailInvalid = !_dbContext.Users.Any(u => u.Email == userVM.Email);
             bool IsPasswordInvalid = !_dbContext.Users.Any(u => u.Password == userVM.Password);
-            bool IsConfirmCaptchaInvalid = !string.Equals(captchaCode, userVM.ConfirmCaptcha);
+            bool IsConfirmCaptchaInvalid = !Equals(captchaCode, userVM.ConfirmCaptcha);
 
             List<string> result = new();
 
@@ -206,6 +208,23 @@ namespace Service.Services.Implements
             return stream.ToArray();
         }
 
+        public byte[] GenerateOTPQRCode(out string secretKey)
+        {
+            secretKey = Base32Encoding.ToString(OtpNet.KeyGeneration.GenerateRandomKey());
+
+            // 顯示在 APP 中的發行者名稱
+            string issuer = "SocialMedia";
+
+            // 顯示在 APP 中的標題
+            string label = _httpContextAccessor.HttpContext?.Session.GetObject<UserViewModel>("UserNowVM")?.Username ?? "";
+            string keyUri = new OtpUri(OtpType.Totp, secretKey, label, issuer).ToString();
+
+            byte[] image = PngByteQRCodeHelper.GetQRCode(keyUri, QRCodeGenerator.ECCLevel.Q, 10);
+
+            return image;
+        }
+
+        #region private methods
         private static SKBitmap GenerateImage(string captchaCode)
         {
             // 使用 SkiaSharp 繪製圖片，以及添加驗證碼文本等
@@ -227,20 +246,39 @@ namespace Service.Services.Implements
             return skBitmap;
         }
 
-        public byte[] GenerateOTPQRCode(out string secretKey)
+        private string IsValidEmail(string email)
         {
-            secretKey = Base32Encoding.ToString(OtpNet.KeyGeneration.GenerateRandomKey());
+            string emailPattern = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
 
-            // 顯示在 APP 中的發行者名稱
-            string issuer = "SocialMedia";
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                return "電子郵件地址不能為空。";
+            }
 
-            // 顯示在 APP 中的標題
-            string label = _httpContextAccessor.HttpContext?.Session.GetObject<UserViewModel>("UserNowVM")?.Username ?? "";
-            string keyUri = new OtpUri(OtpType.Totp, secretKey, label, issuer).ToString();
+            if (_dbContext.Users.Any(u => u.Email == email))
+            {
+                return "電子郵件地址已被註冊。";
+            }
 
-            byte[] image = PngByteQRCodeHelper.GetQRCode(keyUri, QRCodeGenerator.ECCLevel.Q, 10);
+            int atIndex = email.IndexOf('@');
+            if (atIndex == -1)
+            {
+                return "電子郵件地址缺少 '@' 符號。";
+            }
 
-            return image;
+            int dotIndex = email.LastIndexOf('.');
+            if (dotIndex == -1 || dotIndex < atIndex)
+            {
+                return "電子郵件地址缺少點（.），或點（.）的位置不正確。";
+            }
+
+            if (!Regex.IsMatch(email, emailPattern))
+            {
+                return "電子郵件地址格式無效。";
+            }
+
+            return "true";
         }
+        #endregion
     }
 }

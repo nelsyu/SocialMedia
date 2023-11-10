@@ -1,101 +1,115 @@
-﻿@using Library.Extensions
+﻿@{
+    ViewData["Title"] = "Index";
+}
+@using Library.Extensions
 @using Service.ViewModels
 @using Service.Services.Interfaces;
 @inject IUserService _userService
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - SocialMedia</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/SocialMedia.styles.css" asp-append-version="true" />
-</head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">SocialMedia</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <!-- "More" dropdown -->
-                        <li class="nav-item">
-                            <div class="nav-item dropdown">
-                                <a class="nav-link text-dark dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    More
-                                </a>
-                                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Post" asp-action="MyPost" onclick="checkLogin()">My posts</a>
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Post" asp-action="CreatePost" onclick="checkLogin()">New post</a>
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Topic" asp-action="Index">Topics</a>
-                                </div>
-                            </div>
-                        </li>
-                        <!-- /"More" dropdown -->
-                    </ul>
-                    <ul class="navbar-nav ml-auto">
-                        @if (string.IsNullOrEmpty(ViewContext.HttpContext.Session.GetObject<UserViewModel>("UserNowVM")?.Username))
-                        {
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>@ViewData["Title"] - SocialMedia</title>
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/SocialMedia.styles.css" asp-append-version="true" />
+
+        <style>
+            body {
+                background-color: #dddddd !important;
+            }
+
+            .navbar-brand,
+            .navbar-nav .nav-link {
+                color: white !important;
+            }
+
+            .navbar,
+            .dropdown-menu {
+                background-color: #007BFF !important;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+                <div class="container-fluid">
+                    <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">SocialMedia</a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                        <ul class="navbar-nav flex-grow-1">
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Login">Login</a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Register">Register</a>
-                            </li>
-                        }
-                        else
-                        {
-                            <!-- Username dropdown -->
                             <li class="nav-item">
                                 <div class="nav-item dropdown">
                                     <a class="nav-link text-dark dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        @(ViewContext.HttpContext.Session.GetObject<UserViewModel>("UserNowVM")?.Username)
+                                        More
                                     </a>
                                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                        <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Logout">Logout</a>
-                                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Settings">Settings</a>
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="Post" asp-action="MyPost" onclick="checkLogin()">My posts</a>
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="Post" asp-action="CreatePost" onclick="checkLogin()">New post</a>
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="Topic" asp-action="Index">Topics</a>
                                     </div>
                                 </div>
                             </li>
-                            <!-- /Username dropdown -->
-                        }
-                    </ul>
+                        </ul>
+                        <ul class="navbar-nav ml-auto">
+                            @if (string.IsNullOrEmpty(ViewContext.HttpContext.Session.GetObject<UserViewModel>("UserNowVM")?.Username))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Login">Login</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Register">Register</a>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="nav-item">
+                                    <div class="nav-item dropdown">
+                                        <a class="nav-link text-dark dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            @(ViewContext.HttpContext.Session.GetObject<UserViewModel>("UserNowVM")?.Username)
+                                        </a>
+                                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                            <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Logout">Logout</a>
+                                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Settings">Settings</a>
+                                        </div>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    </div>
                 </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="border-top footer text-muted">
+            </nav>
+        </header>
         <div class="container">
-            &copy; 2023 - SocialMedia - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <main role="main" class="pb-3">
+                @RenderBody()
+            </main>
         </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
 
-    <script>
-        function checkLogin() {
-            var isUserLoggedIn = @(Json.Serialize(_userService.IsLogin()));
-            if (!isUserLoggedIn) {
-                window.alert("請先登入帳號");
+        <footer class="border-top footer text-muted">
+            <div class="container">
+                &copy; 2023 - SocialMedia - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            </div>
+        </footer>
+        <script src="~/lib/jquery/dist/jquery.min.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
+        @await RenderSectionAsync("Scripts", required: false)
+
+        <script>
+            function checkLogin() {
+                var isUserLoggedIn = @(Json.Serialize(_userService.IsLogin()));
+                if (!isUserLoggedIn) {
+                    window.alert("Please log in to your account first.");
+                }
             }
-        }
-    </script>
-</body>
+        </script>
+    </body>
 </html>

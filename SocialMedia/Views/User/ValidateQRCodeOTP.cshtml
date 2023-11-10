@@ -1,13 +1,48 @@
 ﻿@model Service.ViewModels.UserViewModel
 
-<h2>ValidateQRCodeOTP</h2>
+<style>
+    .card {
+        border: none;
+        border-radius: 30px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
 
-<form asp-action="ValidateQRCodeOTP" method="post">
-    <div class="form-group">
-        <label asp-for="confirmQRCodeOTP"></label>
-        <input asp-for="confirmQRCodeOTP" class="form-control" />
-        <span asp-validation-for="confirmQRCodeOTP" class="text-danger"></span>
+    .card-header {
+        border-radius: 15px 15px 15px 15px;
+    }
+
+    .form-label {
+        font-weight: bold;
+    }
+
+    .form-control {
+        border-radius: 15px 15px 15px 15px;
+    }
+
+    .btn-primary {
+        border-radius: 15px 15px 15px 15px;
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <h2 class="card-header text-center bg-primary text-white">Validate QR Code OTP</h2>
+
+                <div class="card-body">
+                    <form asp-action="ValidateQRCodeOTP" method="post">
+                        <div class="mb-3">
+                            <label asp-for="ConfirmQRCodeOTP" class="form-label">Confirm QR Code OTP</label>
+                            <input asp-for="ConfirmQRCodeOTP" class="form-control" />
+                            <span asp-validation-for="ConfirmQRCodeOTP" class="text-danger"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-block">Confirm</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <button type="submit" class="btn btn-primary">Confirm</button>
-</form>
+</div>

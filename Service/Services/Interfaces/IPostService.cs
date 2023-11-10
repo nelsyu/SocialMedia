@@ -14,6 +14,7 @@ namespace Service.Services.Interfaces
         List<PostViewModel> GetAllPosts(UserViewModel userNowVM);
         List<PostViewModel> GetAllPosts(int topicId);
         List<PostViewModel> Paging(List<PostViewModel> postVMs, int page, int pageSize);
+        List<string> ValidatePost(PostViewModel postVM);
         void CreatePost(PostViewModel postVM);
         void UpdatePost(PostViewModel postVM, int postId);
         void DeletePost(PostViewModel postVM);

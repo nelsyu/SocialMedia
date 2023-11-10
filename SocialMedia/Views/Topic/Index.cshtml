@@ -1,42 +1,45 @@
 ﻿@using Service.ViewModels
 @model List<TopicViewModel>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Topic List</title>
-</head>
-<body>
+<style>
+    .btn-3d {
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        transition: 0.3s;
+    }
 
-    <h2>Topic List</h2>
+        .btn-3d:hover {
+            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.2);
+        }
 
-    <div class="container">
-        <ul>
-            @foreach (var topicVM in Model)
-            {
-                <li>
-                    <a href="@Url.Action("DetailTopic", "Topic", new { topicId = topicVM.TopicId })">@topicVM.Title</a>
-                </li>
-            }
-        </ul>
+    .btn-rounded {
+        border-radius: 15px;
+    }
+
+    .input-rounded {
+        border-radius: 15px;
+    }
+</style>
+
+<div class="container mt-5">
+    <h2 class="text-center text-primary mb-4">Explore Topics</h2>
+
+    <div class="row row-cols-6 row-cols-md-6 row-cols-lg-6 g-2">
+        @foreach (var topicVM in Model)
+        {
+            <div class="col mb-3">
+                <button class="btn btn-primary btn-lg custom-style w-100 btn-3d btn-rounded" onclick="location.href='@Url.Action("DetailTopic", "Topic", new { topicId = topicVM.TopicId })'">@topicVM.Title</button>
+            </div>
+        }
     </div>
 
-    <table class="table">
-        <tr>
-            <td colspan="4">
-                <form method="post" asp-controller="Topic" asp-action="CreateTopic">
-                    <div class="form-group">
-                        <label for="title">Create Topic:</label>
-                        <textarea class="form-control" id="title" name="title" rows="3" placeholder="Type here..." required></textarea>
-                    </div>
+    <div class="mt-4">
+        <form method="post" action="@Url.Action("CreateTopic", "Topic")">
+            <div class="form-group mb-4">
+                <label for="title" class="form-label h4">Create a New Topic:</label>
+                <input type="text" id="title" name="title" class="form-control input-rounded" placeholder="Share your thoughts..." required>
+            </div>
 
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                </form>
-            </td>
-        </tr>
-    </table>
-
-</body>
-</html>
+            <button type="submit" class="btn btn-primary btn-lg btn-3d btn-rounded">Submit</button>
+        </form>
+    </div>
+</div>

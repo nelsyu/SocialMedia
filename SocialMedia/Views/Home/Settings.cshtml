@@ -1,84 +1,146 @@
-﻿@using Service.ViewModels
+﻿@{
+    ViewData["Title"] = "Settings";
+}
+@using Service.ViewModels
 @model OTPViewModel
 @{
     ViewData["Title"] = "Settings";
 }
 
-<h2>Settings</h2>
+<style>
+    .custom-btn {
+        width: 200px;
+    }
 
-<p>Your settings content goes here.</p>
+    .container {
+        max-width: 1400px;
+    }
 
-<!-- Button to trigger delete account modal -->
-<button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
-    Delete Account
-</button>
+    h2 {
+        color: #007bff;
+    }
 
-<!-- Delete Account Modal -->
-<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <!-- Modal Header -->
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteAccountModalLabel">Confirm Delete Account</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    p {
+        color: #555;
+    }
+
+    .modal-content {
+        border-radius: 30px;
+    }
+
+    .modal-footer {
+        justify-content: flex-start;
+    }
+
+    .btn {
+        border-radius: 15px;
+    }
+</style>
+
+<div class="container mt-5">
+    <h2>Settings</h2>
+    <p>Your settings content goes here.</p>
+
+    <!-- Delete Account Button -->
+    <div class="d-grid gap-2 mb-3">
+        <button type="button" class="btn btn-danger btn-sm custom-btn" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+            DELETE ACCOUNT
+        </button>
+    </div>
+
+    <!-- Delete Account Modal -->
+    <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteAccountModalLabel">Confirm Delete Account</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <!-- Delete Account Form -->
+                    <form asp-controller="User" asp-action="DeleteAccount" method="post">
+                        <button type="submit" class="btn btn-danger">Delete Account</button>
+                    </form>
+                </div>
             </div>
+        </div>
+    </div>
 
-            <!-- Modal Body -->
-            <div class="modal-body">
-                <p>Are you sure you want to delete your account? This action cannot be undone.</p>
-            </div>
+    <!-- TOTP Button -->
+    <div class="d-grid gap-2">
+        <button type="button" class="btn btn-primary custom-btn" data-bs-toggle="modal" data-bs-target="#totpModal">
+            ENABLE TOTP
+        </button>
+    </div>
 
-            <!-- Modal Footer -->
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <form asp-controller="User" asp-action="DeleteAccount" method="post">
-                    <button type="submit" class="btn btn-danger">Delete Account</button>
-                </form>
+    <!-- TOTP Modal -->
+    <div class="modal fade" id="totpModal" tabindex="-1" aria-labelledby="totpModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="totpModalLabel">TOTP QRCode</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- TOTP QRCode Image -->
+                    <img src="data:image/png;base64,@Convert.ToBase64String(Model.OTPQRCode)" alt="TotpQRCode Image" style="max-width: 100%; height: auto;" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <!-- Regenerate QR Code Button -->
+                    <button type="button" class="btn btn-success" id="regenerateQRCodeButton">
+                        Regenerate QR Code
+                    </button>
+                    <!-- Save and Enable OTP Button -->
+                    <button type="button" class="btn btn-danger" id="saveTOTPButton">Save and Enable OTP</button>
+                    <!-- TOTP Form -->
+                    <form id="tOTPForm" asp-controller="User" asp-action="SaveQRCodeOTP" method="post">
+                        <input type="hidden" name="QRCodeOTPSK" id="tOTPQRCodeInput" value="@Model.OTPQRCodeSK" />
+                    </form>
+                    
+                    <!-- JavaScript to submit the TOTP Form -->
+                    <script>
+                        var saveTOTPButton = document.getElementById('saveTOTPButton');
+                        var tOTPQRCodeInput = document.getElementById('tOTPQRCodeInput');
+                        var tOTPForm = document.getElementById('tOTPForm');
+
+                        saveTOTPButton.addEventListener('click', function () {
+                            tOTPForm.submit();
+                        });
+                    </script>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Button to trigger TOTP modal -->
-<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#totpModal">
-    TOTP
-</button>
+@section Scripts {
+    <!-- JavaScript to handle QR code regeneration -->
+    <script>
+        $(document).ready(function () {
+            $('#regenerateQRCodeButton').on('click', function () {
+                // Make an AJAX request to regenerate the QR code
+                $.ajax({
+                    url: '@Url.Action("GenerateOTPQRCode", "Home")',
+                    type: 'GET',
+                    success: function (data) {
+                        // Update the QR code image and the secret key
+                        $('#totpModal img').attr('src', 'data:image/png;base64,' + data.oTPQRCode);
+                        $('#tOTPQRCodeInput').val(data.oTPQRCodeSK);
 
-<!-- TOTP Modal -->
-<div class="modal fade" id="totpModal" tabindex="-1" aria-labelledby="totpModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <!-- Modal Header -->
-            <div class="modal-header">
-                <h5 class="modal-title" id="totpModalLabel">TOTP QRCode</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-
-            <!-- Modal Body -->
-            <div class="modal-body">
-                <img src="data:image/png;base64,@Convert.ToBase64String(Model.OTPQRCode)" alt="TotpQRCode Image" style="max-width: 100%; height: auto;" />
-            </div>
-
-            <!-- Modal Footer -->
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-danger" id="saveTOTPButton">已掃描，保存並啟用ORCode OTP</button>
-                <form id="tOTPForm" asp-controller="User" asp-action="SaveQRCodeOTP" method="post">
-                    <input type="hidden" name="QRCodeOTPSK" id="tOTPQRCodeInput" value="@Model.OTPQRCodeSK" />
-                </form>
-
-                <script>
-                    // 使用 JavaScript 處理按鈕點擊事件
-                    document.getElementById('saveTOTPButton').addEventListener('click', function () {
-                        // 將 totpQRCode 放入隱藏的 input 中
-                        document.getElementById('tOTPQRCodeInput').value = '@Model.OTPQRCodeSK';
-
-                        // 手動提交表單
-                        document.getElementById('tOTPForm').submit();
-                    });
-                </script>
-            </div>
-
-        </div>
-    </div>
-</div>
+                        // Log to console for debugging
+                        console.log('QR Code regenerated successfully.');
+                    },
+                    error: function () {
+                        // Handle error if needed
+                        console.error('Failed to regenerate QR code.');
+                    }
+                });
+            });
+        });
+    </script>
+}

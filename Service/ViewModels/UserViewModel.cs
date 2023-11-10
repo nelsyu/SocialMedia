@@ -19,11 +19,11 @@ namespace Service.ViewModels
         public string Password { get; set; } = null!;
         public string? Totp { get; set; }
 
-        // My property
+        #region My property
         public string ConfirmPassword { get; set; } = null!;
         public string ConfirmCaptcha { get; set; } = null!;
-        public string confirmQRCodeOTP { get; set; } = null!;
-        // /My property
+        public string ConfirmQRCodeOTP { get; set; } = null!;
+        #endregion
 
         public virtual ICollection<PostViewModel> PostsViewModels { get; set; }
         public virtual ICollection<ReplyViewModel> RepliesViewModels { get; set; }

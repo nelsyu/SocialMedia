@@ -68,9 +68,22 @@ namespace SocialMedia.Controllers
         [HttpPost]
         public IActionResult CreatePost(PostViewModel postVM)
         {
-            _postService.CreatePost(postVM);
+            List<string> result = _postService.ValidatePost(postVM);
 
-            return RedirectToAction("Index", "Home");
+            if (result[0] != "")
+            {
+                ModelState.AddModelError(result[0], result[1]);
+
+                postVM.TopicViewModels = _topicService.GetAllTopics();
+
+                return View(postVM);
+            }
+            else
+            {
+                _postService.CreatePost(postVM);
+
+                return RedirectToAction("Index", "Home");
+            }
         }
 
         public IActionResult DeletePost(PostViewModel postVM)
@@ -102,9 +115,22 @@ namespace SocialMedia.Controllers
         [HttpPost]
         public IActionResult EditPost(PostViewModel postVM, int postId)
         {
-            _postService.UpdatePost(postVM, postId);
+            List<string> result = _postService.ValidatePost(postVM);
 
-            return RedirectToAction("Index", "Home");
+            if (result[0] != "")
+            {
+                ModelState.AddModelError(result[0], result[1]);
+
+                postVM.TopicViewModels = _topicService.GetAllTopics();
+
+                return View(postVM);
+            }
+            else
+            {
+                _postService.UpdatePost(postVM, postId);
+
+                return RedirectToAction("Index", "Home");
+            }
         }
 
         [HttpPost]

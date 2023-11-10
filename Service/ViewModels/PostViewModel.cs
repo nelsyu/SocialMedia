@@ -23,8 +23,8 @@ namespace Service.ViewModels
         public virtual UserViewModel? UserViewModel { get; set; }
         public virtual ICollection<ReplyViewModel> ReplyViewModels { get; set; }
 
-        // My Property
+        #region My Property
         public ICollection<TopicViewModel> TopicViewModels { get; set; }
-        // /My Property
+        #endregion My Property
     }
 }
