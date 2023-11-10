@@ -7,6 +7,7 @@ using OtpNet;
 using QRCoder;
 using Service.Services.Interfaces;
 using Service.ViewModels;
+using Service.Extensions;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
@@ -28,12 +29,14 @@ namespace Service.Services.Implements
         private readonly SocialMediaContext _dbContext;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly UserLoggedIn _userLoggedIn;
 
-        public UserService(SocialMediaContext dbContext, IMapper mapper, IHttpContextAccessor httpContextAccessor)
+        public UserService(SocialMediaContext dbContext, IMapper mapper, IHttpContextAccessor httpContextAccessor, UserLoggedIn userLoggedIn)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
+            _userLoggedIn = userLoggedIn;
         }
 
         public List<string> ValidateRegister(UserViewModel userVM)
@@ -114,39 +117,36 @@ namespace Service.Services.Implements
             if (userEnt != null)
             {
                 UserViewModel userVM = _mapper.Map<UserViewModel>(userEnt);
-                _httpContextAccessor.HttpContext?.Session.SetObject("UserNowVM", userVM);
+                _userLoggedIn.Set(userVM);
             }
         }
 
         public bool IsLogin()
         {
-            bool IsLogin = !string.IsNullOrEmpty(_httpContextAccessor.HttpContext?.Session.GetObject<UserViewModel>("UserNowVM")?.Username);
+            bool IsLogin = !string.IsNullOrEmpty(_userLoggedIn.Username);
                 return IsLogin;
         }
 
         public void Logout()
         {
-            // 清除 Session 中的 Username
-            _httpContextAccessor.HttpContext?.Session.Remove("UserNowVM");
+            _userLoggedIn.Dispose();
         }
 
         public void DeleteAccount(UserViewModel userVM)
         {
-            string username = _httpContextAccessor.HttpContext?.Session.GetObject<UserViewModel>("UserNowVM")?.Username ?? string.Empty;
-            User? userEnt = _dbContext.Users.Where(u => u.Username == username).FirstOrDefault();
+            User? userEnt = _dbContext.Users.Where(u => u.Username == _userLoggedIn.Username).FirstOrDefault();
             
             if(userEnt != null)
             {
                 _dbContext.Users.Remove(userEnt);
                 _dbContext.SaveChanges();
-                _httpContextAccessor.HttpContext?.Session.Remove("UserNowVM");
+                _userLoggedIn.Dispose();
             }
         }
 
         public void SaveQRCodeOTP(string QRCodeOTPSK)
         {
-            UserViewModel userVM = _httpContextAccessor.HttpContext?.Session.GetObject<UserViewModel>("UserNowVM") ?? new();
-            User? userEnt = _dbContext.Users.FirstOrDefault(u => u.Username == userVM.Username);
+            User? userEnt = _dbContext.Users.FirstOrDefault(u => u.Username == _userLoggedIn.Username);
             if (userEnt != null)
             {
                 userEnt.Totp = QRCodeOTPSK;
@@ -216,7 +216,7 @@ namespace Service.Services.Implements
             string issuer = "SocialMedia";
 
             // 顯示在 APP 中的標題
-            string label = _httpContextAccessor.HttpContext?.Session.GetObject<UserViewModel>("UserNowVM")?.Username ?? "";
+            string label = _userLoggedIn.Username ?? "";
             string keyUri = new OtpUri(OtpType.Totp, secretKey, label, issuer).ToString();
 
             byte[] image = PngByteQRCodeHelper.GetQRCode(keyUri, QRCodeGenerator.ECCLevel.Q, 10);

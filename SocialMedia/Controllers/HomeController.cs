@@ -1,5 +1,6 @@
 ﻿using Data.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Service.Extensions;
 using Service.Services.Implements;
 using Service.Services.Interfaces;
 using Service.ViewModels;
@@ -37,7 +38,6 @@ namespace SocialMedia.Controllers
                 PageSize = pageSize,
                 TotalPages = totalPages
             };
-
             return View((postVML, pageVM));
         }
 

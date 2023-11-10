@@ -35,9 +35,8 @@ namespace SocialMedia.Controllers
             if (!_userService.IsLogin())
                 return RedirectToAction("Login", "User");
 
-            UserViewModel userNowVM = HttpContext.Session.GetObject<UserViewModel>("UserNowVM") ?? new();
             int pageSize = 5;
-            List<PostViewModel> postVML = _postService.GetAllPosts(userNowVM);
+            List<PostViewModel> postVML = _postService.GetMyPosts();
             int totalPosts = postVML.Count;
             postVML = _postService.Paging(postVML, currentPage, pageSize);
             int totalPages = (int)Math.Ceiling((double)totalPosts / pageSize);

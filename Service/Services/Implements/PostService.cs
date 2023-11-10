@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Library.Extensions;
 using System.Linq.Expressions;
+using Service.Extensions;
 
 namespace Service.Services.Implements
 {
@@ -20,12 +21,14 @@ namespace Service.Services.Implements
         private readonly SocialMediaContext _dbContext;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly UserLoggedIn _userLoggedIn;
 
-        public PostService(SocialMediaContext dbContext, IMapper mapper, IHttpContextAccessor httpContextAccessor)
+        public PostService(SocialMediaContext dbContext, IMapper mapper, IHttpContextAccessor httpContextAccessor, UserLoggedIn userLoggedIn)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
+            _userLoggedIn = userLoggedIn;
         }
 
         public PostViewModel GetPost(int postId)
@@ -51,9 +54,9 @@ namespace Service.Services.Implements
             return GetPosts(p => p.TopicId == topicId);
         }
 
-        public List<PostViewModel> GetAllPosts(UserViewModel userNowVM)
+        public List<PostViewModel> GetMyPosts()
         {
-            return GetPosts(p => p.User != null && p.User.UserId == userNowVM.UserId);
+            return GetPosts(p => p.User != null && p.User.UserId == _userLoggedIn.UserId);
         }
 
         public List<PostViewModel> Paging(List<PostViewModel> postVML, int page, int pageSize)
@@ -101,11 +104,9 @@ namespace Service.Services.Implements
 
         public void CreatePost(PostViewModel postVM)
         {
-            UserViewModel? userNowVM = _httpContextAccessor.HttpContext?.Session.GetObject<UserViewModel>("UserNowVM");
-            
-            if(userNowVM != null)
+            if(_userLoggedIn.Username != null)
             {
-                postVM.UserId = userNowVM.UserId;
+                postVM.UserId = _userLoggedIn.UserId;
                 postVM.PostDate = DateTime.Now;
                 postVM.LastEditDate = DateTime.Now;
 

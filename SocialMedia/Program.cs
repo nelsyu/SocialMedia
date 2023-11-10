@@ -2,6 +2,7 @@ using AutoMapper;
 using Data.Entities;
 using Library.Config;
 using Microsoft.EntityFrameworkCore;
+using Service.Extensions;
 using Service.Mapper;
 using Service.Services.Implements;
 using Service.Services.Interfaces;
@@ -39,6 +40,8 @@ builder.Services.AddSession(options =>
 
 // 向服務容器（IServiceCollection）中添加 IHttpContextAccessor 服務
 builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddSingleton<UserLoggedIn>();
 
 var app = builder.Build();
 

@@ -1,8 +1,13 @@
-﻿@using Service.ViewModels
+﻿@{
+    ViewData["Title"] = "DetailPost";
+}
+@using Service.ViewModels
 @model (PostViewModel PostVM, ReplyViewModel ReplyVM)
 @using Library.Extensions
 @using Service.Services.Interfaces
 @inject IUserService _userService
+@using Service.Extensions
+@inject UserLoggedIn _userLoggedIn
 
 <style>
     /* 共用樣式 */
@@ -109,7 +114,7 @@
             <span class="username">@Model.PostVM.UserViewModel?.Username</span>
             <span class="post-date">@Model.PostVM.PostDate.ToString("yyyy-MM-dd HH:mm:ss")</span>
             <div class="float-end">
-                @if (!string.IsNullOrEmpty(ViewContext.HttpContext.Session.GetObject<UserViewModel>("UserNowVM")?.Username) && Model.PostVM.UserViewModel?.Username == ViewContext.HttpContext.Session.GetObject<UserViewModel>("UserNowVM")?.Username)
+                @if (!string.IsNullOrEmpty(_userLoggedIn.Username) && Model.PostVM.UserViewModel?.Username == _userLoggedIn.Username)
                 {
                     <a class="btn btn-danger btn-rounded" href="@Url.Action("EditPost", "Post", new { postId = Model.PostVM.PostId })">Edit</a>
                 }

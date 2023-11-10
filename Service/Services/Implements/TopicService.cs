@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Library.Extensions;
+using Service.Extensions;
 
 namespace Service.Services.Implements
 {
@@ -18,12 +19,14 @@ namespace Service.Services.Implements
         private readonly SocialMediaContext _dbContext;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly UserLoggedIn _userLoggedIn;
 
-        public TopicService(SocialMediaContext dbContext, IMapper mapper, IHttpContextAccessor httpContextAccessor)
+        public TopicService(SocialMediaContext dbContext, IMapper mapper, IHttpContextAccessor httpContextAccessor, UserLoggedIn userLoggedIn)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
+            _userLoggedIn = userLoggedIn;
         }
 
         public List<TopicViewModel> GetAllTopics()
@@ -38,9 +41,7 @@ namespace Service.Services.Implements
 
         public void CreateTopic(TopicViewModel topicVM, string title)
         {
-            UserViewModel userVM = _httpContextAccessor.HttpContext?.Session.GetObject<UserViewModel>("UserNowVM") ?? new();
-
-            topicVM.UserId = userVM.UserId;
+            topicVM.UserId = _userLoggedIn.UserId;
             topicVM.Title = title;
 
             var topicEnt = _mapper.Map<Topic>(topicVM);
