@@ -58,7 +58,6 @@ namespace SocialMedia.Controllers
             if (_userService.IsLogin())
                 return RedirectToAction("Index", "Home");
 
-            // 生成 captcha 圖片
             byte[] captchaImage = _userService.GenerateCaptchaImage(out string captchaCode);
             ViewBag.CaptchaImage = captchaImage;
             TempData["CaptchaCode"] = captchaCode;

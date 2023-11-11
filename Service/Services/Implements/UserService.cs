@@ -191,21 +191,18 @@ namespace Service.Services.Implements
 
         public byte[] GenerateCaptchaImage(out string captchaCode)
         {
-            Random random = new();
-            captchaCode = random.Next(1000, 9999).ToString();
+            //TODO:安装 SkiaSharp.NativeAssets.Linux.NoDependencies 包
+            var validateCodeProvider = new SkiaSharpValidateCodeHelper
+            {
+                SetWith = 100,
+                SetHeight = 40,
+                SetFontSize = 20
+            };
 
-            _httpContextAccessor.HttpContext?.Session.SetString("CaptchaCode", captchaCode);
+            byte[] img = validateCodeProvider.GetVerifyCodeImage();
+            captchaCode = validateCodeProvider.SetVerifyCodeText;
 
-            // 生成圖片
-            using SKBitmap skBitmap = GenerateImage(captchaCode);
-            using MemoryStream stream = new();
-
-            // 將 SKBitmap 轉換為二進制數據
-            using SKImage skImage = SKImage.FromBitmap(skBitmap);
-            using SKData skData = skImage.Encode(SKEncodedImageFormat.Png, 100);
-            skData.SaveTo(stream);
-
-            return stream.ToArray();
+            return img;
         }
 
         public byte[] GenerateOTPQRCode(out string secretKey)
@@ -225,27 +222,6 @@ namespace Service.Services.Implements
         }
 
         #region private methods
-        private static SKBitmap GenerateImage(string captchaCode)
-        {
-            // 使用 SkiaSharp 繪製圖片，以及添加驗證碼文本等
-            SKBitmap skBitmap = new(120, 40);
-            using (SKCanvas skCanvas = new(skBitmap))
-            using (SKPaint skPaint = new())
-            {
-                skCanvas.Clear(SKColors.White);
-
-                // 設定繪圖的字型、大小、顏色
-                skPaint.Typeface = SKTypeface.FromFamilyName("GenericMonospace", SKFontStyleWeight.Bold, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright);
-                skPaint.TextSize = 20;
-                skPaint.Color = SKColors.Black;
-
-                // 繪製文字
-                skCanvas.DrawText(captchaCode, 10, 30, skPaint);
-            }
-
-            return skBitmap;
-        }
-
         private string IsValidEmail(string email)
         {
             string emailPattern = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
