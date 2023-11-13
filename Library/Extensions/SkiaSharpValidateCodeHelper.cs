@@ -439,7 +439,7 @@ namespace Library.Extensions
                     //canvas.DrawColor(SKColors.White);
                     //将文字写到画布上
 
-                    SKFont font = new SKFont(SKFontManager.Default.CreateTypeface(File.Open("Fonts/bahnschrift.ttf", FileMode.Open)));
+                    SKFont font = new SKFont(SKFontManager.Default.CreateTypeface(File.Open("wwwroot/Fonts/bahnschrift.ttf", FileMode.Open)));
                     font.Size = 38;
 
                     var drawStyle = new SKPaint();

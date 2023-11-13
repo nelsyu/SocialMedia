@@ -1,6 +1,7 @@
 using AutoMapper;
 using Data.Entities;
 using Library.Config;
+using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.EntityFrameworkCore;
 using Service.Extensions;
 using Service.Mapper;
@@ -42,6 +43,14 @@ builder.Services.AddSession(options =>
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddSingleton<UserLoggedIn>();
+
+builder.Services.Configure<CookiePolicyOptions>(options =>
+{
+    options.MinimumSameSitePolicy = SameSiteMode.None;
+    options.HttpOnly = HttpOnlyPolicy.None;
+    options.Secure = CookieSecurePolicy.Always; // ½T«O³]¸m Secure ¼Ð»x
+});
+
 
 var app = builder.Build();
 
