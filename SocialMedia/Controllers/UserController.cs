@@ -65,6 +65,18 @@ namespace SocialMedia.Controllers
             return View();
         }
 
+        [HttpGet]
+        public IActionResult RefreshCaptcha()
+        {
+            if (_userService.IsLogin())
+                return RedirectToAction("Index", "Home");
+
+            byte[] captchaImage = _userService.GenerateCaptchaImage(out string captchaCode);
+            TempData["CaptchaCode"] = captchaCode;
+
+            return Json(new { image = Convert.ToBase64String(captchaImage), code = captchaCode });
+        }
+
         [HttpPost]
         public IActionResult Login(UserViewModel userVM)
         {

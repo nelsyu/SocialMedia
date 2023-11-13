@@ -34,7 +34,8 @@ namespace SocialMedia.Controllers
         {
             if (!_userService.IsLogin())
                 return RedirectToAction("Login", "User");
-
+            if (currentPage < 1)
+                return RedirectToAction("Index", "Home");
             int pageSize = 5;
             List<PostViewModel> postVML = _postService.GetMyPosts();
             int totalPosts = postVML.Count;

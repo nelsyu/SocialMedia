@@ -42,7 +42,7 @@ namespace SocialMedia.Controllers
         public IActionResult DetailTopic(int topicId, int currentPage = 1)
         {
             if (currentPage < 1)
-                currentPage = 1;
+                return RedirectToAction("Index", "Home");
             int pageSize = 5;
             List<PostViewModel> postVML = _postService.GetAllPosts(topicId);
             int totalPosts = postVML.Count;
@@ -56,7 +56,7 @@ namespace SocialMedia.Controllers
                 TotalPages = totalPages
             };
 
-            ViewBag.TopicId = topicId;
+            TempData["TopicId"] = topicId;
 
             return View((postVML, pageVM));
         }

@@ -62,6 +62,7 @@
         border-radius: 3px;
         cursor: pointer;
         transition: background-color 0.3s ease;
+        border-radius: 15px !important;
     }
 
     .page-item.active .page-link {
@@ -75,6 +76,22 @@
     /* New styles for additional interactivity */
     table tr:hover {
         background-color: rgba(0, 123, 255, 0.1);
+    }
+
+    .table th.username {
+        width: 20%;
+    }
+
+    .table th.title {
+        width: 20%;
+    }
+
+    .table th.content {
+        width: 50%;
+    }
+
+    .table th.post-date {
+        width: 20%;
     }
 </style>
 
@@ -92,17 +109,22 @@
         <tbody>
             @foreach (var postVM in Model.postVML)
             {
-                <tr>
-                    <td class="username">@(postVM.UserViewModel?.Username ?? "已刪除用戶")</td>
-                    <td class="title">
-                        <a href="@Url.Action("DetailPost", "Post", new { postId = postVM.PostId })">
-                            @postVM.Title
-                        </a>
+                <tr onclick="window.location.href='@Url.Action("DetailPost", "Post", new { postId = postVM.PostId })';" style="cursor:pointer;">
+                    <td class="username">
+                        @(postVM.UserViewModel?.Username ?? "Deleted User")
                     </td>
-                    <td class="content">@postVM.Content</td>
-                    <td class="post-date">@postVM.PostDate.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                    <td class="title">
+                        @postVM.Title
+                    </td>
+                    <td class="content">
+                        @postVM.Content
+                    </td>
+                    <td class="post-date">
+                        @postVM.PostDate.ToString("yyyy-MM-dd HH:mm:ss")
+                    </td>
                 </tr>
             }
+
         </tbody>
     </table>
 
@@ -112,9 +134,10 @@
             @for (int i = 1; i <= Model.pageVM.TotalPages; i++)
             {
                 <li class="page-item @(Model.pageVM.CurrentPage == i ? "active" : "")">
-                    <a class="page-link" href="?currentPage=@i">@i</a>
+                    <a class="page-link" href="?currentPage=@i&topicId=@TempData["TopicId"]">@i</a>
                 </li>
             }
         </ul>
     </nav>
+
 </div>
