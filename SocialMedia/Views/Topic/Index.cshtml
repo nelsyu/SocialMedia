@@ -14,11 +14,7 @@
             box-shadow: 0 16px 32px rgba(0, 0, 0, 0.2);
         }
 
-    .btn-rounded {
-        border-radius: 15px;
-    }
-
-    .input-rounded {
+    .btn {
         border-radius: 15px;
     }
 </style>
@@ -30,7 +26,39 @@
         @foreach (var topicVM in Model)
         {
             <div class="col mb-3">
-                <button class="btn btn-primary btn-lg custom-style w-100 btn-3d btn-rounded" onclick="location.href='@Url.Action("DetailTopic", "Topic", new { topicId = topicVM.TopicId })'">@topicVM.Title</button>
+                <div class="position-relative">
+                    <button class="btn btn-primary btn-lg custom-style w-100 btn-3d btn-rounded" onclick="location.href='@Url.Action("DetailTopic", "Topic", new { topicId = topicVM.TopicId })'">@topicVM.Title</button>
+                    <button class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2"
+                            data-bs-toggle="modal"
+                            data-bs-target="#deleteTopicModal_@topicVM.TopicId"
+                            onclick="event.stopPropagation();">
+                        -
+                    </button>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="deleteTopicModal_@topicVM.TopicId" tabindex="-1" aria-labelledby="deleteTopicModalLabel_@topicVM.TopicId" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteTopicModalLabel_@topicVM.TopicId">Confirm Delete Topic</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>Are you sure you want to delete this topic? This action cannot be undone.</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="event.stopPropagation();">
+                                        Cancel
+                                    </button>
+                                    <form class="delete-form" method="post" asp-controller="topic" asp-action="Deletetopic">
+                                        <input type="hidden" name="topicId" value="@topicVM.TopicId" />
+                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         }
     </div>

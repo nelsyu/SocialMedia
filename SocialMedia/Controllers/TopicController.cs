@@ -28,17 +28,6 @@ namespace SocialMedia.Controllers
             return View(topicVML);
         }
 
-        [HttpPost]
-        public IActionResult CreateTopic(TopicViewModel topicVM, string title)
-        {
-            if (!_userService.IsLogin())
-                return RedirectToAction("Login", "User");
-
-            _topicService.CreateTopic(topicVM, title);
-
-            return RedirectToAction("Index", "Topic");
-        }
-
         public IActionResult DetailTopic(int topicId, int currentPage = 1)
         {
             if (currentPage < 1)
@@ -59,6 +48,24 @@ namespace SocialMedia.Controllers
             TempData["TopicId"] = topicId;
 
             return View((postVML, pageVM));
+        }
+
+        [HttpPost]
+        public IActionResult CreateTopic(TopicViewModel topicVM, string title)
+        {
+            if (!_userService.IsLogin())
+                return RedirectToAction("Login", "User");
+
+            _topicService.CreateTopic(topicVM, title);
+
+            return RedirectToAction("Index", "Topic");
+        }
+
+        public IActionResult DeleteTopic(TopicViewModel topicVM)
+        {
+            _topicService.DeleteTopic(topicVM);
+
+            return RedirectToAction("Index", "Topic");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

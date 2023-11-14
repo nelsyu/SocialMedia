@@ -133,7 +133,7 @@ namespace Service.Services.Implements
 
         public void DeletePost(PostViewModel postVM)
         {
-            var postEnt = _dbContext.Posts.FirstOrDefault(p => p.PostId == postVM.PostId);
+            Post? postEnt = _dbContext.Posts.FirstOrDefault(p => p.PostId == postVM.PostId);
 
             if (postEnt != null)
             {

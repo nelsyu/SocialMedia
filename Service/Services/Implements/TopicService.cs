@@ -48,5 +48,15 @@ namespace Service.Services.Implements
             _dbContext.Add(topicEnt);
             _dbContext.SaveChanges();
         }
+
+        public void DeleteTopic(TopicViewModel topicVM)
+        {
+            Topic? topicEnt = _dbContext.Topics.FirstOrDefault(t => t.TopicId == topicVM.TopicId);
+            if(topicEnt != null)
+            {
+                _dbContext.Remove(topicEnt);
+                _dbContext.SaveChanges();
+            }
+        }
     }
 }

@@ -11,5 +11,6 @@ namespace Service.Services.Interfaces
     {
         List<TopicViewModel> GetAllTopics();
         void CreateTopic(TopicViewModel topicVM, string title);
+        void DeleteTopic(TopicViewModel topicVM);
     }
 }

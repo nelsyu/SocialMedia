@@ -46,11 +46,10 @@ builder.Services.AddSingleton<UserLoggedIn>();
 
 builder.Services.Configure<CookiePolicyOptions>(options =>
 {
-    options.MinimumSameSitePolicy = SameSiteMode.None;
-    options.HttpOnly = HttpOnlyPolicy.None;
-    options.Secure = CookieSecurePolicy.Always; // 確保設置 Secure 標誌
+    options.MinimumSameSitePolicy = SameSiteMode.Lax;
+    options.HttpOnly = HttpOnlyPolicy.Always;
+    options.Secure = CookieSecurePolicy.Always; // 這里是設置Secure標誌的地方
 });
-
 
 var app = builder.Build();
 
@@ -75,5 +74,7 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.UseCookiePolicy();
 
 app.Run();
