@@ -17,6 +17,9 @@ namespace Data.Entities
         {
         }
 
+        public virtual DbSet<Friendship> Friendships { get; set; } = null!;
+        public virtual DbSet<Like> Likes { get; set; } = null!;
+        public virtual DbSet<Message> Messages { get; set; } = null!;
         public virtual DbSet<Post> Posts { get; set; } = null!;
         public virtual DbSet<Reply> Replies { get; set; } = null!;
         public virtual DbSet<Topic> Topics { get; set; } = null!;
@@ -26,13 +29,88 @@ namespace Data.Entities
         {
             if (!optionsBuilder.IsConfigured)
             {
-                //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
                 optionsBuilder.UseSqlServer(DbConfig.GetConnectionString());
             }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Friendship>(entity =>
+            {
+                entity.Property(e => e.FriendshipId)
+                    .ValueGeneratedNever()
+                    .HasColumnName("friendshipId");
+
+                entity.Property(e => e.CreatedTime)
+                    .HasColumnType("datetime")
+                    .HasColumnName("createdTime");
+
+                entity.Property(e => e.Status)
+                    .HasMaxLength(255)
+                    .IsUnicode(false)
+                    .HasColumnName("status");
+
+                entity.Property(e => e.UserId1).HasColumnName("userID1");
+
+                entity.Property(e => e.UserId2).HasColumnName("userID2");
+            });
+
+            modelBuilder.Entity<Like>(entity =>
+            {
+                entity.Property(e => e.LikeId)
+                    .ValueGeneratedNever()
+                    .HasColumnName("likeId");
+
+                entity.Property(e => e.EmojiSymbol)
+                    .HasMaxLength(255)
+                    .HasColumnName("emojiSymbol");
+
+                entity.Property(e => e.PostId).HasColumnName("postId");
+
+                entity.Property(e => e.ReplyId).HasColumnName("replyId");
+
+                entity.Property(e => e.UserId).HasColumnName("userId");
+
+                entity.HasOne(d => d.Post)
+                    .WithMany(p => p.Likes)
+                    .HasForeignKey(d => d.PostId)
+                    .HasConstraintName("FK__Likes__postId__2DE6D218");
+
+                entity.HasOne(d => d.Reply)
+                    .WithMany(p => p.Likes)
+                    .HasForeignKey(d => d.ReplyId)
+                    .HasConstraintName("FK__Likes__replyId__2EDAF651");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.Likes)
+                    .HasForeignKey(d => d.UserId)
+                    .HasConstraintName("FK__Likes__userId__2CF2ADDF");
+            });
+
+            modelBuilder.Entity<Message>(entity =>
+            {
+                entity.Property(e => e.MessageId)
+                    .ValueGeneratedNever()
+                    .HasColumnName("messageId");
+
+                entity.Property(e => e.Content)
+                    .HasColumnType("text")
+                    .HasColumnName("content");
+
+                entity.Property(e => e.IsArchived).HasColumnName("isArchived");
+
+                entity.Property(e => e.IsRead).HasColumnName("isRead");
+
+                entity.Property(e => e.ReceiverId).HasColumnName("receiverId");
+
+                entity.Property(e => e.SenderId).HasColumnName("senderId");
+
+                entity.Property(e => e.SentTime)
+                    .HasColumnType("datetime")
+                    .HasColumnName("sentTime");
+            });
+
             modelBuilder.Entity<Post>(entity =>
             {
                 entity.Property(e => e.PostId).HasColumnName("postId");

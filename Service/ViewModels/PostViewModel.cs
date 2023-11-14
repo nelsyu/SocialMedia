@@ -7,6 +7,7 @@ namespace Service.ViewModels
     {
         public PostViewModel()
         {
+            LikeViewModels = new HashSet<LikeViewModel>();
             ReplyViewModels = new HashSet<ReplyViewModel>();
             TopicViewModels = new HashSet<TopicViewModel>();
         }
@@ -21,6 +22,7 @@ namespace Service.ViewModels
 
         public virtual TopicViewModel TopicViewModel { get; set; } = null!;
         public virtual UserViewModel? UserViewModel { get; set; }
+        public virtual ICollection<LikeViewModel> LikeViewModels { get; set; }
         public virtual ICollection<ReplyViewModel> ReplyViewModels { get; set; }
 
         #region My Property

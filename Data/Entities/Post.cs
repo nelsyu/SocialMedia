@@ -7,6 +7,7 @@ namespace Data.Entities
     {
         public Post()
         {
+            Likes = new HashSet<Like>();
             Replies = new HashSet<Reply>();
         }
 
@@ -20,6 +21,7 @@ namespace Data.Entities
 
         public virtual Topic Topic { get; set; } = null!;
         public virtual User? User { get; set; }
+        public virtual ICollection<Like> Likes { get; set; }
         public virtual ICollection<Reply> Replies { get; set; }
     }
 }

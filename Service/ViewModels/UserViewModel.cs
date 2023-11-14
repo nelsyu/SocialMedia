@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Data.Entities;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -8,6 +9,7 @@ namespace Service.ViewModels
     {
         public UserViewModel()
         {
+            LikeViewModels = new HashSet<LikeViewModel>();
             PostsViewModels = new HashSet<PostViewModel>();
             RepliesViewModels = new HashSet<ReplyViewModel>();
             TopicsViewModels = new HashSet<TopicViewModel>();
@@ -25,6 +27,7 @@ namespace Service.ViewModels
         public string ConfirmQRCodeOTP { get; set; } = null!;
         #endregion
 
+        public virtual ICollection<LikeViewModel> LikeViewModels { get; set; }
         public virtual ICollection<PostViewModel> PostsViewModels { get; set; }
         public virtual ICollection<ReplyViewModel> RepliesViewModels { get; set; }
         public virtual ICollection<TopicViewModel> TopicsViewModels { get; set; }
