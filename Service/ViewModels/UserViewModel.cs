@@ -9,10 +9,10 @@ namespace Service.ViewModels
     {
         public UserViewModel()
         {
-            LikeViewModels = new HashSet<LikeViewModel>();
-            PostsViewModels = new HashSet<PostViewModel>();
-            RepliesViewModels = new HashSet<ReplyViewModel>();
-            TopicsViewModels = new HashSet<TopicViewModel>();
+            Likes = new HashSet<LikeViewModel>();
+            Posts = new HashSet<PostViewModel>();
+            Replies = new HashSet<ReplyViewModel>();
+            Topics = new HashSet<TopicViewModel>();
         }
 
         public int UserId { get; set; }
@@ -27,9 +27,9 @@ namespace Service.ViewModels
         public string ConfirmQRCodeOTP { get; set; } = null!;
         #endregion
 
-        public virtual ICollection<LikeViewModel> LikeViewModels { get; set; }
-        public virtual ICollection<PostViewModel> PostsViewModels { get; set; }
-        public virtual ICollection<ReplyViewModel> RepliesViewModels { get; set; }
-        public virtual ICollection<TopicViewModel> TopicsViewModels { get; set; }
+        public virtual ICollection<LikeViewModel> Likes { get; set; }
+        public virtual ICollection<PostViewModel> Posts { get; set; }
+        public virtual ICollection<ReplyViewModel> Replies { get; set; }
+        public virtual ICollection<TopicViewModel> Topics { get; set; }
     }
 }

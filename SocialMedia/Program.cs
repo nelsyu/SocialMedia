@@ -16,9 +16,9 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<SocialMediaContext>(
     options => options.UseSqlServer(DbConfig.GetConnectionString()));
 
-// 配置 AutoMapper 並將它集成到 ASP.NET Core 的依賴注入中。
 AutoMapper.IConfigurationProvider config = new MapperConfiguration(cfg =>
 {
+    //Service\Mapper\MappingProfile.cs
     cfg.AddProfile<MappingProfile>();
 });
 builder.Services.AddSingleton(config);

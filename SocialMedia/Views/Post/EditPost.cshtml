@@ -59,11 +59,11 @@
 
         <div class="mb-3">
             <label for="topicId" class="form-label">Topic:</label>
-            @if (Model.TopicViewModels != null)
+            @if (Model.Topics != null)
             {
                 <select id="topicId" name="TopicId" class="form-select">
                     <option value="" disabled>Select a topic</option>
-                    @foreach (var topic in Model.TopicViewModels)
+                    @foreach (var topic in Model.Topics)
                     {
                         <option value="@topic.TopicId" selected="@(Model.TopicId == topic.TopicId)">@topic.Title</option>
                     }

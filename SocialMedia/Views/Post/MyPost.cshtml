@@ -115,7 +115,7 @@
             {
                 <tr onclick="window.location.href='@Url.Action("DetailPost", "Post", new { postId = postVM.PostId })';" style="cursor:pointer;">
                     <td class="username">
-                        @(postVM.UserViewModel?.Username ?? "Deleted User")
+                        @(postVM.User?.Username ?? "Deleted User")
                     </td>
                     <td class="title">
                         @postVM.Title

@@ -29,6 +29,12 @@
             .dropdown-menu {
                 background-color: #007BFF !important;
             }
+
+        .scrollable-menu {
+            height: auto;
+            max-height: 200px;
+            overflow-y: auto;
+        }
         </style>
     </head>
     <body>
@@ -70,11 +76,20 @@
                             }
                             else
                             {
+                                List<FriendshipViewModel> friendVML = _userService.GetAllFriends();
                                 <li class="nav-item">
                                     <div class="nav-item dropdown">
-                                        <a class="nav-link text-dark dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        Friends
+                                        <a class="nav-link text-dark dropdown-toggle" href="#" id="friendsDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            Friends
                                         </a>
+                                        <div class="dropdown-menu friends-dropdown" aria-labelledby="friendsDropdown">
+                                            <div class="scrollable-menu">
+                                                @foreach (var friendVM in friendVML)
+                                                {
+                                                    <a class="dropdown-item" href="#">@friendVM.User2.Username</a>
+                                                }
+                                            </div>
+                                        </div>
                                     </div>
                                 </li>
                                 <li class="nav-item">

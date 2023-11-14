@@ -110,10 +110,10 @@
             <p class="card-text">@Model.PostVM.Content</p>
         </div>
         <div class="card-footer">
-            <span class="username">@Model.PostVM.UserViewModel?.Username</span>
+            <span class="username">@Model.PostVM.User?.Username</span>
             <span class="post-date">@Model.PostVM.PostDate.ToString("yyyy-MM-dd HH:mm:ss")</span>
             <div class="float-end">
-                @if (!string.IsNullOrEmpty(_userLoggedIn.Username) && Model.PostVM.UserViewModel?.Username == _userLoggedIn.Username)
+                @if (!string.IsNullOrEmpty(_userLoggedIn.Username) && Model.PostVM.User?.Username == _userLoggedIn.Username)
                 {
                     <a class="btn btn-danger btn-rounded" href="@Url.Action("EditPost", "Post", new { postId = Model.PostVM.PostId })">Edit</a>
                 }
@@ -154,11 +154,11 @@
     <div id="replies-section" class="mt-4">
         <h3>Replies</h3>
         <div class="scrollable-section">
-            @foreach (var reply in Model.PostVM.ReplyViewModels.OrderByDescending(rVM => rVM.ReplyDate))
+            @foreach (var reply in Model.PostVM.Replies.OrderByDescending(rVM => rVM.ReplyDate))
             {
                 <div class="card mt-3">
                     <div class="card-header">
-                        <span class="username">@(reply.UserViewModel?.Username ?? "已刪除用戶")</span>
+                        <span class="username">@(reply.User?.Username ?? "已刪除用戶")</span>
                     </div>
                     <div class="card-body">
                         <p class="card-text">@reply.Content</p>

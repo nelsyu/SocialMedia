@@ -38,9 +38,7 @@ namespace Data.Entities
         {
             modelBuilder.Entity<Friendship>(entity =>
             {
-                entity.Property(e => e.FriendshipId)
-                    .ValueGeneratedNever()
-                    .HasColumnName("friendshipId");
+                entity.Property(e => e.FriendshipId).HasColumnName("friendshipId");
 
                 entity.Property(e => e.CreatedTime)
                     .HasColumnType("datetime")
@@ -58,9 +56,7 @@ namespace Data.Entities
 
             modelBuilder.Entity<Like>(entity =>
             {
-                entity.Property(e => e.LikeId)
-                    .ValueGeneratedNever()
-                    .HasColumnName("likeId");
+                entity.Property(e => e.LikeId).HasColumnName("likeId");
 
                 entity.Property(e => e.EmojiSymbol)
                     .HasMaxLength(255)
@@ -75,24 +71,22 @@ namespace Data.Entities
                 entity.HasOne(d => d.Post)
                     .WithMany(p => p.Likes)
                     .HasForeignKey(d => d.PostId)
-                    .HasConstraintName("FK__Likes__postId__2DE6D218");
+                    .HasConstraintName("FK__Likes__postId__367C1819");
 
                 entity.HasOne(d => d.Reply)
                     .WithMany(p => p.Likes)
                     .HasForeignKey(d => d.ReplyId)
-                    .HasConstraintName("FK__Likes__replyId__2EDAF651");
+                    .HasConstraintName("FK__Likes__replyId__37703C52");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Likes)
                     .HasForeignKey(d => d.UserId)
-                    .HasConstraintName("FK__Likes__userId__2CF2ADDF");
+                    .HasConstraintName("FK__Likes__userId__3587F3E0");
             });
 
             modelBuilder.Entity<Message>(entity =>
             {
-                entity.Property(e => e.MessageId)
-                    .ValueGeneratedNever()
-                    .HasColumnName("messageId");
+                entity.Property(e => e.MessageId).HasColumnName("messageId");
 
                 entity.Property(e => e.Content)
                     .HasColumnType("text")

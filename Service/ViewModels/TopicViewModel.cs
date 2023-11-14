@@ -7,14 +7,14 @@ namespace Service.ViewModels
     {
         public TopicViewModel()
         {
-            PostViewModels = new HashSet<PostViewModel>();
+            Posts = new HashSet<PostViewModel>();
         }
 
         public int TopicId { get; set; }
         public int UserId { get; set; }
         public string Title { get; set; } = null!;
 
-        public virtual UserViewModel UserViewModel { get; set; } = null!;
-        public virtual ICollection<PostViewModel> PostViewModels { get; set; }
+        public virtual UserViewModel User { get; set; } = null!;
+        public virtual ICollection<PostViewModel> Posts { get; set; }
     }
 }

@@ -7,9 +7,9 @@ namespace Service.ViewModels
     {
         public PostViewModel()
         {
-            LikeViewModels = new HashSet<LikeViewModel>();
-            ReplyViewModels = new HashSet<ReplyViewModel>();
-            TopicViewModels = new HashSet<TopicViewModel>();
+            Likes = new HashSet<LikeViewModel>();
+            Replies = new HashSet<ReplyViewModel>();
+            Topics = new HashSet<TopicViewModel>();
         }
 
         public int PostId { get; set; }
@@ -20,13 +20,13 @@ namespace Service.ViewModels
         public DateTime? LastEditDate { get; set; }
         public int TopicId { get; set; }
 
-        public virtual TopicViewModel TopicViewModel { get; set; } = null!;
-        public virtual UserViewModel? UserViewModel { get; set; }
-        public virtual ICollection<LikeViewModel> LikeViewModels { get; set; }
-        public virtual ICollection<ReplyViewModel> ReplyViewModels { get; set; }
+        public virtual TopicViewModel Topic { get; set; } = null!;
+        public virtual UserViewModel? User { get; set; }
+        public virtual ICollection<LikeViewModel> Likes { get; set; }
+        public virtual ICollection<ReplyViewModel> Replies { get; set; }
 
         #region My Property
-        public ICollection<TopicViewModel> TopicViewModels { get; set; }
+        public ICollection<TopicViewModel> Topics { get; set; }
         #endregion My Property
     }
 }

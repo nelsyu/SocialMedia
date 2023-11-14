@@ -221,6 +221,22 @@ namespace Service.Services.Implements
             return image;
         }
 
+        public List<FriendshipViewModel> GetAllFriends()
+        {
+            List<Friendship> friendshipEntL = _dbContext.Friendships
+                .Where(f => f.UserId1 == _userLoggedIn.UserId)
+                .ToList();
+
+            List<FriendshipViewModel> friendshipVML = _mapper.Map<List<FriendshipViewModel>>(friendshipEntL);
+
+            foreach (var friendshipVM in friendshipVML)
+            {
+                friendshipVM.User2 = _mapper.Map<UserViewModel>(_dbContext.Users.Find(friendshipVM.UserId2));
+            }
+
+            return friendshipVML;
+        }
+
         #region private methods
         private string IsValidEmail(string email)
         {

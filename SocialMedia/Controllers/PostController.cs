@@ -59,7 +59,7 @@ namespace SocialMedia.Controllers
 
             PostViewModel postVM = new()
             {
-                TopicViewModels = _topicService.GetAllTopics()
+                Topics = _topicService.GetAllTopics()
             };
 
             return View(postVM);
@@ -74,7 +74,7 @@ namespace SocialMedia.Controllers
             {
                 ModelState.AddModelError(result[0], result[1]);
 
-                postVM.TopicViewModels = _topicService.GetAllTopics();
+                postVM.Topics = _topicService.GetAllTopics();
 
                 return View(postVM);
             }
@@ -107,7 +107,7 @@ namespace SocialMedia.Controllers
                 return RedirectToAction("Login", "User");
 
             PostViewModel postVM = _postService.GetPost(postId);
-            postVM.TopicViewModels = _topicService.GetAllTopics();
+            postVM.Topics = _topicService.GetAllTopics();
 
             return View(postVM);
         }
@@ -121,7 +121,7 @@ namespace SocialMedia.Controllers
             {
                 ModelState.AddModelError(result[0], result[1]);
 
-                postVM.TopicViewModels = _topicService.GetAllTopics();
+                postVM.Topics = _topicService.GetAllTopics();
 
                 return View(postVM);
             }

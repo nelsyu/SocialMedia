@@ -11,8 +11,8 @@ namespace Service.ViewModels
         public int? ReplyId { get; set; }
         public string? EmojiSymbol { get; set; }
 
-        public virtual PostViewModel? PostViewModel { get; set; }
-        public virtual ReplyViewModel? ReplyViewModel { get; set; }
-        public virtual UserViewModel? UserViewModel { get; set; }
+        public virtual PostViewModel? Post { get; set; }
+        public virtual ReplyViewModel? Reply { get; set; }
+        public virtual UserViewModel? User { get; set; }
     }
 }

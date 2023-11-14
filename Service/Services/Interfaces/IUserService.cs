@@ -23,5 +23,6 @@ namespace Service.Services.Interfaces
         List<string> VerifyQRCodeOTP(string userVMEmail, string confirmTotp);
         byte[] GenerateCaptchaImage(out string captchaCode);
         byte[] GenerateOTPQRCode(out string secretKey);
+        List<FriendshipViewModel> GetAllFriends();
     }
 }

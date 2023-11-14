@@ -60,11 +60,11 @@
     <form asp-action="CreatePost" method="post" class="needs-validation" novalidate>
         <div class="mb-3">
             <label for="topicId" class="form-label">Topic:</label>
-            @if (Model.TopicViewModels != null && Model.TopicViewModels.Any())
+            @if (Model.Topics != null && Model.Topics.Any())
             {
                 <select id="topicId" name="TopicId" class="form-select" required>
                     <option value="" disabled selected>Select a topic</option>
-                    @foreach (var topic in Model.TopicViewModels)
+                    @foreach (var topic in Model.Topics)
                     {
                         <option value="@topic.TopicId">@topic.Title</option>
                     }
