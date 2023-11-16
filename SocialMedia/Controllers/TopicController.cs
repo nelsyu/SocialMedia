@@ -2,6 +2,7 @@
 using Service.Services.Implements;
 using Service.Services.Interfaces;
 using Service.ViewModels;
+using SocialMedia.Filters;
 using SocialMedia.Models;
 using System.Diagnostics;
 
@@ -50,17 +51,16 @@ namespace SocialMedia.Controllers
             return View((postVML, pageVM));
         }
 
+        [TypeFilter(typeof(AuthenticationFilter))]
         [HttpPost]
         public IActionResult CreateTopic(TopicViewModel topicVM, string title)
         {
-            if (!_userService.IsLogin())
-                return RedirectToAction("Login", "User");
-
             _topicService.CreateTopic(topicVM, title);
 
             return RedirectToAction("Index", "Topic");
         }
 
+        [TypeFilter(typeof(AuthenticationFilter))]
         public IActionResult DeleteTopic(TopicViewModel topicVM)
         {
             _topicService.DeleteTopic(topicVM);

@@ -4,6 +4,7 @@ using OtpNet;
 using Service.Services.Implements;
 using Service.Services.Interfaces;
 using Service.ViewModels;
+using SocialMedia.Filters;
 using SocialMedia.Models;
 using System.Diagnostics;
 
@@ -65,12 +66,10 @@ namespace SocialMedia.Controllers
             return View();
         }
 
+        [TypeFilter(typeof(AuthenticationFilter))]
         [HttpGet]
         public IActionResult RefreshCaptcha()
         {
-            if (_userService.IsLogin())
-                return RedirectToAction("Index", "Home");
-
             byte[] captchaImage = _userService.GenerateCaptchaImage(out string captchaCode);
             TempData["CaptchaCode"] = captchaCode;
 
@@ -101,6 +100,7 @@ namespace SocialMedia.Controllers
             }
         }
 
+        [TypeFilter(typeof(AuthenticationFilter))]
         [HttpPost]
         public IActionResult SaveQRCodeOTP([FromForm] string QRCodeOTPSK)
         {
@@ -152,12 +152,14 @@ namespace SocialMedia.Controllers
             }
         }
 
+        [TypeFilter(typeof(AuthenticationFilter))]
         public IActionResult Logout()
         {
             _userService.Logout();
             return RedirectToAction("Index", "Home");
         }
 
+        [TypeFilter(typeof(AuthenticationFilter))]
         [HttpPost]
         public IActionResult DeleteAccount(UserViewModel userVM)
         {

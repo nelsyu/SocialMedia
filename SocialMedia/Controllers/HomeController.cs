@@ -4,6 +4,7 @@ using Service.Extensions;
 using Service.Services.Implements;
 using Service.Services.Interfaces;
 using Service.ViewModels;
+using SocialMedia.Filters;
 using SocialMedia.Models;
 using System.Diagnostics;
 
@@ -46,11 +47,9 @@ namespace SocialMedia.Controllers
             return View();
         }
 
+        [TypeFilter(typeof(AuthenticationFilter))]
         public IActionResult Settings()
         {
-            if (!_userService.IsLogin())
-                return RedirectToAction("Index", "Home");
-
             byte[] oTPQRCode = _userService.GenerateOTPQRCode(out string secretKey);
 
             OTPViewModel oTPVM = new()
@@ -62,11 +61,9 @@ namespace SocialMedia.Controllers
             return View(oTPVM);
         }
 
+        [TypeFilter(typeof(AuthenticationFilter))]
         public IActionResult GenerateOTPQRCode()
         {
-            if (!_userService.IsLogin())
-                return RedirectToAction("Index", "Home");
-
             byte[] oTPQRCode = _userService.GenerateOTPQRCode(out string secretKey);
 
             return Json(new { oTPQRCode = Convert.ToBase64String(oTPQRCode), oTPQRCodeSK = secretKey });

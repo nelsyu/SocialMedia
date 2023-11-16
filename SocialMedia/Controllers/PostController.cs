@@ -1,26 +1,28 @@
 ﻿using Data.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Service.Services.Interfaces;
 using Service.ViewModels;
 using SocialMedia.Models;
+using SocialMedia.Filters;
 using System.Diagnostics;
 using Library.Extensions;
 
 namespace SocialMedia.Controllers
 {
+    [TypeFilter(typeof(AuthenticationFilter))]
     public class PostController : Controller
     {
         private readonly ILogger<PostController> _logger;
         private readonly IPostService _postService;
-        private readonly IUserService _userService;
         private readonly IReplyService _replyService;
         private readonly ITopicService _topicService;
 
-        public PostController(ILogger<PostController> logger, IPostService postService, IUserService userService, IReplyService replyService, ITopicService topicService)
+        public PostController(ILogger<PostController> logger, IPostService postService, IReplyService replyService, ITopicService topicService)
         {
             _logger = logger;
             _postService = postService;
-            _userService = userService;
             _replyService = replyService;
             _topicService = topicService;
         }
@@ -32,8 +34,6 @@ namespace SocialMedia.Controllers
 
         public IActionResult MyPost(int currentPage = 1)
         {
-            if (!_userService.IsLogin())
-                return RedirectToAction("Login", "User");
             if (currentPage < 1)
                 return RedirectToAction("Index", "Home");
             int pageSize = 5;
@@ -54,9 +54,6 @@ namespace SocialMedia.Controllers
 
         public IActionResult CreatePost()
         {
-            if (!_userService.IsLogin())
-                return RedirectToAction("Login", "User");
-
             PostViewModel postVM = new()
             {
                 Topics = _topicService.GetAllTopics()
@@ -103,9 +100,6 @@ namespace SocialMedia.Controllers
 
         public IActionResult EditPost(int postId)
         {
-            if (!_userService.IsLogin())
-                return RedirectToAction("Login", "User");
-
             PostViewModel postVM = _postService.GetPost(postId);
             postVM.Topics = _topicService.GetAllTopics();
 
@@ -136,9 +130,6 @@ namespace SocialMedia.Controllers
         [HttpPost]
         public IActionResult AddReply(ReplyViewModel replyVM)
         {
-            if (!_userService.IsLogin())
-                return RedirectToAction("Login", "User");
-
             _replyService.CreateReply(replyVM);
 
             return RedirectToAction("DetailPost", "Post", new { replyVM.PostId });

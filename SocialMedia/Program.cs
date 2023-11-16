@@ -3,6 +3,7 @@ using Data.Entities;
 using Library.Config;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using Service.Extensions;
 using Service.Mapper;
 using Service.Services.Implements;
@@ -50,6 +51,13 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
     options.HttpOnly = HttpOnlyPolicy.Always;
     options.Secure = CookieSecurePolicy.Always; // 這里是設置Secure標誌的地方
 });
+
+// Configure Serilog
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.File("logs\\log.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 var app = builder.Build();
 
