@@ -23,14 +23,14 @@ namespace SocialMedia.Controllers
             _userService = userService;
         }
 
-        public IActionResult Index(int currentPage = 1)
+        public async Task<IActionResult> Index(int currentPage = 1)
         {
             if (currentPage < 1)
                 return RedirectToAction("Index", "Home");
             int pageSize = 5;
-            List<PostViewModel> postVML = _postService.GetAllPosts();
+            List<PostViewModel> postVML = await _postService.GetAllPostsAsync();
             int totalPosts = postVML.Count;
-            postVML = _postService.Paging(postVML, currentPage, pageSize);
+            postVML = await _postService.PagingAsync(postVML, currentPage, pageSize);
             int totalPages = (int)Math.Ceiling((double)totalPosts / pageSize);
 
             PageViewModel pageVM = new()
@@ -48,11 +48,11 @@ namespace SocialMedia.Controllers
         }
 
         [TypeFilter(typeof(AuthenticationFilter))]
-        public IActionResult Settings()
+        public async Task<IActionResult> Settings()
         {
-            byte[] oTPQRCode = _userService.GenerateOTPQRCode(out string secretKey);
+            (byte[] oTPQRCode, string secretKey) = await _userService.GenerateOTPQRCodeAsync();
 
-            OTPViewModel oTPVM = new()
+            OTPViewModel oTPVM = new OTPViewModel
             {
                 OTPQRCode = oTPQRCode,
                 OTPQRCodeSK = secretKey
@@ -61,10 +61,11 @@ namespace SocialMedia.Controllers
             return View(oTPVM);
         }
 
+
         [TypeFilter(typeof(AuthenticationFilter))]
-        public IActionResult GenerateOTPQRCode()
+        public async Task<IActionResult> GenerateOTPQRCode()
         {
-            byte[] oTPQRCode = _userService.GenerateOTPQRCode(out string secretKey);
+            (byte[] oTPQRCode, string secretKey) = await _userService.GenerateOTPQRCodeAsync();
 
             return Json(new { oTPQRCode = Convert.ToBase64String(oTPQRCode), oTPQRCodeSK = secretKey });
         }

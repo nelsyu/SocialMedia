@@ -9,8 +9,8 @@ namespace Service.Services.Interfaces
 {
     public interface ITopicService
     {
-        List<TopicViewModel> GetAllTopics();
-        void CreateTopic(TopicViewModel topicVM, string title);
-        void DeleteTopic(TopicViewModel topicVM);
+        Task<List<TopicViewModel>> GetAllTopicsAsync();
+        Task CreateTopicAsync(TopicViewModel topicVM, string title);
+        Task DeleteTopicAsync(TopicViewModel topicVM);
     }
 }

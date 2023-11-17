@@ -171,15 +171,19 @@
         </div>
     </div>
 
-    <!-- JavaScript檢查登入 -->
     <script>
         function checkLogin() {
-            var isUserLoggedIn = @(Json.Serialize(_userService.IsLogin()));
-            if (!isUserLoggedIn) {
-                window.alert("Please log in to your account first.");
-                return false;
-            }
-            return true;
+            $.ajax({
+                url: '@Url.Action("IsLoggedIn", "User")',
+                success: function (data) {
+                    if (!data) {
+                        alert("Please log in to your account first.");
+                    }
+                },
+                error: function (error) {
+                    console.error('Error checking login status:', error);
+                }
+            });
         }
     </script>
 </div>

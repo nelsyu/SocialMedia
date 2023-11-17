@@ -13,7 +13,7 @@ namespace Library.Config
         {
             IConfigurationBuilder builder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json");
             IConfigurationRoot configurationRoot = builder.Build();
-            return configurationRoot.GetConnectionString("SocialMedia");
+            return configurationRoot.GetConnectionString("SocialMedia") ?? "";
         }
     }
 }

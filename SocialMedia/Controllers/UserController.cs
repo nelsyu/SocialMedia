@@ -26,19 +26,19 @@ namespace SocialMedia.Controllers
             return View();
         }
 
-        public IActionResult Register()
+        public async Task<IActionResult> Register()
         {
             // 若為登入狀態則跳轉到首頁
-            if (_userService.IsLogin())
+            if (await _userService.IsLoginAsync())
                 return RedirectToAction("Index", "Home");
 
             return View();
         }
 
         [HttpPost]
-        public IActionResult Register(UserViewModel userVM)
+        public async Task<IActionResult> Register(UserViewModel userVM)
         {
-            List<string> result = _userService.ValidateRegister(userVM);
+            List<string> result = await _userService.ValidateRegisterAsync(userVM);
 
             if (result[0] != "")
             {
@@ -48,45 +48,44 @@ namespace SocialMedia.Controllers
             }
             else
             {
-                _userService.Register(userVM);
+                await _userService.RegisterAsync(userVM);
 
                 return RedirectToAction("Index", "Home");
             }
         }
 
-        public IActionResult Login()
+        public async Task<IActionResult> Login()
         {
-            if (_userService.IsLogin())
+            if (await _userService.IsLoginAsync())
                 return RedirectToAction("Index", "Home");
 
-            byte[] captchaImage = _userService.GenerateCaptchaImage(out string captchaCode);
+            (byte[] captchaImage, string captchaCode) = await _userService.GenerateCaptchaImageAsync();
             ViewBag.CaptchaImage = captchaImage;
             TempData["CaptchaCode"] = captchaCode;
 
             return View();
         }
 
-        [TypeFilter(typeof(AuthenticationFilter))]
         [HttpGet]
-        public IActionResult RefreshCaptcha()
+        public async Task<IActionResult> RefreshCaptcha()
         {
-            byte[] captchaImage = _userService.GenerateCaptchaImage(out string captchaCode);
+            (byte[] captchaImage, string captchaCode) = await _userService.GenerateCaptchaImageAsync();
             TempData["CaptchaCode"] = captchaCode;
 
             return Json(new { image = Convert.ToBase64String(captchaImage), code = captchaCode });
         }
 
         [HttpPost]
-        public IActionResult Login(UserViewModel userVM)
+        public async Task<IActionResult> Login(UserViewModel userVM)
         {
-            List<string> result = _userService.ValidateLogin(userVM, TempData["CaptchaCode"] ?? "");
+            List<string> result = await _userService.ValidateLoginAsync(userVM, TempData["CaptchaCode"] ?? "");
 
             if (result[0] != "")
             {
                 ModelState.AddModelError(result[0], result[1]);
 
                 // 生成 captcha 圖片
-                byte[] captchaImage = _userService.GenerateCaptchaImage(out string captchaCode);
+                (byte[] captchaImage, string captchaCode) = await _userService.GenerateCaptchaImageAsync();
                 ViewBag.CaptchaImage = captchaImage;
                 TempData["CaptchaCode"] = captchaCode;
 
@@ -102,23 +101,23 @@ namespace SocialMedia.Controllers
 
         [TypeFilter(typeof(AuthenticationFilter))]
         [HttpPost]
-        public IActionResult SaveQRCodeOTP([FromForm] string QRCodeOTPSK)
+        public async Task<IActionResult> SaveQRCodeOTP([FromForm] string QRCodeOTPSK)
         {
-             _userService.SaveQRCodeOTP(QRCodeOTPSK);
+             await _userService.SaveQRCodeOTPAsync(QRCodeOTPSK);
 
             return RedirectToAction("Index", "Home");
         }
 
-        public IActionResult ValidateQRCodeOTP()
+        public async Task<IActionResult> ValidateQRCodeOTP()
         {
             string userVMEmail = HttpContext.Session.GetString("UserVMEmail") ?? "";
 
             if (string.IsNullOrEmpty(userVMEmail))
                 return RedirectToAction("Login", "User");
 
-            if (_userService.IsQRCodeOTPSecretKey(userVMEmail) == null)
+            if (string.IsNullOrEmpty(await _userService.IsQRCodeOTPSecretKeyAsync(userVMEmail)))
             {
-                _userService.LoginSuccessful(userVMEmail);
+                await _userService.LoginSuccessfulAsync(userVMEmail);
 
                 return RedirectToAction("Index", "Home");
             }
@@ -129,14 +128,14 @@ namespace SocialMedia.Controllers
         }
 
         [HttpPost]
-        public IActionResult ValidateQRCodeOTP(UserViewModel userVM)
+        public async Task<IActionResult> ValidateQRCodeOTP(UserViewModel userVM)
         {
             string userVMEmail = HttpContext.Session.GetString("UserVMEmail") ?? "";
 
             if (string.IsNullOrEmpty(userVMEmail))
                 return RedirectToAction("Login", "User");
 
-            List<string> result = _userService.VerifyQRCodeOTP(userVMEmail, userVM.ConfirmQRCodeOTP);
+            List<string> result = await _userService.VerifyQRCodeOTPAsync(userVMEmail, userVM.ConfirmQRCodeOTP);
 
             if (result[0] != "")
             {
@@ -146,25 +145,39 @@ namespace SocialMedia.Controllers
             }
             else
             {
-                _userService.LoginSuccessful(userVMEmail);
+                await _userService.LoginSuccessfulAsync(userVMEmail);
 
                 return RedirectToAction("Index", "Home");
             }
         }
 
         [TypeFilter(typeof(AuthenticationFilter))]
-        public IActionResult Logout()
+        public async Task<IActionResult> Logout()
         {
-            _userService.Logout();
+            await _userService.LogoutAsync();
+
             return RedirectToAction("Index", "Home");
         }
 
         [TypeFilter(typeof(AuthenticationFilter))]
         [HttpPost]
-        public IActionResult DeleteAccount(UserViewModel userVM)
+        public async Task<IActionResult> DeleteAccount(UserViewModel userVM)
         {
-            _userService.DeleteAccount(userVM);
+            await _userService.DeleteAccountAsync(userVM);
+
             return RedirectToAction("Index", "Home");
+        }
+
+        public async Task<IActionResult> IsLoggedIn()
+        {
+            bool isUserLoggedIn = await _userService.IsLoginAsync();
+            return Json(isUserLoggedIn);
+        }
+
+        public async Task<IActionResult> GetFriends()
+        {
+            List<FriendshipViewModel> friendVML = await _userService.GetAllFriendsAsync();
+            return PartialView("_FriendsPartial", friendVML);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

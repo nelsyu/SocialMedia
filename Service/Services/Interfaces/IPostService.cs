@@ -9,14 +9,14 @@ namespace Service.Services.Interfaces
 {
     public interface IPostService
     {
-        PostViewModel GetPost(int postId);
-        List<PostViewModel> GetAllPosts();
-        List<PostViewModel> GetMyPosts();
-        List<PostViewModel> GetAllPosts(int topicId);
-        List<PostViewModel> Paging(List<PostViewModel> postVMs, int page, int pageSize);
-        List<string> ValidatePost(PostViewModel postVM);
-        void CreatePost(PostViewModel postVM);
-        void UpdatePost(PostViewModel postVM, int postId);
-        void DeletePost(PostViewModel postVM);
+        Task<PostViewModel> GetPostAsync(int postId);
+        Task<List<PostViewModel>> GetAllPostsAsync();
+        Task<List<PostViewModel>> GetAllPostsAsync(int topicId);
+        Task<List<PostViewModel>> GetMyPostsAsync();
+        Task<List<PostViewModel>> PagingAsync(List<PostViewModel> postVMs, int page, int pageSize);
+        Task<List<string>> ValidatePostAsync(PostViewModel postVM);
+        Task CreatePostAsync(PostViewModel postVM);
+        Task DeletePostAsync(PostViewModel postVM);
+        Task UpdatePostAsync(PostViewModel postVM, int postId);
     }
 }

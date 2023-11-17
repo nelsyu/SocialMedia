@@ -50,7 +50,7 @@
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="event.stopPropagation();">
                                         Cancel
                                     </button>
-                                    <form class="delete-form" method="post" asp-controller="topic" asp-action="Deletetopic">
+                                    <form class="delete-form" method="post" asp-controller="Topic" asp-action="DeleteTopic">
                                         <input type="hidden" name="topicId" value="@topicVM.TopicId" />
                                         <button type="submit" class="btn btn-danger">Delete</button>
                                     </form>

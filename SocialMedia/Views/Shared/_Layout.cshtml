@@ -76,18 +76,14 @@
                             }
                             else
                             {
-                                List<FriendshipViewModel> friendVML = _userService.GetAllFriends();
                                 <li class="nav-item">
                                     <div class="nav-item dropdown">
                                         <a class="nav-link text-dark dropdown-toggle" href="#" id="friendsDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                             Friends
                                         </a>
                                         <div class="dropdown-menu friends-dropdown" aria-labelledby="friendsDropdown">
-                                            <div class="scrollable-menu">
-                                                @foreach (var friendVM in friendVML)
-                                                {
-                                                    <a class="dropdown-item" href="#">@friendVM.User2.Username</a>
-                                                }
+                                            <div class="scrollable-menu" id="friendsContainer">
+                                                <!-- Friends list will be loaded here -->
                                             </div>
                                         </div>
                                     </div>
@@ -127,9 +123,35 @@
 
         <script>
             function checkLogin() {
-                var isUserLoggedIn = @(Json.Serialize(_userService.IsLogin()));
-                if (!isUserLoggedIn) {
-                    window.alert("Please log in to your account first.");
+                $.ajax({
+                    url: '@Url.Action("IsLoggedIn", "User")',
+                    success: function (data) {
+                        if (!data) {
+                            alert("Please log in to your account first.");
+                        }
+                    },
+                    error: function (error) {
+                        console.error('Error checking login status:', error);
+                    }
+                });
+            }
+
+            $(document).ready(function () {
+                // Load friends list when the document is ready
+                loadFriends();
+            });
+
+            async function loadFriends() {
+                try {
+                    const response = await $.ajax({
+                        url: '@Url.Action("GetFriends", "User")',
+                        method: 'GET'
+                    });
+
+                    // Append friends to the container
+                    $('#friendsContainer').html(response);
+                } catch (error) {
+                    console.error('Error loading friends:', error);
                 }
             }
         </script>

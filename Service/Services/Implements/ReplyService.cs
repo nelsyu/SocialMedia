@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Library.Extensions;
 using Service.Extensions;
+using Microsoft.EntityFrameworkCore;
 
 namespace Service.Services.Implements
 {
@@ -28,17 +29,18 @@ namespace Service.Services.Implements
             _userLoggedIn = userLoggedIn;
         }
 
-        public void CreateReply(ReplyViewModel replyVM)
+        public async Task CreateReplyAsync(ReplyViewModel replyVM)
         {
-            replyVM.UserId = _dbContext.Users
+            replyVM.UserId = await _dbContext.Users
                 .Where(u => u.Username == _userLoggedIn.Username)
                 .Select(u => u.UserId)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
             replyVM.ReplyDate = DateTime.Now;
 
             var replyEnt = _mapper.Map<Reply>(replyVM);
-            _dbContext.Replies.Add(replyEnt);
-            _dbContext.SaveChanges();
+            await _dbContext.Replies.AddAsync(replyEnt);
+            await _dbContext.SaveChangesAsync();
         }
+
     }
 }

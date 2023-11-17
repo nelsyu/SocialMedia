@@ -31,49 +31,49 @@ namespace Service.Services.Implements
             _userLoggedIn = userLoggedIn;
         }
 
-        public PostViewModel GetPost(int postId)
+        public async Task<PostViewModel> GetPostAsync(int postId)
         {
-            Post? postEnt = _dbContext.Posts
+            Post? postEnt = await _dbContext.Posts
                 .Where(p => p.PostId == postId)
                 .Include(p => p.User)
                 .Include(p => p.Replies).ThenInclude(r => r.User)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
 
             var postVM = _mapper.Map<PostViewModel>(postEnt);
 
             return postVM;
         }
 
-        public List<PostViewModel> GetAllPosts()
+        public async Task<List<PostViewModel>> GetAllPostsAsync()
         {
-            return GetPosts(p => true);
+            return await GetPostsAsync(p => true);
         }
 
-        public List<PostViewModel> GetAllPosts(int topicId)
+        public async Task<List<PostViewModel>> GetAllPostsAsync(int topicId)
         {
-            return GetPosts(p => p.TopicId == topicId);
+            return await GetPostsAsync(p => p.TopicId == topicId);
         }
 
-        public List<PostViewModel> GetMyPosts()
+        public async Task<List<PostViewModel>> GetMyPostsAsync()
         {
-            return GetPosts(p => p.User != null && p.User.UserId == _userLoggedIn.UserId);
+            return await GetPostsAsync(p => p.User != null && p.User.UserId == _userLoggedIn.UserId);
         }
 
-        public List<PostViewModel> Paging(List<PostViewModel> postVML, int page, int pageSize)
+        public Task<List<PostViewModel>> PagingAsync(List<PostViewModel> postVML, int page, int pageSize)
         {
             int skipPosts = (page - 1) * pageSize;
-            
+
             postVML = postVML
                 .Skip(skipPosts)
                 .Take(pageSize)
                 .ToList();
 
-            return postVML;
+            return Task.FromResult(postVML);
         }
 
-        public List<string> ValidatePost(PostViewModel postVM)
+        public async Task<List<string>> ValidatePostAsync(PostViewModel postVM)
         {
-            bool isTopicIdInvalid = !_dbContext.Topics.Any(t => t.TopicId == postVM.TopicId);
+            bool isTopicIdInvalid = !await _dbContext.Topics.AnyAsync(t => t.TopicId == postVM.TopicId);
             bool isTitleInvalid = string.IsNullOrEmpty(postVM.Title);
             bool isContentInvalid = string.IsNullOrEmpty(postVM.Content);
 
@@ -102,9 +102,9 @@ namespace Service.Services.Implements
             return result;
         }
 
-        public void CreatePost(PostViewModel postVM)
+        public async Task CreatePostAsync(PostViewModel postVM)
         {
-            if(_userLoggedIn.Username != null)
+            if (_userLoggedIn.Username != null)
             {
                 postVM.UserId = _userLoggedIn.UserId;
                 postVM.PostDate = DateTime.Now;
@@ -112,13 +112,24 @@ namespace Service.Services.Implements
 
                 var postEnt = _mapper.Map<Post>(postVM);
                 _dbContext.Posts.Add(postEnt);
-                _dbContext.SaveChanges();
+                await _dbContext.SaveChangesAsync();
             }
         }
 
-        public void UpdatePost(PostViewModel postVM, int postId)
+        public async Task DeletePostAsync(PostViewModel postVM)
         {
-            var postEnt = _dbContext.Posts.Find(postId);
+            Post? postEnt = await _dbContext.Posts.FirstOrDefaultAsync(p => p.PostId == postVM.PostId);
+
+            if (postEnt != null)
+            {
+                _dbContext.Posts.Remove(postEnt);
+                await _dbContext.SaveChangesAsync();
+            }
+        }
+
+        public async Task UpdatePostAsync(PostViewModel postVM, int postId)
+        {
+            var postEnt = await _dbContext.Posts.FindAsync(postId);
 
             if (postEnt != null)
             {
@@ -127,33 +138,22 @@ namespace Service.Services.Implements
                 postEnt.Content = postVM.Content;
                 postEnt.LastEditDate = DateTime.Now;
 
-                _dbContext.SaveChanges();
-            }
-        }
-
-        public void DeletePost(PostViewModel postVM)
-        {
-            Post? postEnt = _dbContext.Posts.FirstOrDefault(p => p.PostId == postVM.PostId);
-
-            if (postEnt != null)
-            {
-                _dbContext.Posts.Remove(postEnt);
-                _dbContext.SaveChanges();
+                await _dbContext.SaveChangesAsync();
             }
         }
 
         #region private methods
-        private List<PostViewModel> GetPosts(Expression<Func<Post, bool>> condition)
+        private async Task<List<PostViewModel>> GetPostsAsync(Expression<Func<Post, bool>> condition)
         {
-            List<Post> postL = _dbContext.Posts
+            List<Post> postsEnt = await _dbContext.Posts
                 .Where(condition)
                 .OrderByDescending(p => p.PostDate)
                 .Include(p => p.User)
-                .ToList();
+                .ToListAsync();
 
-            List<PostViewModel> postVML = _mapper.Map<List<PostViewModel>>(postL);
+            var postsVM = _mapper.Map<List<PostViewModel>>(postsEnt);
 
-            return postVML;
+            return postsVM;
         }
         #endregion
     }

@@ -39,10 +39,10 @@ namespace Service.Services.Implements
             _userLoggedIn = userLoggedIn;
         }
 
-        public List<string> ValidateRegister(UserViewModel userVM)
+        public async Task<List<string>> ValidateRegisterAsync(UserViewModel userVM)
         {
-            string IsEmailValidate = IsValidEmail(userVM.Email);
-            bool IsUsernameInvalid = _dbContext.Users.Any(u => u.Username == userVM.Username) || userVM.Username == null;
+            string IsEmailValidate = IsValidEmailAsync(userVM.Email);
+            bool IsUsernameInvalid = await _dbContext.Users.AnyAsync(u => u.Username == userVM.Username) || userVM.Username == null;
             bool IsPasswordInvalid = string.IsNullOrEmpty(userVM.Password);
             bool IsConfirmPasswordInvalid = string.IsNullOrEmpty(userVM.ConfirmPassword) || userVM.Password != userVM.ConfirmPassword;
             List<string> result = new();
@@ -57,7 +57,7 @@ namespace Service.Services.Implements
                 result.Add("Username");
                 result.Add("Username is invalid.");
             }
-            else if(IsPasswordInvalid)
+            else if (IsPasswordInvalid)
             {
                 result.Add("Password");
                 result.Add("Password is invalid.");
@@ -73,17 +73,17 @@ namespace Service.Services.Implements
             return result;
         }
 
-        public void Register(UserViewModel userVM)
+        public async Task RegisterAsync(UserViewModel userVM)
         {
             User userEnt = _mapper.Map<User>(userVM);
             _dbContext.Users.Add(userEnt);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
-        public List<string> ValidateLogin(UserViewModel userVM, object captchaCode)
+        public async Task<List<string>> ValidateLoginAsync(UserViewModel userVM, object captchaCode)
         {
-            bool IsEmailInvalid = !_dbContext.Users.Any(u => u.Email == userVM.Email);
-            bool IsPasswordInvalid = !_dbContext.Users.Any(u => u.Password == userVM.Password);
+            bool IsEmailInvalid = !await _dbContext.Users.AnyAsync(u => u.Email == userVM.Email);
+            bool IsPasswordInvalid = !await _dbContext.Users.AnyAsync(u => u.Password == userVM.Password);
             bool IsConfirmCaptchaInvalid = !Equals(captchaCode, userVM.ConfirmCaptcha);
 
             List<string> result = new();
@@ -98,7 +98,7 @@ namespace Service.Services.Implements
                 result.Add("Password");
                 result.Add("Password is invalid.");
             }
-            else if(IsConfirmCaptchaInvalid)
+            else if (IsConfirmCaptchaInvalid)
             {
                 result.Add("Captcha");
                 result.Add("Captcha is invalid");
@@ -111,9 +111,9 @@ namespace Service.Services.Implements
             return result;
         }
 
-        public void LoginSuccessful(string UserVMEmail)
+        public async Task LoginSuccessfulAsync(string UserVMEmail)
         {
-            User? userEnt = _dbContext.Users.Where(u => u.Email == UserVMEmail).FirstOrDefault();
+            User? userEnt = await _dbContext.Users.Where(u => u.Email == UserVMEmail).FirstOrDefaultAsync();
             if (userEnt != null)
             {
                 UserViewModel userVM = _mapper.Map<UserViewModel>(userEnt);
@@ -121,55 +121,56 @@ namespace Service.Services.Implements
             }
         }
 
-        public bool IsLogin()
+        public Task<bool> IsLoginAsync()
         {
-            bool IsLogin = !string.IsNullOrEmpty(_userLoggedIn.Username);
-                return IsLogin;
+            bool isLogin = !string.IsNullOrEmpty(_userLoggedIn.Username);
+            return Task.FromResult(isLogin);
         }
 
-        public void Logout()
+        public Task LogoutAsync()
         {
             _userLoggedIn.Dispose();
+            return Task.CompletedTask;
         }
 
-        public void DeleteAccount(UserViewModel userVM)
+        public async Task DeleteAccountAsync(UserViewModel userVM)
         {
-            User? userEnt = _dbContext.Users.Where(u => u.Username == _userLoggedIn.Username).FirstOrDefault();
-            
-            if(userEnt != null)
+            User? userEnt = await _dbContext.Users.Where(u => u.Username == _userLoggedIn.Username).FirstOrDefaultAsync();
+
+            if (userEnt != null)
             {
                 _dbContext.Users.Remove(userEnt);
-                _dbContext.SaveChanges();
+                await _dbContext.SaveChangesAsync();
                 _userLoggedIn.Dispose();
             }
         }
 
-        public void SaveQRCodeOTP(string QRCodeOTPSK)
+        public async Task SaveQRCodeOTPAsync(string QRCodeOTPSK)
         {
-            User? userEnt = _dbContext.Users.FirstOrDefault(u => u.Username == _userLoggedIn.Username);
+            User? userEnt = await _dbContext.Users.FirstOrDefaultAsync(u => u.Username == _userLoggedIn.Username);
             if (userEnt != null)
             {
                 userEnt.Totp = QRCodeOTPSK;
-                _dbContext.SaveChanges();
+                await _dbContext.SaveChangesAsync();
             }
         }
 
-        public string ?IsQRCodeOTPSecretKey(string UserVMEmail)
+        public async Task<string> IsQRCodeOTPSecretKeyAsync(string UserVMEmail)
         {
-            string? QRCodeOTPSecretKey = _dbContext.Users
+            string qRCodeOTPSecretKey = await _dbContext.Users
                 .Where(u => u.Email == UserVMEmail)
                 .Select(u => u.Totp)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync() ?? "";
 
-            return QRCodeOTPSecretKey;
+            return qRCodeOTPSecretKey;
         }
 
-        public List<string> VerifyQRCodeOTP(string userVMEmail, string confirmQRCodeOTP)
+        public async Task<List<string>> VerifyQRCodeOTPAsync(string userVMEmail, string confirmQRCodeOTP)
         {
-            string? qRCodeOTPSecretKey = _dbContext.Users
+            string? qRCodeOTPSecretKey = await _dbContext.Users
                 .Where(u => u.Email == userVMEmail)
                 .Select(u => u.Totp)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
 
             Totp qRCodeOTP = new(Base32Encoding.ToBytes((string)(qRCodeOTPSecretKey ?? "")));
             bool isConfirmQRCodeOTPInvalid = !qRCodeOTP.VerifyTotp(confirmQRCodeOTP, out _);
@@ -189,9 +190,8 @@ namespace Service.Services.Implements
             return result;
         }
 
-        public byte[] GenerateCaptchaImage(out string captchaCode)
+        public async Task<(byte[], string)> GenerateCaptchaImageAsync()
         {
-            //TODO:安装 SkiaSharp.NativeAssets.Linux.NoDependencies 包
             var validateCodeProvider = new SkiaSharpValidateCodeHelper
             {
                 SetWith = 100,
@@ -200,45 +200,46 @@ namespace Service.Services.Implements
             };
 
             byte[] img = validateCodeProvider.GetVerifyCodeImage();
-            captchaCode = validateCodeProvider.SetVerifyCodeText;
+            string captchaCode = validateCodeProvider.SetVerifyCodeText;
 
-            return img;
+            await Task.CompletedTask;
+
+            return (img, captchaCode);
         }
 
-        public byte[] GenerateOTPQRCode(out string secretKey)
+        public async Task<(byte[], string)> GenerateOTPQRCodeAsync()
         {
-            secretKey = Base32Encoding.ToString(OtpNet.KeyGeneration.GenerateRandomKey());
+            string secretKey = Base32Encoding.ToString(OtpNet.KeyGeneration.GenerateRandomKey());
 
-            // 顯示在 APP 中的發行者名稱
             string issuer = "SocialMedia";
-
-            // 顯示在 APP 中的標題
             string label = _userLoggedIn.Username ?? "";
             string keyUri = new OtpUri(OtpType.Totp, secretKey, label, issuer).ToString();
 
             byte[] image = PngByteQRCodeHelper.GetQRCode(keyUri, QRCodeGenerator.ECCLevel.Q, 10);
 
-            return image;
+            await Task.CompletedTask;
+
+            return (image, secretKey);
         }
 
-        public List<FriendshipViewModel> GetAllFriends()
+        public async Task<List<FriendshipViewModel>> GetAllFriendsAsync()
         {
-            List<Friendship> friendshipEntL = _dbContext.Friendships
+            List<Friendship> friendshipEntL = await _dbContext.Friendships
                 .Where(f => f.UserId1 == _userLoggedIn.UserId)
-                .ToList();
+                .ToListAsync();
 
             List<FriendshipViewModel> friendshipVML = _mapper.Map<List<FriendshipViewModel>>(friendshipEntL);
 
             foreach (var friendshipVM in friendshipVML)
             {
-                friendshipVM.User2 = _mapper.Map<UserViewModel>(_dbContext.Users.Find(friendshipVM.UserId2));
+                friendshipVM.User2 = _mapper.Map<UserViewModel>(await _dbContext.Users.FindAsync(friendshipVM.UserId2));
             }
 
             return friendshipVML;
         }
 
         #region private methods
-        private string IsValidEmail(string email)
+        private string IsValidEmailAsync(string email)
         {
             string emailPattern = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
 

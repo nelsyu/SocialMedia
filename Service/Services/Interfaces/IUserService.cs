@@ -11,18 +11,18 @@ namespace Service.Services.Interfaces
 {
     public interface IUserService
     {
-        List<string> ValidateRegister(UserViewModel userVM);
-        void Register(UserViewModel userVM);
-        List<string> ValidateLogin(UserViewModel userVM, object captchaCode);
-        void LoginSuccessful(string userVMEmail);
-        bool IsLogin();
-        void Logout();
-        void DeleteAccount(UserViewModel userVM);
-        void SaveQRCodeOTP(string QRCodeOTPSK);
-        string ?IsQRCodeOTPSecretKey(string userVMEmail);
-        List<string> VerifyQRCodeOTP(string userVMEmail, string confirmTotp);
-        byte[] GenerateCaptchaImage(out string captchaCode);
-        byte[] GenerateOTPQRCode(out string secretKey);
-        List<FriendshipViewModel> GetAllFriends();
+        Task<List<string>> ValidateRegisterAsync(UserViewModel userVM);
+        Task RegisterAsync(UserViewModel userVM);
+        Task<List<string>> ValidateLoginAsync(UserViewModel userVM, object captchaCode);
+        Task LoginSuccessfulAsync(string userVMEmail);
+        Task<bool> IsLoginAsync();
+        Task LogoutAsync();
+        Task DeleteAccountAsync(UserViewModel userVM);
+        Task SaveQRCodeOTPAsync(string QRCodeOTPSK);
+        Task<string> IsQRCodeOTPSecretKeyAsync(string userVMEmail);
+        Task<List<string>> VerifyQRCodeOTPAsync(string userVMEmail, string confirmTotp);
+        Task<(byte[], string)> GenerateCaptchaImageAsync();
+        Task<(byte[], string)> GenerateOTPQRCodeAsync();
+        Task<List<FriendshipViewModel>> GetAllFriendsAsync();
     }
 }

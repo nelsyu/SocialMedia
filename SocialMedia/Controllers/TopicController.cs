@@ -23,20 +23,20 @@ namespace SocialMedia.Controllers
             _postService = postService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            List<TopicViewModel> topicVML = _topicService.GetAllTopics();
+            List<TopicViewModel> topicVML = await _topicService.GetAllTopicsAsync();
             return View(topicVML);
         }
 
-        public IActionResult DetailTopic(int topicId, int currentPage = 1)
+        public async Task<IActionResult> DetailTopic(int topicId, int currentPage = 1)
         {
             if (currentPage < 1)
                 return RedirectToAction("Index", "Home");
             int pageSize = 5;
-            List<PostViewModel> postVML = _postService.GetAllPosts(topicId);
+            List<PostViewModel> postVML = await _postService.GetAllPostsAsync(topicId);
             int totalPosts = postVML.Count;
-            postVML = _postService.Paging(postVML, currentPage, pageSize);
+            postVML = await _postService.PagingAsync(postVML, currentPage, pageSize);
             int totalPages = (int)Math.Ceiling((double)totalPosts / pageSize);
 
             PageViewModel pageVM = new()
@@ -53,17 +53,18 @@ namespace SocialMedia.Controllers
 
         [TypeFilter(typeof(AuthenticationFilter))]
         [HttpPost]
-        public IActionResult CreateTopic(TopicViewModel topicVM, string title)
+        public async Task<IActionResult> CreateTopic(TopicViewModel topicVM, string title)
         {
-            _topicService.CreateTopic(topicVM, title);
+            await _topicService.CreateTopicAsync(topicVM, title);
 
             return RedirectToAction("Index", "Topic");
         }
 
         [TypeFilter(typeof(AuthenticationFilter))]
-        public IActionResult DeleteTopic(TopicViewModel topicVM)
+        [HttpPost]
+        public async Task<IActionResult> DeleteTopic(TopicViewModel topicVM)
         {
-            _topicService.DeleteTopic(topicVM);
+            await _topicService.DeleteTopicAsync(topicVM);
 
             return RedirectToAction("Index", "Topic");
         }

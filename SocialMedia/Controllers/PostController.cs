@@ -11,7 +11,6 @@ using Library.Extensions;
 
 namespace SocialMedia.Controllers
 {
-    [TypeFilter(typeof(AuthenticationFilter))]
     public class PostController : Controller
     {
         private readonly ILogger<PostController> _logger;
@@ -32,14 +31,15 @@ namespace SocialMedia.Controllers
             return View();
         }
 
-        public IActionResult MyPost(int currentPage = 1)
+        [TypeFilter(typeof(AuthenticationFilter))]
+        public async Task<IActionResult> MyPost(int currentPage = 1)
         {
             if (currentPage < 1)
                 return RedirectToAction("Index", "Home");
             int pageSize = 5;
-            List<PostViewModel> postVML = _postService.GetMyPosts();
+            List<PostViewModel> postVML = await _postService.GetMyPostsAsync();
             int totalPosts = postVML.Count;
-            postVML = _postService.Paging(postVML, currentPage, pageSize);
+            postVML = await _postService.PagingAsync(postVML, currentPage, pageSize);
             int totalPages = (int)Math.Ceiling((double)totalPosts / pageSize);
 
             PageViewModel pageVM = new()
@@ -52,85 +52,89 @@ namespace SocialMedia.Controllers
             return View((postVML, pageVM));
         }
 
-        public IActionResult CreatePost()
+        [TypeFilter(typeof(AuthenticationFilter))]
+        public async Task<IActionResult> CreatePost()
         {
             PostViewModel postVM = new()
             {
-                Topics = _topicService.GetAllTopics()
+                Topics = await _topicService.GetAllTopicsAsync()
             };
 
             return View(postVM);
         }
 
         [HttpPost]
-        public IActionResult CreatePost(PostViewModel postVM)
+        public async Task<IActionResult> CreatePost(PostViewModel postVM)
         {
-            List<string> result = _postService.ValidatePost(postVM);
+            List<string> result = await _postService.ValidatePostAsync(postVM);
 
             if (result[0] != "")
             {
                 ModelState.AddModelError(result[0], result[1]);
 
-                postVM.Topics = _topicService.GetAllTopics();
+                postVM.Topics = await _topicService.GetAllTopicsAsync();
 
                 return View(postVM);
             }
             else
             {
-                _postService.CreatePost(postVM);
+                await _postService.CreatePostAsync(postVM);
 
                 return RedirectToAction("Index", "Home");
             }
         }
 
-        public IActionResult DeletePost(PostViewModel postVM)
+        [TypeFilter(typeof(AuthenticationFilter))]
+        public async Task<IActionResult> DeletePost(PostViewModel postVM)
         {
-            _postService.DeletePost(postVM);
+            await _postService.DeletePostAsync(postVM);
 
             return RedirectToAction("MyPost", "Post");
         }
 
-        public IActionResult DetailPost(int postId)
+        public async Task<IActionResult> DetailPost(int postId)
         {
-            PostViewModel postVM = _postService.GetPost(postId);
+            PostViewModel postVM = await _postService.GetPostAsync(postId);
             ReplyViewModel replyVM = new();
             
             return View((postVM, replyVM));
         }
 
-        public IActionResult EditPost(int postId)
+        [TypeFilter(typeof(AuthenticationFilter))]
+        public async Task<IActionResult> EditPost(int postId)
         {
-            PostViewModel postVM = _postService.GetPost(postId);
-            postVM.Topics = _topicService.GetAllTopics();
+            PostViewModel postVM = await _postService.GetPostAsync(postId);
+            postVM.Topics = await _topicService.GetAllTopicsAsync();
 
             return View(postVM);
         }
 
         [HttpPost]
-        public IActionResult EditPost(PostViewModel postVM, int postId)
+        public async Task<IActionResult> EditPost(PostViewModel postVM, int postId)
         {
-            List<string> result = _postService.ValidatePost(postVM);
+            List<string> result = await _postService.ValidatePostAsync(postVM);
 
             if (result[0] != "")
             {
                 ModelState.AddModelError(result[0], result[1]);
 
-                postVM.Topics = _topicService.GetAllTopics();
+                postVM.Topics = await _topicService.GetAllTopicsAsync();
 
                 return View(postVM);
             }
             else
             {
-                _postService.UpdatePost(postVM, postId);
+                await _postService.UpdatePostAsync(postVM, postId);
 
                 return RedirectToAction("Index", "Home");
             }
         }
 
+        [TypeFilter(typeof(AuthenticationFilter))]
         [HttpPost]
-        public IActionResult AddReply(ReplyViewModel replyVM)
+        public async Task<IActionResult> AddReply(ReplyViewModel replyVM)
         {
-            _replyService.CreateReply(replyVM);
+            await _replyService.CreateReplyAsync(replyVM);
 
             return RedirectToAction("DetailPost", "Post", new { replyVM.PostId });
         }

@@ -9,6 +9,6 @@ namespace Service.Services.Interfaces
 {
     public interface IReplyService
     {
-        void CreateReply(ReplyViewModel replyVM);
+        Task CreateReplyAsync(ReplyViewModel replyVM);
     }
 }

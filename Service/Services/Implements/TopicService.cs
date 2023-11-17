@@ -29,34 +29,35 @@ namespace Service.Services.Implements
             _userLoggedIn = userLoggedIn;
         }
 
-        public List<TopicViewModel> GetAllTopics()
+        public async Task<List<TopicViewModel>> GetAllTopicsAsync()
         {
-            List<Topic> topicEntL = _dbContext.Topics
+            List<Topic> topicEntL = await _dbContext.Topics
                 .Include(t => t.User)
-                .ToList();
+                .ToListAsync();
             List<TopicViewModel> topicVML = _mapper.Map<List<TopicViewModel>>(topicEntL);
 
             return topicVML;
         }
 
-        public void CreateTopic(TopicViewModel topicVM, string title)
+        public async Task CreateTopicAsync(TopicViewModel topicVM, string title)
         {
             topicVM.UserId = _userLoggedIn.UserId;
             topicVM.Title = title;
 
             var topicEnt = _mapper.Map<Topic>(topicVM);
-            _dbContext.Add(topicEnt);
-            _dbContext.SaveChanges();
+            await _dbContext.AddAsync(topicEnt);
+            await _dbContext.SaveChangesAsync();
         }
 
-        public void DeleteTopic(TopicViewModel topicVM)
+        public async Task DeleteTopicAsync(TopicViewModel topicVM)
         {
-            Topic? topicEnt = _dbContext.Topics.FirstOrDefault(t => t.TopicId == topicVM.TopicId);
-            if(topicEnt != null)
+            Topic? topicEnt = await _dbContext.Topics.FirstOrDefaultAsync(t => t.TopicId == topicVM.TopicId);
+            if (topicEnt != null)
             {
                 _dbContext.Remove(topicEnt);
-                _dbContext.SaveChanges();
+                await _dbContext.SaveChangesAsync();
             }
         }
+
     }
 }

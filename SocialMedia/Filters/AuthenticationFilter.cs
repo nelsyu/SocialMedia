@@ -13,9 +13,9 @@ namespace SocialMedia.Filters
             _userService = userService;
         }
 
-        public void OnAuthorization(AuthorizationFilterContext context)
+        public async void OnAuthorization(AuthorizationFilterContext context)
         {
-            if (!_userService.IsLogin())
+            if (!await _userService.IsLoginAsync())
             {
                 context.Result = new RedirectToActionResult("Login", "User", null);
             }

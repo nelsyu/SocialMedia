@@ -13,13 +13,20 @@ namespace Service.Mapper
     {
         public MappingProfile()
         {
-            CreateMap<Post, PostViewModel>();
-            CreateMap<Reply, ReplyViewModel>();
-            CreateMap<Topic, TopicViewModel>();
-            CreateMap<User, UserViewModel>();
-            CreateMap<Friendship, FriendshipViewModel>();
-            CreateMap<Like, LikeViewModel>();
-            CreateMap<Message, MessageViewModel>();
+            CreateMap<Post, PostViewModel>()
+                .ReverseMap();
+            CreateMap<Reply, ReplyViewModel>()
+                .ReverseMap();
+            CreateMap<Topic, TopicViewModel>()
+                .ReverseMap();
+            CreateMap<User, UserViewModel>()
+                .ReverseMap();
+            CreateMap<Friendship, FriendshipViewModel>()
+                .ReverseMap();
+            CreateMap<Like, LikeViewModel>()
+                .ReverseMap();
+            CreateMap<Message, MessageViewModel>()
+                .ReverseMap();
         }
     }
 }
