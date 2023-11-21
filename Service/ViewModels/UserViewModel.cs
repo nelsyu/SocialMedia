@@ -1,7 +1,7 @@
 ﻿using Data.Entities;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Service.ViewModels
 {
@@ -23,6 +23,7 @@ namespace Service.ViewModels
 
         #region My property
         public string ConfirmPassword { get; set; } = null!;
+        public byte[] CaptchaImage { get; set; } = null!;
         public string ConfirmCaptcha { get; set; } = null!;
         public string ConfirmQRCodeOTP { get; set; } = null!;
         #endregion

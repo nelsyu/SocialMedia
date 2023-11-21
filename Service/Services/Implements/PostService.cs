@@ -59,16 +59,16 @@ namespace Service.Services.Implements
             return await GetPostsAsync(p => p.User != null && p.User.UserId == _userLoggedIn.UserId);
         }
 
-        public Task<List<PostViewModel>> PagingAsync(List<PostViewModel> postVML, int page, int pageSize)
+        public Task<List<PostViewModel>> PagingAsync(List<PostViewModel> postsVM, int page, int pageSize)
         {
             int skipPosts = (page - 1) * pageSize;
 
-            postVML = postVML
+            postsVM = postsVM
                 .Skip(skipPosts)
                 .Take(pageSize)
                 .ToList();
 
-            return Task.FromResult(postVML);
+            return Task.FromResult(postsVM);
         }
 
         public async Task<List<string>> ValidatePostAsync(PostViewModel postVM)

@@ -8,11 +8,18 @@ using Service.Extensions;
 using Service.Mapper;
 using Service.Services.Implements;
 using Service.Services.Interfaces;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+
+// 將 Controllers 服務添加到容器，並配置 JSON 選項以忽略對象參考循環
+builder.Services.AddControllersWithViews().AddJsonOptions(option =>
+{
+    // 設置 JSON 序列化選項，以忽略對象參考循環
+    option.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+});
 
 builder.Services.AddDbContext<SocialMediaContext>(
     options => options.UseSqlServer(DbConfig.GetConnectionString()));

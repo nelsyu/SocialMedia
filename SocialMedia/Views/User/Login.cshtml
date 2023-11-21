@@ -67,7 +67,7 @@
 
                             <div class="input-group">
                                 <input asp-for="ConfirmCaptcha" class="form-control" />
-                                <img src="data:image/png;base64,@Convert.ToBase64String(ViewBag.CaptchaImage)" alt="Captcha Image" class="captcha-image rounded" style="max-width: 100px; height: auto;" />
+                                <img src="data:image/png;base64,@Convert.ToBase64String(Model.CaptchaImage)" alt="Captcha Image" class="captcha-image rounded" style="max-width: 100px; height: auto;" />
                             </div>
                             <span asp-validation-for="ConfirmCaptcha" class="text-danger"></span>
                         </div>

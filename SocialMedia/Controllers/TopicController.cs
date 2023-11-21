@@ -25,8 +25,8 @@ namespace SocialMedia.Controllers
 
         public async Task<IActionResult> Index()
         {
-            List<TopicViewModel> topicVML = await _topicService.GetAllTopicsAsync();
-            return View(topicVML);
+            List<TopicViewModel> topicsVM = await _topicService.GetAllTopicsAsync();
+            return View(topicsVM);
         }
 
         public async Task<IActionResult> DetailTopic(int topicId, int currentPage = 1)
@@ -34,9 +34,9 @@ namespace SocialMedia.Controllers
             if (currentPage < 1)
                 return RedirectToAction("Index", "Home");
             int pageSize = 5;
-            List<PostViewModel> postVML = await _postService.GetAllPostsAsync(topicId);
-            int totalPosts = postVML.Count;
-            postVML = await _postService.PagingAsync(postVML, currentPage, pageSize);
+            List<PostViewModel> postsVM = await _postService.GetAllPostsAsync(topicId);
+            int totalPosts = postsVM.Count;
+            postsVM = await _postService.PagingAsync(postsVM, currentPage, pageSize);
             int totalPages = (int)Math.Ceiling((double)totalPosts / pageSize);
 
             PageViewModel pageVM = new()
@@ -48,7 +48,7 @@ namespace SocialMedia.Controllers
 
             TempData["TopicId"] = topicId;
 
-            return View((postVML, pageVM));
+            return View((postsVM, pageVM));
         }
 
         [TypeFilter(typeof(AuthenticationFilter))]

@@ -2,7 +2,7 @@
     ViewData["Title"] = "DetailTopic";
 }
 @using Service.ViewModels
-@model (List<PostViewModel> postVML, PageViewModel pageVM)
+@model (List<PostViewModel> postsVM, PageViewModel pageVM)
 
 <style>
     body {
@@ -107,7 +107,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var postVM in Model.postVML)
+            @foreach (var postVM in Model.postsVM)
             {
                 <tr onclick="window.location.href='@Url.Action("DetailPost", "Post", new { postId = postVM.PostId })';" style="cursor:pointer;">
                     <td class="username">

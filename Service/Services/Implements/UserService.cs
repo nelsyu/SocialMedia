@@ -228,14 +228,14 @@ namespace Service.Services.Implements
                 .Where(f => f.UserId1 == _userLoggedIn.UserId)
                 .ToListAsync();
 
-            List<FriendshipViewModel> friendshipVML = _mapper.Map<List<FriendshipViewModel>>(friendshipEntL);
+            List<FriendshipViewModel> friendshipsVM = _mapper.Map<List<FriendshipViewModel>>(friendshipEntL);
 
-            foreach (var friendshipVM in friendshipVML)
+            foreach (var friendshipVM in friendshipsVM)
             {
                 friendshipVM.User2 = _mapper.Map<UserViewModel>(await _dbContext.Users.FindAsync(friendshipVM.UserId2));
             }
 
-            return friendshipVML;
+            return friendshipsVM;
         }
 
         #region private methods

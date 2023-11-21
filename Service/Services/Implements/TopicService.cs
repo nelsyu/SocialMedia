@@ -31,12 +31,12 @@ namespace Service.Services.Implements
 
         public async Task<List<TopicViewModel>> GetAllTopicsAsync()
         {
-            List<Topic> topicEntL = await _dbContext.Topics
+            List<Topic> topicsEnt = await _dbContext.Topics
                 .Include(t => t.User)
                 .ToListAsync();
-            List<TopicViewModel> topicVML = _mapper.Map<List<TopicViewModel>>(topicEntL);
+            List<TopicViewModel> topicsVM = _mapper.Map<List<TopicViewModel>>(topicsEnt);
 
-            return topicVML;
+            return topicsVM;
         }
 
         public async Task CreateTopicAsync(TopicViewModel topicVM, string title)
@@ -54,6 +54,11 @@ namespace Service.Services.Implements
             Topic? topicEnt = await _dbContext.Topics.FirstOrDefaultAsync(t => t.TopicId == topicVM.TopicId);
             if (topicEnt != null)
             {
+                List<Post> postsEnt = await _dbContext.Posts.Where(p => p.TopicId == topicVM.TopicId).ToListAsync();
+                foreach (Post postEnt in postsEnt)
+                {
+                    postEnt.TopicId = 0;
+                }
                 _dbContext.Remove(topicEnt);
                 await _dbContext.SaveChangesAsync();
             }

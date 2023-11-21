@@ -7,6 +7,7 @@ using Service.ViewModels;
 using SocialMedia.Filters;
 using SocialMedia.Models;
 using System.Diagnostics;
+using Library.Extensions;
 
 namespace SocialMedia.Controllers
 {
@@ -60,25 +61,29 @@ namespace SocialMedia.Controllers
                 return RedirectToAction("Index", "Home");
 
             (byte[] captchaImage, string captchaCode) = await _userService.GenerateCaptchaImageAsync();
-            ViewBag.CaptchaImage = captchaImage;
-            TempData["CaptchaCode"] = captchaCode;
 
-            return View();
+            UserViewModel userVM = new()
+            {
+                CaptchaImage = captchaImage
+            };
+            HttpContext.Session.SetString(SessionKeys.CaptchaCode, captchaCode);
+
+            return View(userVM);
         }
 
         [HttpGet]
         public async Task<IActionResult> RefreshCaptcha()
         {
             (byte[] captchaImage, string captchaCode) = await _userService.GenerateCaptchaImageAsync();
-            TempData["CaptchaCode"] = captchaCode;
+            HttpContext.Session.SetString(SessionKeys.CaptchaCode, captchaCode);
 
-            return Json(new { image = Convert.ToBase64String(captchaImage), code = captchaCode });
+            return Json(new { image = Convert.ToBase64String(captchaImage) });
         }
 
         [HttpPost]
         public async Task<IActionResult> Login(UserViewModel userVM)
         {
-            List<string> result = await _userService.ValidateLoginAsync(userVM, TempData["CaptchaCode"] ?? "");
+            List<string> result = await _userService.ValidateLoginAsync(userVM, HttpContext.Session.GetString(SessionKeys.CaptchaCode) ?? "");
 
             if (result[0] != "")
             {
@@ -86,14 +91,14 @@ namespace SocialMedia.Controllers
 
                 // 生成 captcha 圖片
                 (byte[] captchaImage, string captchaCode) = await _userService.GenerateCaptchaImageAsync();
-                ViewBag.CaptchaImage = captchaImage;
-                TempData["CaptchaCode"] = captchaCode;
+                userVM.CaptchaImage = captchaImage;
+                HttpContext.Session.SetString(SessionKeys.CaptchaCode, captchaCode);
 
                 return View(userVM);
             }
             else
             {
-                HttpContext.Session.SetString("UserVMEmail", userVM.Email);
+                HttpContext.Session.SetString(SessionKeys.UserVMEmail, userVM.Email);
 
                 return RedirectToAction("ValidateQRCodeOTP", "User");
             }
@@ -110,7 +115,7 @@ namespace SocialMedia.Controllers
 
         public async Task<IActionResult> ValidateQRCodeOTP()
         {
-            string userVMEmail = HttpContext.Session.GetString("UserVMEmail") ?? "";
+            string userVMEmail = HttpContext.Session.GetString(SessionKeys.UserVMEmail) ?? "";
 
             if (string.IsNullOrEmpty(userVMEmail))
                 return RedirectToAction("Login", "User");
@@ -176,8 +181,8 @@ namespace SocialMedia.Controllers
 
         public async Task<IActionResult> GetFriends()
         {
-            List<FriendshipViewModel> friendVML = await _userService.GetAllFriendsAsync();
-            return PartialView("_FriendsPartial", friendVML);
+            List<FriendshipViewModel> friendsVM = await _userService.GetAllFriendsAsync();
+            return PartialView("_FriendsPartial", friendsVM);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
