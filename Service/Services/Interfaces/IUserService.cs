@@ -17,5 +17,6 @@ namespace Service.Services.Interfaces
         Task<(byte[], string)> GenerateCaptchaImageAsync();
         Task<(byte[], string)> GenerateOTPQRCodeAsync();
         Task<List<FriendshipViewModel>> GetAllFriendsAsync();
+        Task<bool> FindRole(string UserVMEmail, int roleId);
     }
 }

@@ -22,4 +22,6 @@ public partial class User
     public virtual ICollection<Reply> Replies { get; set; } = new List<Reply>();
 
     public virtual ICollection<Topic> Topics { get; set; } = new List<Topic>();
+
+    public virtual ICollection<Role> Roles { get; set; } = new List<Role>();
 }

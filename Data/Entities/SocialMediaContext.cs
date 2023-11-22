@@ -26,6 +26,8 @@ public partial class SocialMediaContext : DbContext
 
     public virtual DbSet<Reply> Replies { get; set; }
 
+    public virtual DbSet<Role> Roles { get; set; }
+
     public virtual DbSet<Topic> Topics { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
@@ -148,6 +150,17 @@ public partial class SocialMediaContext : DbContext
                 .HasConstraintName("FK__Replies__userId__71D1E811");
         });
 
+        modelBuilder.Entity<Role>(entity =>
+        {
+            entity.HasKey(e => e.RoleId).HasName("PK__Roles__CD98462A3CB5777C");
+
+            entity.Property(e => e.RoleId).HasColumnName("roleId");
+            entity.Property(e => e.Description).HasColumnName("description");
+            entity.Property(e => e.RoleName)
+                .HasMaxLength(255)
+                .HasColumnName("roleName");
+        });
+
         modelBuilder.Entity<Topic>(entity =>
         {
             entity.HasKey(e => e.TopicId).HasName("PK__Topics__72C15B41C5E0A7F3");
@@ -179,6 +192,25 @@ public partial class SocialMediaContext : DbContext
             entity.Property(e => e.Username)
                 .HasMaxLength(255)
                 .HasColumnName("username");
+
+            entity.HasMany(d => d.Roles).WithMany(p => p.Users)
+                .UsingEntity<Dictionary<string, object>>(
+                    "UserRole",
+                    r => r.HasOne<Role>().WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK__UserRoles__roleI__3D2915A8"),
+                    l => l.HasOne<User>().WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK__UserRoles__userI__3C34F16F"),
+                    j =>
+                    {
+                        j.HasKey("UserId", "RoleId").HasName("PK__UserRole__7743989D46B8FC1E");
+                        j.ToTable("UserRoles");
+                        j.IndexerProperty<int>("UserId").HasColumnName("userId");
+                        j.IndexerProperty<int>("RoleId").HasColumnName("roleId");
+                    });
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -226,6 +226,23 @@ namespace Service.Services.Implements
             return friendshipsVM;
         }
 
+        public async Task<bool> FindRole(string userVMEmail, int roleId)
+        {
+            var userEnt = await _dbContext.Users
+                .Where(u => u.Email == userVMEmail)
+                .Include(u => u.Roles)
+                .FirstOrDefaultAsync();
+
+            if (userEnt == null)
+            {
+                return false;
+            }
+
+            bool isRoleExists = userEnt.Roles.Any(r => r.RoleId == roleId);
+
+            return isRoleExists;
+        }
+
         #region private methods
         private string IsValidEmailAsync(string email)
         {

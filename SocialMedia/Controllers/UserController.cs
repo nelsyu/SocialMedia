@@ -63,7 +63,7 @@ namespace SocialMedia.Controllers
             {
                 CaptchaImage = captchaImage
             };
-            HttpContext.Session.SetString(SessionKeys.CaptchaCode, captchaCode);
+            HttpContext.Session.SetString(ParameterKeys.CaptchaCode, captchaCode);
 
             return View(userVM);
         }
@@ -72,7 +72,7 @@ namespace SocialMedia.Controllers
         public async Task<IActionResult> RefreshCaptcha()
         {
             (byte[] captchaImage, string captchaCode) = await _userService.GenerateCaptchaImageAsync();
-            HttpContext.Session.SetString(SessionKeys.CaptchaCode, captchaCode);
+            HttpContext.Session.SetString(ParameterKeys.CaptchaCode, captchaCode);
 
             return Json(new { image = Convert.ToBase64String(captchaImage) });
         }
@@ -80,7 +80,7 @@ namespace SocialMedia.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(UserViewModel userVM)
         {
-            List<string> result = await _userService.ValidateLoginAsync(userVM, HttpContext.Session.GetString(SessionKeys.CaptchaCode) ?? "");
+            List<string> result = await _userService.ValidateLoginAsync(userVM, HttpContext.Session.GetString(ParameterKeys.CaptchaCode) ?? "");
 
             if (result[0] != "")
             {
@@ -89,13 +89,13 @@ namespace SocialMedia.Controllers
                 // 生成 captcha 圖片
                 (byte[] captchaImage, string captchaCode) = await _userService.GenerateCaptchaImageAsync();
                 userVM.CaptchaImage = captchaImage;
-                HttpContext.Session.SetString(SessionKeys.CaptchaCode, captchaCode);
+                HttpContext.Session.SetString(ParameterKeys.CaptchaCode, captchaCode);
 
                 return View(userVM);
             }
             else
             {
-                HttpContext.Session.SetString(SessionKeys.UserVMEmail, userVM.Email);
+                HttpContext.Session.SetString(ParameterKeys.UserVMEmail, userVM.Email);
 
                 return RedirectToAction("ValidateQRCodeOTP", "User");
             }
@@ -112,7 +112,7 @@ namespace SocialMedia.Controllers
 
         public async Task<IActionResult> ValidateQRCodeOTP()
         {
-            string userVMEmail = HttpContext.Session.GetString(SessionKeys.UserVMEmail) ?? "";
+            string userVMEmail = HttpContext.Session.GetString(ParameterKeys.UserVMEmail) ?? "";
 
             if (string.IsNullOrEmpty(userVMEmail))
                 return RedirectToAction("Login", "User");

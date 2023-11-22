@@ -1,4 +1,6 @@
-﻿namespace Service.ViewModels
+﻿using Data.Entities;
+
+namespace Service.ViewModels
 {
     public partial class UserViewModel
     {
@@ -27,5 +29,6 @@
         public virtual ICollection<PostViewModel> Posts { get; set; }
         public virtual ICollection<ReplyViewModel> Replies { get; set; }
         public virtual ICollection<TopicViewModel> Topics { get; set; }
+        public virtual ICollection<RoleViewModel> Roles { get; set; } = new List<RoleViewModel>();
     }
 }
