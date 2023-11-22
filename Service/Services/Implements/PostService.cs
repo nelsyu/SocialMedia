@@ -1,16 +1,9 @@
 ﻿using AutoMapper;
 using Data.Entities;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Service.Services.Interfaces;
 using Service.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Library.Extensions;
 using System.Linq.Expressions;
 using Service.Extensions;
 

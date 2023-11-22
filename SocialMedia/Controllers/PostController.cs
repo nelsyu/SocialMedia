@@ -1,13 +1,9 @@
-﻿using Data.Entities;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
+﻿using Microsoft.AspNetCore.Mvc;
 using Service.Services.Interfaces;
 using Service.ViewModels;
 using SocialMedia.Models;
 using SocialMedia.Filters;
 using System.Diagnostics;
-using Library.Extensions;
 
 namespace SocialMedia.Controllers
 {

@@ -4,12 +4,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Service.Services.Interfaces;
 using Service.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Library.Extensions;
 using Service.Extensions;
 
 namespace Service.Services.Implements

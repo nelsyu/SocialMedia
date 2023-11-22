@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Service.Services.Implements;
 using Service.Services.Interfaces;
 using Service.ViewModels;
 using SocialMedia.Filters;
@@ -12,14 +11,12 @@ namespace SocialMedia.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly ITopicService _topicService;
-        private readonly IUserService _userService;
         private readonly IPostService _postService;
 
-        public TopicController(ILogger<HomeController> logger, ITopicService topicService, IUserService userService, IPostService postService)
+        public TopicController(ILogger<HomeController> logger, ITopicService topicService, IPostService postService)
         {
             _logger = logger;
             _topicService = topicService;
-            _userService = userService;
             _postService = postService;
         }
 

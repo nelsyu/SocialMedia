@@ -1,7 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using OtpNet;
-using Service.Services.Implements;
 using Service.Services.Interfaces;
 using Service.ViewModels;
 using SocialMedia.Filters;

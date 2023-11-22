@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Service.ViewModels
+﻿namespace Service.ViewModels
 {
     public partial class LikeViewModel
     {

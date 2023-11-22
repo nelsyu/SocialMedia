@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Data.Entities;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using OtpNet;
@@ -8,17 +7,6 @@ using QRCoder;
 using Service.Services.Interfaces;
 using Service.ViewModels;
 using Service.Extensions;
-using SkiaSharp;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
-using static QRCoder.PayloadGenerator;
 using Library.Extensions;
 using System.Text.RegularExpressions;
 

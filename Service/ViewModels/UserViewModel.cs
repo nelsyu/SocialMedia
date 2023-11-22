@@ -1,9 +1,4 @@
-﻿using Data.Entities;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
-
-namespace Service.ViewModels
+﻿namespace Service.ViewModels
 {
     public partial class UserViewModel
     {

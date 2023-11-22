@@ -1,7 +1,4 @@
-﻿using Data.Entities;
-using Microsoft.AspNetCore.Mvc;
-using Service.Extensions;
-using Service.Services.Implements;
+﻿using Microsoft.AspNetCore.Mvc;
 using Service.Services.Interfaces;
 using Service.ViewModels;
 using SocialMedia.Filters;
