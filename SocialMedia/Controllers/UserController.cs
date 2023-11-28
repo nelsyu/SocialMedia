@@ -5,6 +5,10 @@ using SocialMedia.Filters;
 using SocialMedia.Models;
 using System.Diagnostics;
 using Library.Extensions;
+using Microsoft.EntityFrameworkCore;
+using Data.Entities;
+using Service.Extensions;
+using Microsoft.AspNetCore.SignalR;
 
 namespace SocialMedia.Controllers
 {
@@ -12,21 +16,34 @@ namespace SocialMedia.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IUserService _userService;
+        private readonly IPostService _postService;
+        private readonly SocialMediaContext _dbContext;
+        private readonly UserLoggedIn _userLoggedIn;
+        private readonly IHubContext<ChatHub> _hubContext;
 
-        public UserController(ILogger<HomeController> logger, IUserService userService)
+        public UserController(ILogger<HomeController> logger, IUserService userService, IPostService postService, SocialMediaContext dbContext, UserLoggedIn userLoggedIn, IHubContext<ChatHub> hubContext)
         {
             _logger = logger;
             _userService = userService;
+            _postService = postService;
+            _dbContext = dbContext;
+            _userLoggedIn = userLoggedIn;
+            _hubContext = hubContext;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index(int userId2)
         {
-            return View();
+            List<PostViewModel> postsVM = await _postService.GetMyPostsAsync(userId2);
+            TempData[ParameterKeys.LoggedInUserId] = _userLoggedIn.UserId;
+            TempData[ParameterKeys.UserId2] = userId2;
+            TempData[ParameterKeys.Username2] = await _dbContext.Users.Where(u => u.UserId == userId2).Select(u => u.Username).FirstOrDefaultAsync();
+            TempData[ParameterKeys.FriendshipStatus] = await _userService.FriendshipStatus(userId2);
+
+            return View(postsVM);
         }
 
         public async Task<IActionResult> Register()
         {
-            // 若為登入狀態則跳轉到首頁
             if (await _userService.IsLoginAsync())
                 return RedirectToAction("Index", "Home");
 
@@ -95,7 +112,8 @@ namespace SocialMedia.Controllers
             }
             else
             {
-                HttpContext.Session.SetString(ParameterKeys.UserVMEmail, userVM.Email);
+                int userId = await _userService.FindUserId(userVM.Email);
+                TempData[ParameterKeys.LoggedInUserId] = userId;
 
                 return RedirectToAction("ValidateQRCodeOTP", "User");
             }
@@ -112,14 +130,16 @@ namespace SocialMedia.Controllers
 
         public async Task<IActionResult> ValidateQRCodeOTP()
         {
-            string userVMEmail = HttpContext.Session.GetString(ParameterKeys.UserVMEmail) ?? "";
+            var userId = TempData[ParameterKeys.LoggedInUserId];
 
-            if (string.IsNullOrEmpty(userVMEmail))
+            if (userId == null)
                 return RedirectToAction("Login", "User");
 
-            if (string.IsNullOrEmpty(await _userService.IsQRCodeOTPSecretKeyAsync(userVMEmail)))
+            TempData[ParameterKeys.LoggedInUserId] = userId;
+
+            if (string.IsNullOrEmpty(await _userService.IsQRCodeOTPSecretKeyAsync((int)userId)))
             {
-                await _userService.LoginSuccessfulAsync(userVMEmail);
+                await _userService.LoginSuccessfulAsync((int)userId);
 
                 return RedirectToAction("Index", "Home");
             }
@@ -132,12 +152,12 @@ namespace SocialMedia.Controllers
         [HttpPost]
         public async Task<IActionResult> ValidateQRCodeOTP(UserViewModel userVM)
         {
-            string userVMEmail = HttpContext.Session.GetString("UserVMEmail") ?? "";
+            var userId = TempData[ParameterKeys.LoggedInUserId];
 
-            if (string.IsNullOrEmpty(userVMEmail))
+            if (userId == null)
                 return RedirectToAction("Login", "User");
 
-            List<string> result = await _userService.VerifyQRCodeOTPAsync(userVMEmail, userVM.ConfirmQRCodeOTP);
+            List<string> result = await _userService.VerifyQRCodeOTPAsync((int)userId, userVM.ConfirmQRCodeOTP);
 
             if (result[0] != "")
             {
@@ -147,7 +167,7 @@ namespace SocialMedia.Controllers
             }
             else
             {
-                await _userService.LoginSuccessfulAsync(userVMEmail);
+                await _userService.LoginSuccessfulAsync((int)userId);
 
                 return RedirectToAction("Index", "Home");
             }
@@ -178,8 +198,44 @@ namespace SocialMedia.Controllers
 
         public async Task<IActionResult> GetFriends()
         {
-            List<FriendshipViewModel> friendsVM = await _userService.GetAllFriendsAsync();
-            return PartialView("_FriendsPartial", friendsVM);
+            List<UserViewModel> usersVM = await _userService.GetAllFriendsAsync();
+            return PartialView("_FriendsPartial", usersVM);
+        }
+
+        [TypeFilter(typeof(AuthenticationFilter))]
+        public async Task<IActionResult> FriendAdd(int userId2)
+        {
+            await _userService.FriendAdd(userId2);
+
+            return Redirect($"/User?userId2={userId2}");
+        }
+
+
+        [TypeFilter(typeof(AuthenticationFilter))]
+        public async Task<IActionResult> FriendConfirm(int userId2)
+        {
+            await _userService.FriendConfirm(userId2);
+
+            return Redirect($"/User?userId2={userId2}");
+        }
+
+        [TypeFilter(typeof(AuthenticationFilter))]
+        public async Task<IActionResult> FriendDeny(int userId2)
+        {
+            await _userService.FriendDeny(userId2);
+
+            return Redirect($"/User?userId2={userId2}");
+        }
+
+        public async Task<IActionResult> SendMessage(string userId, string message)
+        {
+            await _hubContext.Clients.All.SendAsync("ReceiveMessage", userId, message);
+            return Ok();
+        }
+
+        public async Task<IActionResult> ReceiveMessage()
+        {
+            return PartialView("_NoticesPartial");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

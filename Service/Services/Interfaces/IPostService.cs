@@ -8,6 +8,7 @@ namespace Service.Services.Interfaces
         Task<List<PostViewModel>> GetAllPostsAsync();
         Task<List<PostViewModel>> GetAllPostsAsync(int topicId);
         Task<List<PostViewModel>> GetMyPostsAsync();
+        Task<List<PostViewModel>> GetMyPostsAsync(int userId);
         Task<List<PostViewModel>> PagingAsync(List<PostViewModel> postVMs, int page, int pageSize);
         Task<List<string>> ValidatePostAsync(PostViewModel postVM);
         Task CreatePostAsync(PostViewModel postVM);

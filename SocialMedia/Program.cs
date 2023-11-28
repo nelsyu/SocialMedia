@@ -1,6 +1,7 @@
 using AutoMapper;
 using Data.Entities;
 using Library.Config;
+using Library.Extensions;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -52,6 +53,8 @@ builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddSingleton<UserLoggedIn>();
 
+builder.Services.AddSignalR();
+
 builder.Services.Configure<CookiePolicyOptions>(options =>
 {
     options.MinimumSameSitePolicy = SameSiteMode.Lax;
@@ -85,6 +88,8 @@ app.UseSession();
 app.UseRouting();
 
 app.UseAuthorization();
+
+app.MapHub<ChatHub>("/chatHub");
 
 app.MapControllerRoute(
     name: "default",

@@ -33,9 +33,9 @@ namespace SocialMedia.Controllers
             if (currentPage < 1)
                 return RedirectToAction("Index", "Home");
             int pageSize = 5;
-            List<PostViewModel> postVML = await _postService.GetMyPostsAsync();
-            int totalPosts = postVML.Count;
-            postVML = await _postService.PagingAsync(postVML, currentPage, pageSize);
+            List<PostViewModel> postsVM = await _postService.GetMyPostsAsync();
+            int totalPosts = postsVM.Count;
+            postsVM = await _postService.PagingAsync(postsVM, currentPage, pageSize);
             int totalPages = (int)Math.Ceiling((double)totalPosts / pageSize);
 
             PageViewModel pageVM = new()
@@ -45,7 +45,7 @@ namespace SocialMedia.Controllers
                 TotalPages = totalPages
             };
 
-            return View((postVML, pageVM));
+            return View((postsVM, pageVM));
         }
 
         [TypeFilter(typeof(AuthenticationFilter))]

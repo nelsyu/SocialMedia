@@ -29,12 +29,6 @@
             .dropdown-menu {
                 background-color: #007BFF !important;
             }
-
-        .scrollable-menu {
-            height: auto;
-            max-height: 200px;
-            overflow-y: auto;
-        }
         </style>
     </head>
     <body>
@@ -76,18 +70,24 @@
                             }
                             else
                             {
-                                <li class="nav-item">
-                                    <div class="nav-item dropdown">
-                                        <a class="nav-link text-dark dropdown-toggle" href="#" id="friendsDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            Friends
-                                        </a>
-                                        <div class="dropdown-menu friends-dropdown" aria-labelledby="friendsDropdown">
-                                            <div class="scrollable-menu" id="friendsContainer">
-                                                <!-- Friends list will be loaded here -->
-                                            </div>
-                                        </div>
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link text-dark dropdown-toggle" href="#" id="noticesDropdown" role="button" data-bs-toggle="dropdown">
+                                        Notices
+                                    </a>
+                                    <div class="dropdown-menu notices-dropdown" aria-labelledby="noticesDropdown" id="noticesContainer">
+                                        <!-- Notices list will be loaded here -->
                                     </div>
                                 </li>
+
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link text-dark dropdown-toggle" href="#" id="friendsDropdown" role="button" data-bs-toggle="dropdown">
+                                        Friends
+                                    </a>
+                                    <div class="dropdown-menu friends-dropdown" aria-labelledby="friendsDropdown" id="friendsContainer">
+                                        <!-- Friends list will be loaded here -->
+                                    </div>
+                                </li>
+
                                 <li class="nav-item">
                                     <div class="nav-item dropdown">
                                         <a class="nav-link text-dark dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -119,7 +119,6 @@
         <script src="~/lib/jquery/dist/jquery.min.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
         <script src="~/js/site.js" asp-append-version="true"></script>
-        @await RenderSectionAsync("Scripts", required: false)
 
         <script>
             function checkLogin() {
@@ -154,6 +153,28 @@
                     console.error('Error loading friends:', error);
                 }
             }
+
+            $(document).ready(function () {
+                loadNotifications();
+            });
+
+            async function loadNotifications() {
+                try {
+                    const response = await $.ajax({
+                        url: '@Url.Action("ReceiveMessage", "User")',
+                        method: 'GET'
+                        // You can pass additional parameters if needed
+                    });
+
+                    // Append notifications to a container or handle them as needed
+                    // For example, you can display them in a notification bar
+                    $('#noticesContainer').append(response);
+                } catch (error) {
+                    console.error('Error loading notifications:', error);
+                }
+            }
         </script>
+
+        @await RenderSectionAsync("Scripts", required: false)
     </body>
 </html>

@@ -52,6 +52,11 @@ namespace Service.Services.Implements
             return await GetPostsAsync(p => p.User != null && p.User.UserId == _userLoggedIn.UserId);
         }
 
+        public async Task<List<PostViewModel>> GetMyPostsAsync(int userId)
+        {
+            return await GetPostsAsync(p => p.User != null && p.User.UserId == userId);
+        }
+
         public Task<List<PostViewModel>> PagingAsync(List<PostViewModel> postsVM, int page, int pageSize)
         {
             int skipPosts = (page - 1) * pageSize;

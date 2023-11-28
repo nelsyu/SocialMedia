@@ -10,8 +10,9 @@
         public int FriendshipId { get; set; }
         public int? UserId1 { get; set; }
         public int? UserId2 { get; set; }
-        public string? Status { get; set; }
+        public int? Status { get; set; }
         public DateTime? CreatedTime { get; set; }
+        public virtual FriendshipStatusViewModel StatusNavigation { get; set; } = null!;
 
         #region My Property
         public virtual UserViewModel User2 { get; set; }

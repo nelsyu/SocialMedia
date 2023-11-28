@@ -1,6 +1,7 @@
 ﻿using Data.Entities;
 using Library.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Service.Extensions;
 using Service.Services.Implements;
 using Service.Services.Interfaces;
 using Service.ViewModels;
@@ -16,20 +17,22 @@ namespace SocialMedia.Controllers
         private readonly ITopicService _topicService;
         private readonly IPostService _postService;
         private readonly IUserService _userService;
+        private readonly UserLoggedIn _userLoggedIn;
 
-        public TopicController(ILogger<HomeController> logger, ITopicService topicService, IPostService postService, IUserService userService)
+        public TopicController(ILogger<HomeController> logger, ITopicService topicService, IPostService postService, IUserService userService, UserLoggedIn userLoggedIn)
         {
             _logger = logger;
             _topicService = topicService;
             _postService = postService;
             _userService = userService;
+            _userLoggedIn = userLoggedIn;
         }
 
         public async Task<IActionResult> Index()
         {
             List<TopicViewModel> topicsVM = await _topicService.GetAllTopicsAsync();
-            string userVMEmail = HttpContext.Session.GetString(ParameterKeys.UserVMEmail) ?? "";
-            ViewData[ParameterKeys.HasRole] = await _userService.FindRole(userVMEmail, 2);
+            int? userId = _userLoggedIn.UserId;
+            ViewData[ParameterKeys.HasRole] = await _userService.FindRole(userId, 2);
 
             return View(topicsVM);
         }

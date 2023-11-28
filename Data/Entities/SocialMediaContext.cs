@@ -18,6 +18,8 @@ public partial class SocialMediaContext : DbContext
 
     public virtual DbSet<Friendship> Friendships { get; set; }
 
+    public virtual DbSet<FriendshipStatus> FriendshipStatuses { get; set; }
+
     public virtual DbSet<Like> Likes { get; set; }
 
     public virtual DbSet<Message> Messages { get; set; }
@@ -46,12 +48,29 @@ public partial class SocialMediaContext : DbContext
             entity.Property(e => e.CreatedTime)
                 .HasColumnType("datetime")
                 .HasColumnName("createdTime");
-            entity.Property(e => e.Status)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("status");
+            entity.Property(e => e.Status).HasColumnName("status");
             entity.Property(e => e.UserId1).HasColumnName("userID1");
             entity.Property(e => e.UserId2).HasColumnName("userID2");
+
+            entity.HasOne(d => d.StatusNavigation).WithMany(p => p.Friendships)
+                .HasForeignKey(d => d.Status)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Friendships_FriendshipStatus");
+        });
+
+        modelBuilder.Entity<FriendshipStatus>(entity =>
+        {
+            entity.HasKey(e => e.StatusId).HasName("PK__Friendsh__36257A188A11FB29");
+
+            entity.ToTable("FriendshipStatus");
+
+            entity.Property(e => e.StatusId)
+                .ValueGeneratedNever()
+                .HasColumnName("statusId");
+            entity.Property(e => e.StatusDescription)
+                .HasMaxLength(255)
+                .IsUnicode(false)
+                .HasColumnName("statusDescription");
         });
 
         modelBuilder.Entity<Like>(entity =>

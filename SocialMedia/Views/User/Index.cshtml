@@ -1,0 +1,211 @@
+﻿@{
+    ViewData["Title"] = "User-Index";
+}
+@using Service.ViewModels
+@model List<PostViewModel>
+@using Library.Extensions
+
+<style>
+    body {
+        background-color: #f8f9fa;
+        font-family: 'Lato', sans-serif;
+    }
+
+    h2 {
+        text-align: center;
+        margin: 20px 0;
+        color: #007bff;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        min-height: 300px;
+    }
+
+    th, td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+        transition: background-color 0.3s ease;
+    }
+
+    .username, .title, .content, .post-date {
+        width: auto;
+        max-width: 150px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .content {
+        max-width: 300px;
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        list-style: none;
+        padding: 0;
+        margin-bottom: 20px;
+    }
+
+    table tr:hover {
+        background-color: rgba(0, 123, 255, 0.1);
+    }
+
+    .btn {
+        border-radius: 15px;
+    }
+
+    .table th.username {
+        width: 20%;
+    }
+
+    .table th.title {
+        width: 20%;
+    }
+
+    .table th.content {
+        width: 50%;
+    }
+
+    .table th.post-date {
+        width: 20%;
+    }
+</style>
+
+<div class="container">
+    <h2>
+        @TempData[ParameterKeys.Username2]
+    </h2>
+    @{
+        var friendshipStatus = TempData[ParameterKeys.FriendshipStatus];
+        var loggedInUserId = TempData[ParameterKeys.LoggedInUserId];
+        var userId2 = TempData[ParameterKeys.UserId2];
+
+        if (loggedInUserId != null && userId2 != null && (int)loggedInUserId != (int)userId2)
+        {
+            if (friendshipStatus == null)
+            {
+                <button type="button" id="button" class="btn btn-primary add-friend" onclick="checkLogin()">
+                    Add Friend
+                </button>
+            }
+            else if ((int)friendshipStatus == 1)
+            {
+                <div style="display: flex; justify-content: space-between;">
+                    <button type="button" id="button" class="btn btn-success">
+                        Friend
+                    </button>
+                    <button type="button" class="btn btn-danger" onclick="checkLogin(); location.href='@Url.Action("FriendDeny", "User", new { userId2 = userId2 })'">
+                        Unfriend
+                    </button>
+                </div>
+            }
+            else if ((int)friendshipStatus == 2)
+            {
+                <button type="button" id="button" class="btn btn-primary" onclick="checkLogin(); location.href='@Url.Action("FriendDeny", "User", new { userId2 = userId2 })'">
+                    Pending
+                </button>
+            }
+            else if ((int)friendshipStatus == 3)
+            {
+                <div style="display: flex; justify-content: space-between;">
+                    <button type="button" id="button" class="btn btn-success" onclick="checkLogin(); location.href='@Url.Action("FriendConfirm", "User", new { userId2 = userId2 })'">
+                        Confirm
+                    </button>
+                    <button type="button" class="btn btn-danger" onclick="checkLogin(); location.href='@Url.Action("FriendDeny", "User", new { userId2 = userId2 })'">
+                        Deny
+                    </button>
+                </div>
+            }
+        }
+    }
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col" class="username">Username</th>
+                <th scope="col" class="title">Title</th>
+                <th scope="col" class="content">Content</th>
+                <th scope="col" class="post-date">Post Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var postVM in Model)
+            {
+                <tr onclick="window.location.href='@Url.Action("DetailPost", "Post", new { postId = postVM.PostId })';" style="cursor:pointer;">
+                    <td class="username">
+                        @(postVM.User?.Username ?? "Deleted User")
+                    </td>
+                    <td class="title">
+                        @postVM.Title
+                    </td>
+                    <td class="content">
+                        @postVM.Content
+                    </td>
+                    <td class="post-date">
+                        @postVM.PostDate.ToString("yyyy-MM-dd HH:mm:ss")
+                    </td>
+                    <td>
+                        @{
+                            if (loggedInUserId != null && postVM.UserId == (int)loggedInUserId)
+                            {
+                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deletePostModal_@postVM.PostId" onclick="event.stopPropagation();">
+                                    Delete
+                                </button>
+
+                                <!-- Modal -->
+                                <div class="modal fade" id="deletePostModal_@postVM.PostId" tabindex="-1" aria-labelledby="deletePostModalLabel_@postVM.PostId" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="deletePostModalLabel_@postVM.PostId">Confirm Delete Post</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>Are you sure you want to delete this post? This action cannot be undone.</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="event.stopPropagation();">
+                                                    Cancel
+                                                </button>
+                                                <form class="delete-form" method="post" asp-controller="Post" asp-action="DeletePost">
+                                                    <input type="hidden" name="postId" value="@postVM.PostId" />
+                                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+<script src="~/js/notice.js"></script>
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var addFriendBtn = document.querySelector(".btn.btn-primary.add-friend");
+            if (addFriendBtn) {
+                addFriendBtn.addEventListener("click", function (event) {
+                    var user = "System";
+                    var message = "Hello, let\'s be friends!";
+                    connection.invoke("SendMessage", user, message).catch(function (err) {
+                        return console.error(err.toString());
+                    });
+                    event.preventDefault();
+
+                    var userId2 = '@userId2'; // 將userId2設置為Razor變數
+                    location.href = '@Url.Action("FriendAdd", "User", new { userId2 = "replace_with_userId2" })'.replace('replace_with_userId2', userId2);
+                });
+            }
+        });
+    </script>
+}

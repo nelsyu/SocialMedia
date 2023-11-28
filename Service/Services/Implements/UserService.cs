@@ -99,9 +99,9 @@ namespace Service.Services.Implements
             return result;
         }
 
-        public async Task LoginSuccessfulAsync(string UserVMEmail)
+        public async Task LoginSuccessfulAsync(int? userId)
         {
-            User? userEnt = await _dbContext.Users.Where(u => u.Email == UserVMEmail).FirstOrDefaultAsync();
+            User? userEnt = await _dbContext.Users.Where(u => u.UserId == userId).FirstOrDefaultAsync();
             if (userEnt != null)
             {
                 UserViewModel userVM = _mapper.Map<UserViewModel>(userEnt);
@@ -143,20 +143,20 @@ namespace Service.Services.Implements
             }
         }
 
-        public async Task<string> IsQRCodeOTPSecretKeyAsync(string UserVMEmail)
+        public async Task<string> IsQRCodeOTPSecretKeyAsync(int? userId)
         {
             string qRCodeOTPSecretKey = await _dbContext.Users
-                .Where(u => u.Email == UserVMEmail)
+                .Where(u => u.UserId == userId)
                 .Select(u => u.Totp)
                 .FirstOrDefaultAsync() ?? "";
 
             return qRCodeOTPSecretKey;
         }
 
-        public async Task<List<string>> VerifyQRCodeOTPAsync(string userVMEmail, string confirmQRCodeOTP)
+        public async Task<List<string>> VerifyQRCodeOTPAsync(int? userId, string confirmQRCodeOTP)
         {
             string? qRCodeOTPSecretKey = await _dbContext.Users
-                .Where(u => u.Email == userVMEmail)
+                .Where(u => u.UserId == userId)
                 .Select(u => u.Totp)
                 .FirstOrDefaultAsync();
 
@@ -210,26 +210,28 @@ namespace Service.Services.Implements
             return (image, secretKey);
         }
 
-        public async Task<List<FriendshipViewModel>> GetAllFriendsAsync()
+        public async Task<List<UserViewModel>> GetAllFriendsAsync()
         {
-            List<Friendship> friendshipEntL = await _dbContext.Friendships
-                .Where(f => f.UserId1 == _userLoggedIn.UserId)
+            List<Friendship> friendshipsEnt = await _dbContext.Friendships
+                .Where(f => (f.Status == 1) && ((f.UserId1 == _userLoggedIn.UserId) || (f.UserId2 == _userLoggedIn.UserId)))
                 .ToListAsync();
 
-            List<FriendshipViewModel> friendshipsVM = _mapper.Map<List<FriendshipViewModel>>(friendshipEntL);
+            List<FriendshipViewModel> friendshipsVM = _mapper.Map<List<FriendshipViewModel>>(friendshipsEnt);
+            List<UserViewModel> usersVM = new List<UserViewModel>();
 
             foreach (var friendshipVM in friendshipsVM)
             {
-                friendshipVM.User2 = _mapper.Map<UserViewModel>(await _dbContext.Users.FindAsync(friendshipVM.UserId2));
+                int? userId2 = friendshipVM.UserId1 == _userLoggedIn.UserId ? friendshipVM.UserId2 : friendshipVM.UserId1;
+                usersVM.Add(_mapper.Map<UserViewModel>(await _dbContext.Users.FindAsync(userId2)));
             }
 
-            return friendshipsVM;
+            return usersVM;
         }
 
-        public async Task<bool> FindRole(string userVMEmail, int roleId)
+        public async Task<bool> FindRole(int? userId, int roleId)
         {
             var userEnt = await _dbContext.Users
-                .Where(u => u.Email == userVMEmail)
+                .Where(u => u.UserId == userId)
                 .Include(u => u.Roles)
                 .FirstOrDefaultAsync();
 
@@ -241,6 +243,76 @@ namespace Service.Services.Implements
             bool isRoleExists = userEnt.Roles.Any(r => r.RoleId == roleId);
 
             return isRoleExists;
+        }
+
+        public async Task<int> FindUserId(string userVMEmail)
+        {
+            int userIdEnt = await _dbContext.Users
+                .Where(u => u.Email == userVMEmail)
+                .Select(u => u.UserId)
+                .FirstOrDefaultAsync();
+
+            return userIdEnt;
+        }
+
+        public async Task FriendAdd(int userId2)
+        {
+            FriendshipViewModel friendShipVM = new FriendshipViewModel
+            {
+                UserId1 = _userLoggedIn.UserId,
+                UserId2 = userId2,
+                Status = 2,
+                CreatedTime = DateTime.Now
+            };
+
+            Friendship friendshipEnt = _mapper.Map<Friendship>(friendShipVM);
+            _dbContext.Friendships.Add(friendshipEnt);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task FriendConfirm(int userId2)
+        {
+            Friendship? friendshipEnt = await _dbContext.Friendships.Where(f => (f.UserId1 == userId2 && f.UserId2 == _userLoggedIn.UserId)).FirstOrDefaultAsync();
+            if (friendshipEnt != null)
+            {
+                friendshipEnt.Status = 1;
+                _dbContext.Friendships.Update(friendshipEnt);
+                await _dbContext.SaveChangesAsync();
+            }
+        }
+
+        public async Task FriendDeny(int userId2)
+        {
+            Friendship? friendshipEnt = await _dbContext.Friendships.Where(f => (f.UserId1 == _userLoggedIn.UserId && f.UserId2 == userId2) || (f.UserId1 == userId2 && f.UserId2 == _userLoggedIn.UserId)).FirstOrDefaultAsync();
+            if(friendshipEnt != null)
+            {
+                _dbContext.Friendships.Remove(friendshipEnt);
+                await _dbContext.SaveChangesAsync();
+            }
+        }
+
+        public async Task<int?> FriendshipStatus(int userId2)
+        {
+            var friendship = await _dbContext.Friendships
+                .FirstOrDefaultAsync(f => (f.UserId1 == _userLoggedIn.UserId && f.UserId2 == userId2));
+
+            if (friendship != null)
+            {
+                return friendship.Status;
+            }
+
+            friendship = await _dbContext.Friendships
+                .FirstOrDefaultAsync(f => (f.UserId1 == userId2 && f.UserId2 == _userLoggedIn.UserId));
+
+            if (friendship != null)
+            {
+                if(friendship.Status == 2)
+                    return friendship.Status + 1;
+
+                return friendship.Status;
+            }
+
+            return null;
         }
 
         #region private methods

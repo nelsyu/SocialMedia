@@ -1,0 +1,39 @@
+﻿@using Service.ViewModels
+@model List<UserViewModel>
+
+<style>
+    .friends-list {
+        max-height: 200px;
+        overflow-y: auto;
+        border-radius: 15px;
+    }
+
+    .user-button {
+        background-color: #007BFF;
+        color: white;
+        border: none;
+        padding: 10px;
+        margin: 5px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+        .user-button:hover {
+            background-color: #0056b3;
+        }
+</style>
+
+<div class="friends-list">
+    @if (Model != null && Model.Any())
+    {
+        <div>
+            @foreach (var userVM in Model)
+            {
+                <button class="user-button" onclick="location.href='@Url.Action("Index", "User", new { userId2 = userVM.UserId })'">
+                    @userVM.Username
+                </button>
+            }
+        </div>
+    }
+</div>
