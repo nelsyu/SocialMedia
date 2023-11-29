@@ -19,16 +19,14 @@ namespace SocialMedia.Controllers
         private readonly IPostService _postService;
         private readonly SocialMediaContext _dbContext;
         private readonly UserLoggedIn _userLoggedIn;
-        private readonly IHubContext<ChatHub> _hubContext;
 
-        public UserController(ILogger<HomeController> logger, IUserService userService, IPostService postService, SocialMediaContext dbContext, UserLoggedIn userLoggedIn, IHubContext<ChatHub> hubContext)
+        public UserController(ILogger<HomeController> logger, IUserService userService, IPostService postService, SocialMediaContext dbContext, UserLoggedIn userLoggedIn)
         {
             _logger = logger;
             _userService = userService;
             _postService = postService;
             _dbContext = dbContext;
             _userLoggedIn = userLoggedIn;
-            _hubContext = hubContext;
         }
 
         public async Task<IActionResult> Index(int userId2)
@@ -210,7 +208,6 @@ namespace SocialMedia.Controllers
             return Redirect($"/User?userId2={userId2}");
         }
 
-
         [TypeFilter(typeof(AuthenticationFilter))]
         public async Task<IActionResult> FriendConfirm(int userId2)
         {
@@ -227,13 +224,7 @@ namespace SocialMedia.Controllers
             return Redirect($"/User?userId2={userId2}");
         }
 
-        public async Task<IActionResult> SendMessage(string userId, string message)
-        {
-            await _hubContext.Clients.All.SendAsync("ReceiveMessage", userId, message);
-            return Ok();
-        }
-
-        public async Task<IActionResult> ReceiveMessage()
+        public IActionResult ReceiveMessage()
         {
             return PartialView("_NoticesPartial");
         }

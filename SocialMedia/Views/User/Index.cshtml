@@ -89,7 +89,7 @@
         {
             if (friendshipStatus == null)
             {
-                <button type="button" id="button" class="btn btn-primary add-friend" onclick="checkLogin()">
+                <button type="button" id="button" class="btn btn-primary add-friend">
                     Add Friend
                 </button>
             }
@@ -188,22 +188,23 @@
     </table>
 </div>
 <script src="~/js/signalr/dist/browser/signalr.js"></script>
-<script src="~/js/notice.js"></script>
 @section Scripts {
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             var addFriendBtn = document.querySelector(".btn.btn-primary.add-friend");
             if (addFriendBtn) {
                 addFriendBtn.addEventListener("click", function (event) {
-                    var user = "System";
-                    var message = "Hello, let\'s be friends!";
-                    connection.invoke("SendMessage", user, message).catch(function (err) {
+                    checkLogin();
+
+                    var groupId = "@userId2";
+                    var user = "@loggedInUserId";
+                    var message = "@loggedInUserId" + " want to be your friend!";
+                    connection.invoke("DirectMessage", groupId, user, message).catch(function (err) {
                         return console.error(err.toString());
                     });
                     event.preventDefault();
 
-                    var userId2 = '@userId2'; // 將userId2設置為Razor變數
-                    location.href = '@Url.Action("FriendAdd", "User", new { userId2 = "replace_with_userId2" })'.replace('replace_with_userId2', userId2);
+                    location.href = '@Url.Action("FriendAdd", "User", new { userId2 = @userId2 })';
                 });
             }
         });
