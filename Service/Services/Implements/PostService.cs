@@ -6,6 +6,7 @@ using Service.Services.Interfaces;
 using Service.ViewModels;
 using System.Linq.Expressions;
 using Service.Extensions;
+using Library.Extensions;
 
 namespace Service.Services.Implements
 {
@@ -13,15 +14,14 @@ namespace Service.Services.Implements
     {
         private readonly SocialMediaContext _dbContext;
         private readonly IMapper _mapper;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly UserLoggedIn _userLoggedIn;
+        private readonly ISession? _session;
 
-        public PostService(SocialMediaContext dbContext, IMapper mapper, IHttpContextAccessor httpContextAccessor, UserLoggedIn userLoggedIn)
+        public PostService(SocialMediaContext dbContext, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
             _dbContext = dbContext;
             _mapper = mapper;
-            _httpContextAccessor = httpContextAccessor;
-            _userLoggedIn = userLoggedIn;
+            if (httpContextAccessor.HttpContext != null)
+                _session = httpContextAccessor.HttpContext.Session;
         }
 
         public async Task<PostViewModel> GetPostAsync(int postId)
@@ -49,7 +49,11 @@ namespace Service.Services.Implements
 
         public async Task<List<PostViewModel>> GetMyPostsAsync()
         {
-            return await GetPostsAsync(p => p.User != null && p.User.UserId == _userLoggedIn.UserId);
+            UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
+            if (sessionUserLoggedIn != null)
+                return await GetPostsAsync(p => p.User != null && p.User.UserId == sessionUserLoggedIn.UserId);
+            else
+                return new List<PostViewModel>();
         }
 
         public async Task<List<PostViewModel>> GetMyPostsAsync(int userId)
@@ -102,9 +106,11 @@ namespace Service.Services.Implements
 
         public async Task CreatePostAsync(PostViewModel postVM)
         {
-            if (_userLoggedIn.Username != null)
+            UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
+
+            if (sessionUserLoggedIn != null)
             {
-                postVM.UserId = _userLoggedIn.UserId;
+                postVM.UserId = sessionUserLoggedIn.UserId;
                 postVM.PostDate = DateTime.Now;
                 postVM.LastEditDate = DateTime.Now;
 

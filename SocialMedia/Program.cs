@@ -40,18 +40,17 @@ builder.Services.AddScoped<IReplyService, ReplyService>();
 builder.Services.AddScoped<ITopicService, TopicService>();
 
 // 添加 Session 服務
-builder.Services.AddDistributedMemoryCache(); // 使用內存作為 Session 存儲
+builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(30); // 設置 Session 逾時時間
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
 
-// 向服務容器（IServiceCollection）中添加 IHttpContextAccessor 服務
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddSingleton<UserLoggedIn>();
+builder.Services.AddScoped<UserLoggedIn>();
 
 builder.Services.AddSignalR();
 

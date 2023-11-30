@@ -1,3 +1,11 @@
 ﻿@{
     Layout = "_Layout";
 }
+@using Library.Extensions;
+@using Service.Extensions;
+@inject IHttpContextAccessor httpContextAccessor
+@{
+    ISession? _session = httpContextAccessor.HttpContext?.Session;
+    UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
+    TempData[ParameterKeys.LoggedInUsername] = sessionUserLoggedIn?.Username;
+}

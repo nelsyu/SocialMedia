@@ -9,6 +9,7 @@ using Service.ViewModels;
 using Service.Extensions;
 using Library.Extensions;
 using System.Text.RegularExpressions;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Service.Services.Implements
 {
@@ -16,15 +17,14 @@ namespace Service.Services.Implements
     {
         private readonly SocialMediaContext _dbContext;
         private readonly IMapper _mapper;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly UserLoggedIn _userLoggedIn;
+        private readonly ISession? _session;
 
-        public UserService(SocialMediaContext dbContext, IMapper mapper, IHttpContextAccessor httpContextAccessor, UserLoggedIn userLoggedIn)
+        public UserService(SocialMediaContext dbContext, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
             _dbContext = dbContext;
             _mapper = mapper;
-            _httpContextAccessor = httpContextAccessor;
-            _userLoggedIn = userLoggedIn;
+            if (httpContextAccessor.HttpContext != null)
+                _session = httpContextAccessor.HttpContext.Session;
         }
 
         public async Task<List<string>> ValidateRegisterAsync(UserViewModel userVM)
@@ -101,41 +101,52 @@ namespace Service.Services.Implements
 
         public async Task LoginSuccessfulAsync(int? userId)
         {
-            User? userEnt = await _dbContext.Users.Where(u => u.UserId == userId).FirstOrDefaultAsync();
-            if (userEnt != null)
-            {
-                UserViewModel userVM = _mapper.Map<UserViewModel>(userEnt);
-                _userLoggedIn.Set(userVM);
-            }
+            UserLoggedIn? userLoggedIn = await _dbContext.Users
+                .Where(u => u.UserId == userId)
+                .Select(u => new UserLoggedIn { UserId = u.UserId, Username = u.Username, Email = u.Email })
+                .FirstOrDefaultAsync();
+
+            if (userLoggedIn != null)
+                _session?.SetObject(ParameterKeys.UserLoggedIn, userLoggedIn);
         }
 
         public Task<bool> IsLoginAsync()
         {
-            bool isLogin = !string.IsNullOrEmpty(_userLoggedIn.Username);
+            UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
+            bool isLogin = !string.IsNullOrEmpty(sessionUserLoggedIn?.Username);
             return Task.FromResult(isLogin);
         }
 
         public Task LogoutAsync()
         {
-            _userLoggedIn.Dispose();
+            _session?.Remove(ParameterKeys.UserLoggedIn);
             return Task.CompletedTask;
         }
 
         public async Task DeleteAccountAsync(UserViewModel userVM)
         {
-            User? userEnt = await _dbContext.Users.Where(u => u.Username == _userLoggedIn.Username).FirstOrDefaultAsync();
+            User? userEnt = null;
+            UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
+
+            if (sessionUserLoggedIn != null)
+                userEnt = await _dbContext.Users.Where(u => u.UserId == sessionUserLoggedIn.UserId).FirstOrDefaultAsync();
 
             if (userEnt != null)
             {
                 _dbContext.Users.Remove(userEnt);
                 await _dbContext.SaveChangesAsync();
-                _userLoggedIn.Dispose();
+                _session?.Remove(ParameterKeys.UserLoggedIn);
             }
         }
 
         public async Task SaveQRCodeOTPAsync(string QRCodeOTPSK)
         {
-            User? userEnt = await _dbContext.Users.FirstOrDefaultAsync(u => u.Username == _userLoggedIn.Username);
+            User? userEnt = null;
+            UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
+
+            if (sessionUserLoggedIn != null)
+                userEnt = await _dbContext.Users.FirstOrDefaultAsync(u => u.UserId == sessionUserLoggedIn.UserId);
+
             if (userEnt != null)
             {
                 userEnt.Totp = QRCodeOTPSK;
@@ -197,10 +208,11 @@ namespace Service.Services.Implements
 
         public async Task<(byte[], string)> GenerateOTPQRCodeAsync()
         {
+            UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
             string secretKey = Base32Encoding.ToString(OtpNet.KeyGeneration.GenerateRandomKey());
 
             string issuer = "SocialMedia";
-            string label = _userLoggedIn.Username ?? "";
+            string label = sessionUserLoggedIn?.Username ?? "";
             string keyUri = new OtpUri(OtpType.Totp, secretKey, label, issuer).ToString();
 
             byte[] image = PngByteQRCodeHelper.GetQRCode(keyUri, QRCodeGenerator.ECCLevel.Q, 10);
@@ -212,16 +224,22 @@ namespace Service.Services.Implements
 
         public async Task<List<UserViewModel>> GetAllFriendsAsync()
         {
-            List<Friendship> friendshipsEnt = await _dbContext.Friendships
-                .Where(f => (f.Status == 1) && ((f.UserId1 == _userLoggedIn.UserId) || (f.UserId2 == _userLoggedIn.UserId)))
-                .ToListAsync();
+            List<Friendship>? friendshipsEnt = null;
+            UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
+
+            if (sessionUserLoggedIn != null)
+            {
+                friendshipsEnt = await _dbContext.Friendships
+                    .Where(f => (f.Status == 1) && ((f.UserId1 == sessionUserLoggedIn.UserId) || (f.UserId2 == sessionUserLoggedIn.UserId)))
+                    .ToListAsync();
+            }
 
             List<FriendshipViewModel> friendshipsVM = _mapper.Map<List<FriendshipViewModel>>(friendshipsEnt);
             List<UserViewModel> usersVM = new List<UserViewModel>();
 
             foreach (var friendshipVM in friendshipsVM)
             {
-                int? userId2 = friendshipVM.UserId1 == _userLoggedIn.UserId ? friendshipVM.UserId2 : friendshipVM.UserId1;
+                int? userId2 = friendshipVM.UserId1 == sessionUserLoggedIn?.UserId ? friendshipVM.UserId2 : friendshipVM.UserId1;
                 usersVM.Add(_mapper.Map<UserViewModel>(await _dbContext.Users.FindAsync(userId2)));
             }
 
@@ -257,9 +275,10 @@ namespace Service.Services.Implements
 
         public async Task FriendAdd(int userId2)
         {
+            UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
             FriendshipViewModel friendShipVM = new FriendshipViewModel
             {
-                UserId1 = _userLoggedIn.UserId,
+                UserId1 = sessionUserLoggedIn?.UserId,
                 UserId2 = userId2,
                 Status = 2,
                 CreatedTime = DateTime.Now
@@ -272,7 +291,11 @@ namespace Service.Services.Implements
 
         public async Task FriendConfirm(int userId2)
         {
-            Friendship? friendshipEnt = await _dbContext.Friendships.Where(f => (f.UserId1 == userId2 && f.UserId2 == _userLoggedIn.UserId)).FirstOrDefaultAsync();
+            Friendship? friendshipEnt = null;
+            UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
+
+            if (sessionUserLoggedIn != null)
+                friendshipEnt = await _dbContext.Friendships.Where(f => (f.UserId1 == userId2 && f.UserId2 == sessionUserLoggedIn.UserId)).FirstOrDefaultAsync();
             if (friendshipEnt != null)
             {
                 friendshipEnt.Status = 1;
@@ -283,7 +306,11 @@ namespace Service.Services.Implements
 
         public async Task FriendDeny(int userId2)
         {
-            Friendship? friendshipEnt = await _dbContext.Friendships.Where(f => (f.UserId1 == _userLoggedIn.UserId && f.UserId2 == userId2) || (f.UserId1 == userId2 && f.UserId2 == _userLoggedIn.UserId)).FirstOrDefaultAsync();
+            Friendship? friendshipEnt = null;
+            UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
+
+            if (sessionUserLoggedIn != null)
+                friendshipEnt = await _dbContext.Friendships.Where(f => (f.UserId1 == sessionUserLoggedIn.UserId && f.UserId2 == userId2) || (f.UserId1 == userId2 && f.UserId2 == sessionUserLoggedIn.UserId)).FirstOrDefaultAsync();
             if(friendshipEnt != null)
             {
                 _dbContext.Friendships.Remove(friendshipEnt);
@@ -293,23 +320,26 @@ namespace Service.Services.Implements
 
         public async Task<int?> FriendshipStatus(int userId2)
         {
-            var friendship = await _dbContext.Friendships
-                .FirstOrDefaultAsync(f => (f.UserId1 == _userLoggedIn.UserId && f.UserId2 == userId2));
+            Friendship? friendshipEnt = null;
+            UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
 
-            if (friendship != null)
+            if (sessionUserLoggedIn != null)
+                friendshipEnt = await _dbContext.Friendships
+                    .FirstOrDefaultAsync(f => (f.UserId1 == sessionUserLoggedIn.UserId && f.UserId2 == userId2));
+
+            if (friendshipEnt != null)
+                return friendshipEnt.Status;
+
+            if (sessionUserLoggedIn != null)
+                friendshipEnt = await _dbContext.Friendships
+                    .FirstOrDefaultAsync(f => (f.UserId1 == userId2 && f.UserId2 == sessionUserLoggedIn.UserId));
+
+            if (friendshipEnt != null)
             {
-                return friendship.Status;
-            }
-
-            friendship = await _dbContext.Friendships
-                .FirstOrDefaultAsync(f => (f.UserId1 == userId2 && f.UserId2 == _userLoggedIn.UserId));
-
-            if (friendship != null)
-            {
-                if(friendship.Status == 2)
-                    return friendship.Status + 1;
-
-                return friendship.Status;
+                if(friendshipEnt.Status == 2)
+                    return friendshipEnt.Status + 1;
+                else
+                    return friendshipEnt.Status;
             }
 
             return null;

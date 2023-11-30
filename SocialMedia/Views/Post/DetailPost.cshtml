@@ -4,10 +4,6 @@
 @using Service.ViewModels
 @model (PostViewModel PostVM, ReplyViewModel ReplyVM)
 @using Library.Extensions
-@using Service.Services.Interfaces
-@inject IUserService _userService
-@using Service.Extensions
-@inject UserLoggedIn _userLoggedIn
 
 <style>
     /* 共用樣式 */
@@ -113,7 +109,7 @@
             <span class="username">@Model.PostVM.User?.Username</span>
             <span class="post-date">@Model.PostVM.PostDate.ToString("yyyy-MM-dd HH:mm:ss")</span>
             <div class="float-end">
-                @if (!string.IsNullOrEmpty(_userLoggedIn.Username) && Model.PostVM.User?.Username == _userLoggedIn.Username)
+                @if (!string.IsNullOrEmpty(TempData[ParameterKeys.LoggedInUsername]?.ToString()) && Model.PostVM.User?.Username == TempData[ParameterKeys.LoggedInUsername]?.ToString())
                 {
                     <a class="btn btn-danger btn-rounded" href="@Url.Action("EditPost", "Post", new { postId = Model.PostVM.PostId })">Edit</a>
                 }

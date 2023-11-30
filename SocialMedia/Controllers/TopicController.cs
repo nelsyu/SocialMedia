@@ -1,5 +1,6 @@
 ﻿using Data.Entities;
 using Library.Extensions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Service.Extensions;
 using Service.Services.Implements;
@@ -17,21 +18,23 @@ namespace SocialMedia.Controllers
         private readonly ITopicService _topicService;
         private readonly IPostService _postService;
         private readonly IUserService _userService;
-        private readonly UserLoggedIn _userLoggedIn;
+        private readonly ISession? _session;
 
-        public TopicController(ILogger<HomeController> logger, ITopicService topicService, IPostService postService, IUserService userService, UserLoggedIn userLoggedIn)
+        public TopicController(ILogger<HomeController> logger, ITopicService topicService, IPostService postService, IUserService userService, IHttpContextAccessor httpContextAccessor)
         {
             _logger = logger;
             _topicService = topicService;
             _postService = postService;
             _userService = userService;
-            _userLoggedIn = userLoggedIn;
+            if (httpContextAccessor.HttpContext != null)
+                _session = httpContextAccessor.HttpContext.Session;
         }
 
         public async Task<IActionResult> Index()
         {
+            UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
             List<TopicViewModel> topicsVM = await _topicService.GetAllTopicsAsync();
-            int? userId = _userLoggedIn.UserId;
+            int? userId = sessionUserLoggedIn?.UserId;
             ViewData[ParameterKeys.HasRole] = await _userService.FindRole(userId, 2);
 
             return View(topicsVM);

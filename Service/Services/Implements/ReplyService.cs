@@ -5,6 +5,7 @@ using Service.Services.Interfaces;
 using Service.ViewModels;
 using Service.Extensions;
 using Microsoft.EntityFrameworkCore;
+using Library.Extensions;
 
 namespace Service.Services.Implements
 {
@@ -12,24 +13,28 @@ namespace Service.Services.Implements
     {
         private readonly SocialMediaContext _dbContext;
         private readonly IMapper _mapper;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly UserLoggedIn _userLoggedIn;
+        private readonly ISession? _session;
 
-        public ReplyService(SocialMediaContext dbContext, IMapper mapper, IHttpContextAccessor httpContextAccessor, UserLoggedIn userLoggedIn)
+        public ReplyService(SocialMediaContext dbContext, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
             _dbContext = dbContext;
             _mapper = mapper;
-            _httpContextAccessor = httpContextAccessor;
-            _userLoggedIn = userLoggedIn;
+            if (httpContextAccessor.HttpContext != null)
+                _session = httpContextAccessor.HttpContext.Session;
         }
 
         public async Task CreateReplyAsync(ReplyViewModel replyVM)
         {
-            replyVM.UserId = await _dbContext.Users
-                .Where(u => u.Username == _userLoggedIn.Username)
-                .Select(u => u.UserId)
-                .FirstOrDefaultAsync();
-            replyVM.ReplyDate = DateTime.Now;
+            UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
+
+            if (sessionUserLoggedIn != null)
+            {
+                replyVM.UserId = await _dbContext.Users
+                    .Where(u => u.Username == sessionUserLoggedIn.Username)
+                    .Select(u => u.UserId)
+                    .FirstOrDefaultAsync();
+                replyVM.ReplyDate = DateTime.Now;
+            }
 
             var replyEnt = _mapper.Map<Reply>(replyVM);
             await _dbContext.Replies.AddAsync(replyEnt);

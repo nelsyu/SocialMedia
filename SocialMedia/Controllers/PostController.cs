@@ -4,6 +4,8 @@ using Service.ViewModels;
 using SocialMedia.Models;
 using SocialMedia.Filters;
 using System.Diagnostics;
+using Library.Extensions;
+using Service.Extensions;
 
 namespace SocialMedia.Controllers
 {
@@ -13,13 +15,16 @@ namespace SocialMedia.Controllers
         private readonly IPostService _postService;
         private readonly IReplyService _replyService;
         private readonly ITopicService _topicService;
+        private readonly ISession? _session;
 
-        public PostController(ILogger<PostController> logger, IPostService postService, IReplyService replyService, ITopicService topicService)
+        public PostController(ILogger<PostController> logger, IPostService postService, IReplyService replyService, ITopicService topicService, IHttpContextAccessor httpContextAccessor)
         {
             _logger = logger;
             _postService = postService;
             _replyService = replyService;
             _topicService = topicService;
+            if (httpContextAccessor.HttpContext != null)
+                _session = httpContextAccessor.HttpContext.Session;
         }
 
         public IActionResult Index()
@@ -90,6 +95,8 @@ namespace SocialMedia.Controllers
 
         public async Task<IActionResult> DetailPost(int postId)
         {
+            UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
+            TempData[ParameterKeys.LoggedInUsername] = sessionUserLoggedIn?.Username;
             PostViewModel postVM = await _postService.GetPostAsync(postId);
             ReplyViewModel replyVM = new();
             

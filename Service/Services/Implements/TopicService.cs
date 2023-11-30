@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Service.Services.Interfaces;
 using Service.ViewModels;
 using Service.Extensions;
+using Library.Extensions;
 
 namespace Service.Services.Implements
 {
@@ -12,15 +13,14 @@ namespace Service.Services.Implements
     {
         private readonly SocialMediaContext _dbContext;
         private readonly IMapper _mapper;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly UserLoggedIn _userLoggedIn;
+        private readonly ISession? _session;
 
-        public TopicService(SocialMediaContext dbContext, IMapper mapper, IHttpContextAccessor httpContextAccessor, UserLoggedIn userLoggedIn)
+        public TopicService(SocialMediaContext dbContext, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
             _dbContext = dbContext;
             _mapper = mapper;
-            _httpContextAccessor = httpContextAccessor;
-            _userLoggedIn = userLoggedIn;
+            if(httpContextAccessor.HttpContext != null)
+                _session = httpContextAccessor.HttpContext.Session;
         }
 
         public async Task<List<TopicViewModel>> GetAllTopicsAsync()
@@ -35,7 +35,9 @@ namespace Service.Services.Implements
 
         public async Task CreateTopicAsync(TopicViewModel topicVM, string title)
         {
-            topicVM.UserId = _userLoggedIn.UserId;
+            UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
+            if (sessionUserLoggedIn != null)
+                topicVM.UserId = sessionUserLoggedIn.UserId;
             topicVM.Title = title;
 
             var topicEnt = _mapper.Map<Topic>(topicVM);

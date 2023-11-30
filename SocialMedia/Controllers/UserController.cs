@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Data.Entities;
 using Service.Extensions;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.Http;
 
 namespace SocialMedia.Controllers
 {
@@ -18,21 +19,23 @@ namespace SocialMedia.Controllers
         private readonly IUserService _userService;
         private readonly IPostService _postService;
         private readonly SocialMediaContext _dbContext;
-        private readonly UserLoggedIn _userLoggedIn;
+        private readonly ISession? _session;
 
-        public UserController(ILogger<HomeController> logger, IUserService userService, IPostService postService, SocialMediaContext dbContext, UserLoggedIn userLoggedIn)
+        public UserController(ILogger<HomeController> logger, IUserService userService, IPostService postService, SocialMediaContext dbContext, IHttpContextAccessor httpContextAccessor)
         {
             _logger = logger;
             _userService = userService;
             _postService = postService;
             _dbContext = dbContext;
-            _userLoggedIn = userLoggedIn;
+            if (httpContextAccessor.HttpContext != null)
+                _session = httpContextAccessor.HttpContext.Session;
         }
 
         public async Task<IActionResult> Index(int userId2)
         {
+            UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
             List<PostViewModel> postsVM = await _postService.GetMyPostsAsync(userId2);
-            TempData[ParameterKeys.LoggedInUserId] = _userLoggedIn.UserId;
+            TempData[ParameterKeys.LoggedInUserId] = sessionUserLoggedIn?.UserId;
             TempData[ParameterKeys.UserId2] = userId2;
             TempData[ParameterKeys.Username2] = await _dbContext.Users.Where(u => u.UserId == userId2).Select(u => u.Username).FirstOrDefaultAsync();
             TempData[ParameterKeys.FriendshipStatus] = await _userService.FriendshipStatus(userId2);

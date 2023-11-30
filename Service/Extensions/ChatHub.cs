@@ -1,20 +1,23 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SignalR;
 using Service.Extensions;
 
 namespace Library.Extensions
 {
     public class ChatHub : Hub
     {
-        private readonly UserLoggedIn _userLoggedIn;
+        private readonly ISession? _session;
 
-        public ChatHub(UserLoggedIn userLoggedIn)
+        public ChatHub(IHttpContextAccessor httpContextAccessor)
         {
-            _userLoggedIn = userLoggedIn;
+            if (httpContextAccessor.HttpContext != null)
+                _session = httpContextAccessor.HttpContext.Session;
         }
 
         public override async Task OnConnectedAsync()
         {
-            string groupId = _userLoggedIn.UserId.ToString();
+            UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
+            string groupId = sessionUserLoggedIn?.UserId.ToString() ?? "";
             await Groups.AddToGroupAsync(Context.ConnectionId, groupId);
         }
 
