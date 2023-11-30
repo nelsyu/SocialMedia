@@ -26,6 +26,7 @@ namespace Service.ViewModels
         #endregion
 
         public virtual ICollection<LikeViewModel> Likes { get; set; }
+        public virtual ICollection<NotificationViewModel> Notifications { get; set; } = new List<NotificationViewModel>();
         public virtual ICollection<PostViewModel> Posts { get; set; }
         public virtual ICollection<ReplyViewModel> Replies { get; set; }
         public virtual ICollection<TopicViewModel> Topics { get; set; }

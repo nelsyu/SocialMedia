@@ -24,6 +24,8 @@ public partial class SocialMediaContext : DbContext
 
     public virtual DbSet<Message> Messages { get; set; }
 
+    public virtual DbSet<Notification> Notifications { get; set; }
+
     public virtual DbSet<Post> Posts { get; set; }
 
     public virtual DbSet<Reply> Replies { get; set; }
@@ -36,7 +38,7 @@ public partial class SocialMediaContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer(DbConfig.GetConnectionString());
+                => optionsBuilder.UseSqlServer(DbConfig.GetConnectionString());
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -113,6 +115,23 @@ public partial class SocialMediaContext : DbContext
             entity.Property(e => e.SentTime)
                 .HasColumnType("datetime")
                 .HasColumnName("sentTime");
+        });
+
+        modelBuilder.Entity<Notification>(entity =>
+        {
+            entity.HasKey(e => e.NotificationId).HasName("PK__Notifica__4BA5CEA942D20211");
+
+            entity.Property(e => e.NotificationId).HasColumnName("notificationId");
+            entity.Property(e => e.CreatedTime)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("createdTime");
+            entity.Property(e => e.Message).HasColumnName("message");
+            entity.Property(e => e.UserId).HasColumnName("userId");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Notifications)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK__Notificat__userI__531856C7");
         });
 
         modelBuilder.Entity<Post>(entity =>
