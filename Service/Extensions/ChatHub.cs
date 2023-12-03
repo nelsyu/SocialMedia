@@ -3,7 +3,6 @@ using Data.Entities;
 using Library.Constants;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
-using Service.Extensions;
 using Service.ViewModels;
 
 namespace Library.Extensions

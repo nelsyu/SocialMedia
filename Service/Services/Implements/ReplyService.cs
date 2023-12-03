@@ -3,7 +3,6 @@ using Data.Entities;
 using Microsoft.AspNetCore.Http;
 using Service.Services.Interfaces;
 using Service.ViewModels;
-using Service.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Library.Extensions;
 using Library.Constants;

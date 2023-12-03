@@ -6,7 +6,6 @@ using OtpNet;
 using QRCoder;
 using Service.Services.Interfaces;
 using Service.ViewModels;
-using Service.Extensions;
 using Library.Extensions;
 using System.Text.RegularExpressions;
 using Microsoft.IdentityModel.Tokens;

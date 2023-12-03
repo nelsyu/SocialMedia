@@ -3,8 +3,6 @@ using Library.Constants;
 using Library.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Service.Extensions;
-using Service.Services.Implements;
 using Service.Services.Interfaces;
 using Service.ViewModels;
 using SocialMedia.Filters;

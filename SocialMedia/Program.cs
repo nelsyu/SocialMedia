@@ -1,11 +1,11 @@
 using AutoMapper;
 using Data.Entities;
 using Library.Config;
+using Library.Constants;
 using Library.Extensions;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using Service.Extensions;
 using Service.Mapper;
 using Service.Services.Implements;
 using Service.Services.Interfaces;

@@ -1,6 +1,4 @@
-﻿using Service.ViewModels;
-
-namespace Service.Extensions
+﻿namespace Library.Constants
 {
     public class UserLoggedIn
     {

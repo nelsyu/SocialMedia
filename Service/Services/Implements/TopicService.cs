@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Service.Services.Interfaces;
 using Service.ViewModels;
-using Service.Extensions;
 using Library.Extensions;
 using Library.Constants;
 
