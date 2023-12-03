@@ -1,8 +1,9 @@
 ﻿@{
     Layout = "_Layout";
 }
-@using Library.Extensions;
-@using Service.Extensions;
+@using Library.Constants
+@using Library.Extensions
+@using Service.Extensions
 @inject IHttpContextAccessor httpContextAccessor
 @{
     ISession? _session = httpContextAccessor.HttpContext?.Session;

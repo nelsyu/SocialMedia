@@ -1,4 +1,4 @@
-﻿namespace Library.Extensions
+﻿namespace Library.Constants
 {
     public static class ParameterKeys
     {
