@@ -38,7 +38,7 @@ public partial class SocialMediaContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-                => optionsBuilder.UseSqlServer(DbConfig.GetConnectionString());
+        => optionsBuilder.UseSqlServer(DbConfig.GetConnectionString());
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -123,10 +123,10 @@ public partial class SocialMediaContext : DbContext
 
             entity.Property(e => e.NotificationId).HasColumnName("notificationId");
             entity.Property(e => e.CreatedTime)
-                .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("createdTime");
             entity.Property(e => e.Message).HasColumnName("message");
+            entity.Property(e => e.SourceUserId).HasColumnName("sourceUserId");
             entity.Property(e => e.UserId).HasColumnName("userId");
 
             entity.HasOne(d => d.User).WithMany(p => p.Notifications)

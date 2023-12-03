@@ -23,5 +23,6 @@ namespace Service.Services.Interfaces
         Task FriendConfirm(int userId2);
         Task FriendDeny(int userId2);
         Task<int?> FriendshipStatus(int userId2);
+        Task<List<NotificationViewModel>> GetNotificationsAsync();
     }
 }

@@ -240,7 +240,9 @@ namespace Service.Services.Implements
             foreach (var friendshipVM in friendshipsVM)
             {
                 int? userId2 = friendshipVM.UserId1 == sessionUserLoggedIn?.UserId ? friendshipVM.UserId2 : friendshipVM.UserId1;
-                usersVM.Add(_mapper.Map<UserViewModel>(await _dbContext.Users.FindAsync(userId2)));
+                User? userEnt = await _dbContext.Users.FindAsync(userId2);
+                UserViewModel userVM = _mapper.Map<UserViewModel>(userEnt);
+                usersVM.Add(userVM);
             }
 
             return usersVM;
@@ -307,14 +309,30 @@ namespace Service.Services.Implements
         public async Task FriendDeny(int userId2)
         {
             Friendship? friendshipEnt = null;
+            Notification? notificationEnt = null;
             UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
 
             if (sessionUserLoggedIn != null)
-                friendshipEnt = await _dbContext.Friendships.Where(f => (f.UserId1 == sessionUserLoggedIn.UserId && f.UserId2 == userId2) || (f.UserId1 == userId2 && f.UserId2 == sessionUserLoggedIn.UserId)).FirstOrDefaultAsync();
-            if(friendshipEnt != null)
             {
-                _dbContext.Friendships.Remove(friendshipEnt);
-                await _dbContext.SaveChangesAsync();
+                friendshipEnt = await _dbContext.Friendships
+                    .Where(f => (f.UserId1 == sessionUserLoggedIn.UserId && f.UserId2 == userId2) || (f.UserId1 == userId2 && f.UserId2 == sessionUserLoggedIn.UserId))
+                    .FirstOrDefaultAsync();
+
+                if(friendshipEnt != null)
+                {
+                    _dbContext.Friendships.Remove(friendshipEnt);
+                    await _dbContext.SaveChangesAsync();
+                }
+
+                notificationEnt = await _dbContext.Notifications
+                    .Where(n => n.UserId == userId2 && n.Message == sessionUserLoggedIn.Username + " want to be your friend!")
+                    .FirstOrDefaultAsync();
+
+                if (notificationEnt != null)
+                {
+                    _dbContext.Notifications.Remove(notificationEnt);
+                    await _dbContext.SaveChangesAsync();
+                }
             }
         }
 
@@ -343,6 +361,23 @@ namespace Service.Services.Implements
             }
 
             return null;
+        }
+
+        public async Task<List<NotificationViewModel>> GetNotificationsAsync()
+        {
+            List<Notification>? notificationsEnt = null;
+            UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
+
+            if(sessionUserLoggedIn != null)
+            {
+                notificationsEnt = await _dbContext.Notifications
+                    .Where(n => n.UserId == sessionUserLoggedIn.UserId)
+                    .OrderByDescending(n => n.CreatedTime)
+                    .ToListAsync();
+            }
+            List<NotificationViewModel> notificationsVM = _mapper.Map<List<NotificationViewModel>>(notificationsEnt);
+            
+            return notificationsVM;
         }
 
         #region private methods

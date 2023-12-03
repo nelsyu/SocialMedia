@@ -13,5 +13,7 @@ public partial class Notification
 
     public DateTime CreatedTime { get; set; }
 
+    public int SourceUserId { get; set; }
+
     public virtual User User { get; set; } = null!;
 }

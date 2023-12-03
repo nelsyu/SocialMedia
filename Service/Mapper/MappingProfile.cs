@@ -8,19 +8,25 @@ namespace Service.Mapper
     {
         public MappingProfile()
         {
-            CreateMap<Post, PostViewModel>()
-                .ReverseMap();
-            CreateMap<Reply, ReplyViewModel>()
-                .ReverseMap();
-            CreateMap<Topic, TopicViewModel>()
-                .ReverseMap();
-            CreateMap<User, UserViewModel>()
-                .ReverseMap();
             CreateMap<Friendship, FriendshipViewModel>()
+                .ReverseMap();
+            CreateMap<FriendshipStatus, FriendshipStatusViewModel>()
                 .ReverseMap();
             CreateMap<Like, LikeViewModel>()
                 .ReverseMap();
             CreateMap<Message, MessageViewModel>()
+                .ReverseMap();
+            CreateMap<Notification, NotificationViewModel>()
+                .ReverseMap();
+            CreateMap<Post, PostViewModel>()
+                .ReverseMap();
+            CreateMap<Reply, ReplyViewModel>()
+                .ReverseMap();
+            CreateMap<Role,RoleViewModel>()
+                .ReverseMap();
+            CreateMap<Topic, TopicViewModel>()
+                .ReverseMap();
+            CreateMap<User, UserViewModel>()
                 .ReverseMap();
         }
     }

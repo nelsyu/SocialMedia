@@ -83,43 +83,48 @@
     @{
         var friendshipStatus = TempData[ParameterKeys.FriendshipStatus];
         var loggedInUserId = TempData[ParameterKeys.LoggedInUserId];
+        var loggedInUsername = TempData[ParameterKeys.LoggedInUsername];
         var userId2 = TempData[ParameterKeys.UserId2];
 
-        if (loggedInUserId != null && userId2 != null && (int)loggedInUserId != (int)userId2)
+        if (userId2 != null && (int)userId2 == 0)
+        {
+            <p>User not found.</p>
+        }
+        else if (loggedInUserId != null && userId2 != null && (int)loggedInUserId != (int)userId2)
         {
             if (friendshipStatus == null)
             {
-                <button type="button" id="button" class="btn btn-primary add-friend">
-                    Add Friend
-                </button>
+                    <button type="button" id="button" class="btn btn-primary add-friend">
+                        Add Friend
+                    </button>
             }
             else if ((int)friendshipStatus == 1)
             {
-                <div style="display: flex; justify-content: space-between;">
-                    <button type="button" id="button" class="btn btn-success">
-                        Friend
-                    </button>
-                    <button type="button" class="btn btn-danger" onclick="checkLogin(); location.href='@Url.Action("FriendDeny", "User", new { userId2 = userId2 })'">
-                        Unfriend
-                    </button>
-                </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <button type="button" id="button" class="btn btn-success">
+                            Friend
+                        </button>
+                        <button type="button" class="btn btn-danger unfriend" onclick="checkLogin(); location.href='@Url.Action("FriendDeny", "User", new { userId2 = userId2 })'">
+                            Unfriend
+                        </button>
+                    </div>
             }
             else if ((int)friendshipStatus == 2)
             {
-                <button type="button" id="button" class="btn btn-primary" onclick="checkLogin(); location.href='@Url.Action("FriendDeny", "User", new { userId2 = userId2 })'">
-                    Pending
-                </button>
+                    <button type="button" id="button" class="btn btn-primary pending" onclick="checkLogin(); location.href='@Url.Action("FriendDeny", "User", new { userId2 = userId2 })'">
+                        Pending
+                    </button>
             }
             else if ((int)friendshipStatus == 3)
             {
-                <div style="display: flex; justify-content: space-between;">
-                    <button type="button" id="button" class="btn btn-success" onclick="checkLogin(); location.href='@Url.Action("FriendConfirm", "User", new { userId2 = userId2 })'">
-                        Confirm
-                    </button>
-                    <button type="button" class="btn btn-danger" onclick="checkLogin(); location.href='@Url.Action("FriendDeny", "User", new { userId2 = userId2 })'">
-                        Deny
-                    </button>
-                </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <button type="button" id="button" class="btn btn-success confirm">
+                            Confirm
+                        </button>
+                        <button type="button" class="btn btn-danger deny" onclick="checkLogin(); location.href='@Url.Action("FriendDeny", "User", new { userId2 = userId2 })'">
+                            Deny
+                        </button>
+                    </div>
             }
         }
     }
@@ -190,23 +195,44 @@
 <script src="~/js/signalr/dist/browser/signalr.js"></script>
 @section Scripts {
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            var addFriendBtn = document.querySelector(".btn.btn-primary.add-friend");
-            if (addFriendBtn) {
-                addFriendBtn.addEventListener("click", function (event) {
-                    checkLogin();
+        checkLogin();
 
-                    var groupId = "@userId2";
-                    var user = "@loggedInUserId";
-                    var message = "@loggedInUserId" + " want to be your friend!";
-                    connection.invoke("DirectMessage", groupId, user, message).catch(function (err) {
+        var groupId = "@userId2";
+        var userId2 = @userId2;
+        var message = "";
+    </script>
+    @if (friendshipStatus == null)
+    {
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                var addFriendBtn = document.querySelector(".btn.btn-primary.add-friend");
+
+                addFriendBtn.addEventListener("click", function (event) {
+                    message = "@loggedInUsername want to be your friend!";
+                    connection.invoke("DirectMessage", groupId, userId2, message).catch(function (err) {
                         return console.error(err.toString());
                     });
-                    event.preventDefault();
 
                     location.href = '@Url.Action("FriendAdd", "User", new { userId2 = @userId2 })';
                 });
-            }
-        });
-    </script>
+            });
+        </script>
+    }
+    else if ((int)friendshipStatus == 3)
+    {
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                var confirmBtn = document.querySelector(".btn.btn-success.confirm");
+
+                confirmBtn.addEventListener("click", function (event) {
+                    message = "@loggedInUsername and you are friends now!"
+                    connection.invoke("DirectMessage", groupId, userId2, message).catch(function (err) {
+                        return console.error(err.toString());
+                    });
+
+                    location.href = '@Url.Action("FriendConfirm", "User", new { userId2 = @userId2 })';
+                });
+            });
+        </script>
+    }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Data.Entities;
+using System;
 using System.Collections.Generic;
 
 namespace Service.ViewModels;
@@ -12,6 +13,8 @@ public partial class NotificationViewModel
     public string Message { get; set; } = null!;
 
     public DateTime CreatedTime { get; set; }
+
+    public int SourceUserId { get; set; }
 
     public virtual UserViewModel User { get; set; } = null!;
 }

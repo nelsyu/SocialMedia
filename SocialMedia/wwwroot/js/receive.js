@@ -7,8 +7,10 @@ connection.start().then(function () {
     return console.error(err.toString());
 });
 
-connection.on("ReceiveMessage", function (user, message) {
+connection.on("ReceiveMessage", function (message, sendTime) {
     var li = document.createElement("li");
+    li.classList.add("list-group-item", "text-light");
     document.getElementById("messagesList").appendChild(li);
-    li.textContent = `${user} says ${message}`;
+    li.innerHTML = `${message}<br>${sendTime}`;
 });
+

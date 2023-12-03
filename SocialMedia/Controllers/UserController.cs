@@ -31,13 +31,21 @@ namespace SocialMedia.Controllers
                 _session = httpContextAccessor.HttpContext.Session;
         }
 
+        [TypeFilter(typeof(AuthenticationFilter))]
         public async Task<IActionResult> Index(int userId2)
         {
             UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
             List<PostViewModel> postsVM = await _postService.GetMyPostsAsync(userId2);
             TempData[ParameterKeys.LoggedInUserId] = sessionUserLoggedIn?.UserId;
-            TempData[ParameterKeys.UserId2] = userId2;
-            TempData[ParameterKeys.Username2] = await _dbContext.Users.Where(u => u.UserId == userId2).Select(u => u.Username).FirstOrDefaultAsync();
+            TempData[ParameterKeys.LoggedInUsername] = sessionUserLoggedIn?.Username;
+            TempData[ParameterKeys.UserId2] = await _dbContext.Users
+                .Where(u => u.UserId == userId2)
+                .Select(u => u.UserId)
+                .FirstOrDefaultAsync();
+            TempData[ParameterKeys.Username2] = await _dbContext.Users
+                .Where(u => u.UserId == userId2)
+                .Select(u => u.Username)
+                .FirstOrDefaultAsync();
             TempData[ParameterKeys.FriendshipStatus] = await _userService.FriendshipStatus(userId2);
 
             return View(postsVM);
@@ -227,9 +235,11 @@ namespace SocialMedia.Controllers
             return Redirect($"/User?userId2={userId2}");
         }
 
-        public IActionResult ReceiveMessage()
+        public async Task<IActionResult> ReceiveMessage()
         {
-            return PartialView("_NoticesPartial");
+            List<NotificationViewModel> notificationsVM = await _userService.GetNotificationsAsync();
+            
+            return PartialView("_NoticesPartial", notificationsVM);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

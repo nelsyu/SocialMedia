@@ -1,7 +1,22 @@
-﻿<div class="container">
+﻿@using Service.ViewModels
+@model List<NotificationViewModel>
+
+<style>
+    .list-group-item {
+        background-color: inherit;
+
+    }
+</style>
+
+<div class="container">
     <div class="row p-1">
         <div class="col-6">
-            <ul id="messagesList"></ul>
+            <ul id="messagesList" class="list-group" style="width: 200px;">
+                @foreach (var notificationVM in Model)
+                {
+                    <li class="list-group-item text-light">@notificationVM.Message<br>@notificationVM.CreatedTime.ToString("yyyy-MM-dd HH:mm:ss")</li>
+                }
+            </ul>
         </div>
     </div>
 </div>
