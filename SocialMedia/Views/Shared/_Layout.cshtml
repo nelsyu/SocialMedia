@@ -118,8 +118,8 @@
         <script src="~/js/site.js" asp-append-version="true"></script>
 
         <script>
-            function checkLogin() {
-                $.ajax({
+            async function checkLogin() {
+                await $.ajax({
                     url: '@Url.Action("IsLoggedIn", "User")',
                     success: function (data) {
                         if (!data) {
@@ -133,7 +133,6 @@
             }
 
             $(document).ready(function () {
-                // Load friends list when the document is ready
                 loadFriends();
             });
 
@@ -144,7 +143,6 @@
                         method: 'GET'
                     });
 
-                    // Append friends to the container
                     $('#friendsContainer').html(response);
                 } catch (error) {
                     console.error('Error loading friends:', error);
@@ -162,8 +160,6 @@
                         method: 'GET'
                     });
 
-                    // Append notifications to a container or handle them as needed
-                    // For example, you can display them in a notification bar
                     $('#noticesContainer').append(response);
                 } catch (error) {
                     console.error('Error loading notifications:', error);
