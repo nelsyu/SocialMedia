@@ -2,7 +2,6 @@ using AutoMapper;
 using Data.Entities;
 using Library.Config;
 using Library.Constants;
-using Library.Extensions;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -88,7 +87,7 @@ app.UseRouting();
 
 app.UseAuthorization();
 
-app.MapHub<ChatHub>("/chatHub");
+app.MapHub<SignalRService>("/chatHub");
 
 app.MapControllerRoute(
     name: "default",

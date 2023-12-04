@@ -23,8 +23,7 @@ namespace Service.Services.Implements
         {
             _dbContext = dbContext;
             _mapper = mapper;
-            if (httpContextAccessor.HttpContext != null)
-                _session = httpContextAccessor.HttpContext.Session;
+            _session = httpContextAccessor.HttpContext?.Session;
         }
 
         public async Task<List<string>> ValidateRegisterAsync(UserViewModel userVM)

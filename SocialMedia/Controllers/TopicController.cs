@@ -25,8 +25,7 @@ namespace SocialMedia.Controllers
             _topicService = topicService;
             _postService = postService;
             _userService = userService;
-            if (httpContextAccessor.HttpContext != null)
-                _session = httpContextAccessor.HttpContext.Session;
+            _session = httpContextAccessor.HttpContext?.Session;
         }
 
         public async Task<IActionResult> Index()

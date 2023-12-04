@@ -23,8 +23,7 @@ namespace SocialMedia.Controllers
             _postService = postService;
             _replyService = replyService;
             _topicService = topicService;
-            if (httpContextAccessor.HttpContext != null)
-                _session = httpContextAccessor.HttpContext.Session;
+            _session = httpContextAccessor.HttpContext?.Session;
         }
 
         public IActionResult Index()

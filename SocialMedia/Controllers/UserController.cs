@@ -7,8 +7,6 @@ using System.Diagnostics;
 using Library.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Data.Entities;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.AspNetCore.Http;
 using Library.Constants;
 
 namespace SocialMedia.Controllers
@@ -27,8 +25,7 @@ namespace SocialMedia.Controllers
             _userService = userService;
             _postService = postService;
             _dbContext = dbContext;
-            if (httpContextAccessor.HttpContext != null)
-                _session = httpContextAccessor.HttpContext.Session;
+            _session = httpContextAccessor.HttpContext?.Session;
         }
 
         [TypeFilter(typeof(AuthenticationFilter))]
