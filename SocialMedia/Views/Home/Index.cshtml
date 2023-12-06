@@ -1,8 +1,6 @@
 ﻿@{
     ViewData["Title"] = "Posts";
 }
-@using Service.ViewModels
-@model (List<PostViewModel> postsVM, PageViewModel pageVM)
 
 <style>
     body {
@@ -75,7 +73,7 @@
     }
 
     .table th.username {
-        width: 20%;
+        width: 10%;
     }
 
     .table th.title {
@@ -87,13 +85,13 @@
     }
 
     .table th.post-date {
-        width: 20%;
+        width: 30%;
     }
 </style>
 
 <div class="container">
     <h2>All Posts</h2>
-    <table class="table">
+    <table class="table" id="postTable">
         <thead>
             <tr>
                 <th scope="col" class="username">Username</th>
@@ -102,36 +100,77 @@
                 <th scope="col" class="post-date">Post Date</th>
             </tr>
         </thead>
-        <tbody>
-            @foreach (var postVM in Model.postsVM)
-            {
-                <tr onclick="window.location.href='@Url.Action("DetailPost", "Post", new { postId = postVM.PostId })';" style="cursor:pointer;">
-                    <td class="username">
-                        @(postVM.User?.Username ?? "Deleted User")
-                    </td>
-                    <td class="title">
-                        @postVM.Title
-                    </td>
-                    <td class="content">
-                        @postVM.Content
-                    </td>
-                    <td class="post-date">
-                        @postVM.PostDate.ToString("yyyy-MM-dd HH:mm:ss")
-                    </td>
-                </tr>
-            }
+        <tbody id="postBody">
+            <!-- Posts will be dynamically added here using JavaScript -->
         </tbody>
     </table>
 
     <!-- Pagination Section -->
     <nav>
-        <ul class="pagination">
-            @for (int i = 1; i <= Model.pageVM.TotalPages; i++)
-            {
-                <li class="page-item @(i == Model.pageVM.CurrentPage ? "active" : "")">
-                    <a class="page-link" href="?currentPage=@i">@i</a>
-                </li>
-            }
+        <ul class="pagination" id="pagination">
+            <!-- Pagination links will be dynamically added here using JavaScript -->
         </ul>
     </nav>
 </div>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            let currentRequest;
+
+            function disablePagination() {
+                $('#pagination').off('click', '.page-link');
+            }
+
+            function enablePagination() {
+                $('#pagination').on('click', '.page-link', function (e) {
+                    e.preventDefault();
+                    const currentPage = $(this).data('current-page');
+                    getAllPosts(currentPage);
+                });
+            }
+
+            function getAllPosts(currentPage) {
+                disablePagination();
+
+                if (currentRequest) {
+                    currentRequest.abort();
+                }
+
+                currentRequest = $.get('/Post/GetAllPosts', { currentPage }, function (data) {
+                    $('#postBody').empty();
+                    $('#pagination').empty();
+
+                    data.posts.forEach(post => {
+                        const row = `
+                                    <tr onclick="window.location.href='/Post/DetailPost?postId=${post.postId}';" style="cursor:pointer;">
+                                        <td class="username">${post.user ? post.user.username : 'Deleted User'}</td>
+                                        <td class="title">${post.title}</td>
+                                        <td class="content">${post.content}</td>
+                                        <td class="post-date">${new Date(post.postDate).toLocaleString()}</td>
+                                    </tr>`;
+                        $('#postBody').append(row);
+                    });
+
+                    for (let i = 1; i <= data.totalPages; i++) {
+                        const liClass = i === data.currentPage ? 'page-item active' : 'page-item';
+                        const button = `<button class="page-link" data-current-page="${i}">${i}</button>`;
+                        const li = `<li class="${liClass}">${button}</li>`;
+                        $('#pagination').append(li);
+                    }
+
+                    enablePagination();
+                })
+                    .fail(function (error) {
+                        console.log(error);
+                    })
+                    .always(function () {
+                        enablePagination();
+                        currentRequest = null;
+                    });
+            }
+
+            getAllPosts(1);
+        });
+    </script>
+}

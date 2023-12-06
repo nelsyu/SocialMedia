@@ -31,6 +31,19 @@ namespace SocialMedia.Controllers
             return View();
         }
 
+        public async Task<IActionResult> GetAllPosts(int currentPage = 1)
+        {
+            if (currentPage < 1)
+                return RedirectToAction("Index", "Home");
+            int pageSize = 5;
+            List<PostViewModel> postsVM = await _postService.GetAllPostsAsync();
+            int totalPosts = postsVM.Count;
+            postsVM = await _postService.PagingAsync(postsVM, currentPage, pageSize);
+            int totalPages = (int)Math.Ceiling((double)totalPosts / pageSize);
+
+            return Json(new { posts = postsVM, currentPage, totalPages });
+        }
+
         [TypeFilter(typeof(AuthenticationFilter))]
         public async Task<IActionResult> MyPost(int currentPage = 1)
         {

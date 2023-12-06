@@ -20,23 +20,9 @@ namespace SocialMedia.Controllers
             _userService = userService;
         }
 
-        public async Task<IActionResult> Index(int currentPage = 1)
+        public IActionResult Index()
         {
-            if (currentPage < 1)
-                return RedirectToAction("Index", "Home");
-            int pageSize = 5;
-            List<PostViewModel> postsVM = await _postService.GetAllPostsAsync();
-            int totalPosts = postsVM.Count;
-            postsVM = await _postService.PagingAsync(postsVM, currentPage, pageSize);
-            int totalPages = (int)Math.Ceiling((double)totalPosts / pageSize);
-
-            PageViewModel pageVM = new()
-            {
-                CurrentPage = currentPage,
-                PageSize = pageSize,
-                TotalPages = totalPages
-            };
-            return View((postsVM, pageVM));
+            return View();
         }
 
         public IActionResult Privacy()
