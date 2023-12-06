@@ -111,7 +111,7 @@ namespace Service.Services.Implements
             {
                 postVM.UserId = sessionUserLoggedIn.UserId;
                 postVM.PostDate = DateTime.Now;
-                postVM.LastEditDate = DateTime.Now;
+                //postVM.LastEditDate = DateTime.Now; 已用trigger取代
 
                 var postEnt = _mapper.Map<Post>(postVM);
                 _dbContext.Posts.Add(postEnt);
@@ -139,7 +139,7 @@ namespace Service.Services.Implements
                 postEnt.TopicId = postVM.TopicId;
                 postEnt.Title = postVM.Title;
                 postEnt.Content = postVM.Content;
-                postEnt.LastEditDate = DateTime.Now;
+                //postEnt.LastEditDate = DateTime.Now; 已用trigger取代
 
                 await _dbContext.SaveChangesAsync();
             }

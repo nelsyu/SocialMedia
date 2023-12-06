@@ -37,7 +37,6 @@ public partial class SocialMediaContext : DbContext
     public virtual DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer(DbConfig.GetConnectionString());
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -56,7 +55,6 @@ public partial class SocialMediaContext : DbContext
 
             entity.HasOne(d => d.StatusNavigation).WithMany(p => p.Friendships)
                 .HasForeignKey(d => d.Status)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Friendships_FriendshipStatus");
         });
 
@@ -138,9 +136,12 @@ public partial class SocialMediaContext : DbContext
         {
             entity.HasKey(e => e.PostId).HasName("PK__Posts__DD0C739A52276F9A");
 
+            entity.ToTable(tb => tb.HasTrigger("UpdatePostTrigger"));
+
             entity.Property(e => e.PostId).HasColumnName("postId");
             entity.Property(e => e.Content).HasColumnName("content");
             entity.Property(e => e.LastEditDate)
+                .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("lastEditDate");
             entity.Property(e => e.PostDate)
