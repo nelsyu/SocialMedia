@@ -15,9 +15,15 @@ public partial class User
 
     public string? Totp { get; set; }
 
+    public virtual ICollection<Friendship> FriendshipUserId1Navigations { get; set; } = new List<Friendship>();
+
+    public virtual ICollection<Friendship> FriendshipUserId2Navigations { get; set; } = new List<Friendship>();
+
     public virtual ICollection<Like> Likes { get; set; } = new List<Like>();
 
-    public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+    public virtual ICollection<Notification> NotificationSourceUsers { get; set; } = new List<Notification>();
+
+    public virtual ICollection<Notification> NotificationUsers { get; set; } = new List<Notification>();
 
     public virtual ICollection<Post> Posts { get; set; } = new List<Post>();
 

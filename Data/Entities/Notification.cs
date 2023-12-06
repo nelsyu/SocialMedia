@@ -15,5 +15,7 @@ public partial class Notification
 
     public int SourceUserId { get; set; }
 
+    public virtual User SourceUser { get; set; } = null!;
+
     public virtual User User { get; set; } = null!;
 }

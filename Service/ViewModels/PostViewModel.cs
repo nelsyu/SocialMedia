@@ -14,7 +14,7 @@
         public string Title { get; set; } = null!;
         public string Content { get; set; } = null!;
         public DateTime PostDate { get; set; }
-        public DateTime? LastEditDate { get; set; }
+        public DateTime LastEditDate { get; set; }
         public int TopicId { get; set; }
 
         public virtual TopicViewModel Topic { get; set; } = null!;

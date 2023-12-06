@@ -124,11 +124,13 @@ namespace Service.Services.Implements
 
         public async Task DeleteAccountAsync(UserViewModel userVM)
         {
-            User? userEnt = null;
             UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
+            User? userEnt = null;
 
             if (sessionUserLoggedIn != null)
-                userEnt = await _dbContext.Users.Where(u => u.UserId == sessionUserLoggedIn.UserId).FirstOrDefaultAsync();
+                userEnt = await _dbContext.Users
+                    .Where(u => u.UserId == sessionUserLoggedIn.UserId)
+                    .FirstOrDefaultAsync();
 
             if (userEnt != null)
             {

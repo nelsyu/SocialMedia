@@ -16,4 +16,8 @@ public partial class Friendship
     public DateTime CreatedTime { get; set; }
 
     public virtual FriendshipStatus StatusNavigation { get; set; } = null!;
+
+    public virtual User UserId1Navigation { get; set; } = null!;
+
+    public virtual User UserId2Navigation { get; set; } = null!;
 }

@@ -15,7 +15,7 @@ public partial class Post
 
     public DateTime PostDate { get; set; }
 
-    public DateTime? LastEditDate { get; set; }
+    public DateTime LastEditDate { get; set; }
 
     public int TopicId { get; set; }
 

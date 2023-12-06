@@ -55,7 +55,18 @@ public partial class SocialMediaContext : DbContext
 
             entity.HasOne(d => d.StatusNavigation).WithMany(p => p.Friendships)
                 .HasForeignKey(d => d.Status)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Friendships_FriendshipStatus");
+
+            entity.HasOne(d => d.UserId1Navigation).WithMany(p => p.FriendshipUserId1Navigations)
+                .HasForeignKey(d => d.UserId1)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Friendships_userId1_Users_userId");
+
+            entity.HasOne(d => d.UserId2Navigation).WithMany(p => p.FriendshipUserId2Navigations)
+                .HasForeignKey(d => d.UserId2)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Friendships_userId2_Users_userId");
         });
 
         modelBuilder.Entity<FriendshipStatus>(entity =>
@@ -127,9 +138,15 @@ public partial class SocialMediaContext : DbContext
             entity.Property(e => e.SourceUserId).HasColumnName("sourceUserId");
             entity.Property(e => e.UserId).HasColumnName("userId");
 
-            entity.HasOne(d => d.User).WithMany(p => p.Notifications)
+            entity.HasOne(d => d.SourceUser).WithMany(p => p.NotificationSourceUsers)
+                .HasForeignKey(d => d.SourceUserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Notifications_sourceUserId_Users_userId");
+
+            entity.HasOne(d => d.User).WithMany(p => p.NotificationUsers)
                 .HasForeignKey(d => d.UserId)
-                .HasConstraintName("FK__Notificat__userI__531856C7");
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Notifications_userId_Users_userId");
         });
 
         modelBuilder.Entity<Post>(entity =>
@@ -219,6 +236,8 @@ public partial class SocialMediaContext : DbContext
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(e => e.UserId).HasName("PK__Users__CB9A1CFF36F4A4B8");
+
+            entity.ToTable(tb => tb.HasTrigger("InsteadOfDeleteUsersTrigger"));
 
             entity.Property(e => e.UserId).HasColumnName("userId");
             entity.Property(e => e.Email)
