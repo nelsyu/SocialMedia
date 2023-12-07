@@ -16,7 +16,7 @@ public partial class NotificationViewModel
 
     public int SenderUserId { get; set; }
 
-    public virtual UserViewModel SenderUser { get; set; } = null!;
+    public virtual User ReceiverUser { get; set; } = null!;
 
-    public virtual UserViewModel User { get; set; } = null!;
+    public virtual UserViewModel SenderUser { get; set; } = null!;
 }

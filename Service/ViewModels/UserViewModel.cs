@@ -28,8 +28,8 @@ namespace Service.ViewModels
         public virtual ICollection<FriendshipViewModel> FriendshipUserId1Navigations { get; set; } = new List<FriendshipViewModel>();
         public virtual ICollection<FriendshipViewModel> FriendshipUserId2Navigations { get; set; } = new List<FriendshipViewModel>();
         public virtual ICollection<LikeViewModel> Likes { get; set; }
-        public virtual ICollection<NotificationViewModel> NotificationSourceUsers { get; set; } = new List<NotificationViewModel>();
-        public virtual ICollection<NotificationViewModel> NotificationUsers { get; set; } = new List<NotificationViewModel>();
+        public virtual ICollection<NotificationViewModel> NotificationReceiverUsers { get; set; } = new List<NotificationViewModel>();
+        public virtual ICollection<NotificationViewModel> NotificationSenderUsers { get; set; } = new List<NotificationViewModel>();
         public virtual ICollection<PostViewModel> Posts { get; set; }
         public virtual ICollection<ReplyViewModel> Replies { get; set; }
         public virtual ICollection<TopicViewModel> Topics { get; set; }
