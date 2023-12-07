@@ -110,7 +110,7 @@ namespace Service.Services.Implements
             if (sessionUserLoggedIn != null)
             {
                 postVM.UserId = sessionUserLoggedIn.UserId;
-                postVM.PostDate = DateTime.Now;
+                postVM.CreateDate = DateTime.Now;
                 //postVM.EditDate = DateTime.Now; 已用trigger取代
 
                 var postEnt = _mapper.Map<Post>(postVM);
@@ -119,9 +119,9 @@ namespace Service.Services.Implements
             }
         }
 
-        public async Task DeletePostAsync(PostViewModel postVM)
+        public async Task DeletePostAsync(int postId)
         {
-            Post? postEnt = await _dbContext.Posts.FirstOrDefaultAsync(p => p.Id == postVM.Id);
+            Post? postEnt = await _dbContext.Posts.FirstOrDefaultAsync(p => p.Id == postId);
 
             if (postEnt != null)
             {

@@ -11,11 +11,11 @@ public partial class Friendship
 
     public int UserId2 { get; set; }
 
-    public int Status { get; set; }
+    public int FriendshipStatusId { get; set; }
 
     public DateTime CreateTime { get; set; }
 
-    public virtual FriendshipStatus StatusNavigation { get; set; } = null!;
+    public virtual FriendshipStatus FriendshipStatus { get; set; } = null!;
 
     public virtual User UserId1Navigation { get; set; } = null!;
 

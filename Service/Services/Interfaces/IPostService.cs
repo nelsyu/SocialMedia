@@ -12,7 +12,7 @@ namespace Service.Services.Interfaces
         Task<List<PostViewModel>> PagingAsync(List<PostViewModel> postVMs, int page, int pageSize);
         Task<List<string>> ValidatePostAsync(PostViewModel postVM);
         Task CreatePostAsync(PostViewModel postVM);
-        Task DeletePostAsync(PostViewModel postVM);
+        Task DeletePostAsync(int postId);
         Task UpdatePostAsync(PostViewModel postVM, int postId);
     }
 }

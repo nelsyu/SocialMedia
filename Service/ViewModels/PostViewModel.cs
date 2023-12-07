@@ -13,7 +13,7 @@
         public int? UserId { get; set; }
         public string Title { get; set; } = null!;
         public string Content { get; set; } = null!;
-        public DateTime PostDate { get; set; }
+        public DateTime CreateDate { get; set; }
         public DateTime EditDate { get; set; }
         public int TopicId { get; set; }
 

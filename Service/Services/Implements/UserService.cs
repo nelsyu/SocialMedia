@@ -231,7 +231,7 @@ namespace Service.Services.Implements
             if (sessionUserLoggedIn != null)
             {
                 friendshipsEnt = await _dbContext.Friendships
-                    .Where(f => (f.Status == 1) && ((f.UserId1 == sessionUserLoggedIn.UserId) || (f.UserId2 == sessionUserLoggedIn.UserId)))
+                    .Where(f => (f.FriendshipStatusId == 1) && ((f.UserId1 == sessionUserLoggedIn.UserId) || (f.UserId2 == sessionUserLoggedIn.UserId)))
                     .ToListAsync();
             }
 
@@ -283,7 +283,7 @@ namespace Service.Services.Implements
             {
                 UserId1 = sessionUserLoggedIn?.UserId,
                 UserId2 = userId2,
-                Status = 2,
+                FriendshipStatusId = 2,
                 CreateTime = DateTime.Now
             };
 
@@ -301,7 +301,7 @@ namespace Service.Services.Implements
                 friendshipEnt = await _dbContext.Friendships.Where(f => (f.UserId1 == userId2 && f.UserId2 == sessionUserLoggedIn.UserId)).FirstOrDefaultAsync();
             if (friendshipEnt != null)
             {
-                friendshipEnt.Status = 1;
+                friendshipEnt.FriendshipStatusId = 1;
                 _dbContext.Friendships.Update(friendshipEnt);
                 await _dbContext.SaveChangesAsync();
             }
@@ -347,7 +347,7 @@ namespace Service.Services.Implements
                     .FirstOrDefaultAsync(f => (f.UserId1 == sessionUserLoggedIn.UserId && f.UserId2 == userId2));
 
             if (friendshipEnt != null)
-                return friendshipEnt.Status;
+                return friendshipEnt.FriendshipStatusId;
 
             if (sessionUserLoggedIn != null)
                 friendshipEnt = await _dbContext.Friendships
@@ -355,10 +355,10 @@ namespace Service.Services.Implements
 
             if (friendshipEnt != null)
             {
-                if(friendshipEnt.Status == 2)
-                    return friendshipEnt.Status + 1;
+                if(friendshipEnt.FriendshipStatusId == 2)
+                    return friendshipEnt.FriendshipStatusId + 1;
                 else
-                    return friendshipEnt.Status;
+                    return friendshipEnt.FriendshipStatusId;
             }
 
             return null;
@@ -373,7 +373,7 @@ namespace Service.Services.Implements
             {
                 notificationsEnt = await _dbContext.Notifications
                     .Where(n => n.ReceiverUserId == sessionUserLoggedIn.UserId)
-                    .OrderByDescending(n => n.CreatedTime)
+                    .OrderByDescending(n => n.CreateTime)
                     .ToListAsync();
             }
             List<NotificationViewModel> notificationsVM = _mapper.Map<List<NotificationViewModel>>(notificationsEnt);
