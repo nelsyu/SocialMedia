@@ -30,7 +30,7 @@
         <div>
             @foreach (var userVM in Model)
             {
-                <button class="user-button" onclick="location.href='@Url.Action("Index", "User", new { userId2 = userVM.UserId })'">
+                <button class="user-button" onclick="location.href='@Url.Action("Index", "User", new { userId2 = userVM.Id })'">
                     @userVM.Username
                 </button>
             }

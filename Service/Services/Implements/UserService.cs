@@ -101,8 +101,8 @@ namespace Service.Services.Implements
         public async Task LoginSuccessfulAsync(int? userId)
         {
             UserLoggedIn? userLoggedIn = await _dbContext.Users
-                .Where(u => u.UserId == userId)
-                .Select(u => new UserLoggedIn { UserId = u.UserId, Username = u.Username, Email = u.Email })
+                .Where(u => u.Id == userId)
+                .Select(u => new UserLoggedIn { UserId = u.Id, Username = u.Username, Email = u.Email })
                 .FirstOrDefaultAsync();
 
             if (userLoggedIn != null)
@@ -129,7 +129,7 @@ namespace Service.Services.Implements
 
             if (sessionUserLoggedIn != null)
                 userEnt = await _dbContext.Users
-                    .Where(u => u.UserId == sessionUserLoggedIn.UserId)
+                    .Where(u => u.Id == sessionUserLoggedIn.UserId)
                     .FirstOrDefaultAsync();
 
             if (userEnt != null)
@@ -146,7 +146,7 @@ namespace Service.Services.Implements
             UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
 
             if (sessionUserLoggedIn != null)
-                userEnt = await _dbContext.Users.FirstOrDefaultAsync(u => u.UserId == sessionUserLoggedIn.UserId);
+                userEnt = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == sessionUserLoggedIn.UserId);
 
             if (userEnt != null)
             {
@@ -158,7 +158,7 @@ namespace Service.Services.Implements
         public async Task<string> IsQRCodeOTPSecretKeyAsync(int? userId)
         {
             string qRCodeOTPSecretKey = await _dbContext.Users
-                .Where(u => u.UserId == userId)
+                .Where(u => u.Id == userId)
                 .Select(u => u.Totp)
                 .FirstOrDefaultAsync() ?? "";
 
@@ -168,7 +168,7 @@ namespace Service.Services.Implements
         public async Task<List<string>> VerifyQRCodeOTPAsync(int? userId, string confirmQRCodeOTP)
         {
             string? qRCodeOTPSecretKey = await _dbContext.Users
-                .Where(u => u.UserId == userId)
+                .Where(u => u.Id == userId)
                 .Select(u => u.Totp)
                 .FirstOrDefaultAsync();
 
@@ -252,7 +252,7 @@ namespace Service.Services.Implements
         public async Task<bool> FindRole(int? userId, int roleId)
         {
             var userEnt = await _dbContext.Users
-                .Where(u => u.UserId == userId)
+                .Where(u => u.Id == userId)
                 .Include(u => u.Roles)
                 .FirstOrDefaultAsync();
 
@@ -261,7 +261,7 @@ namespace Service.Services.Implements
                 return false;
             }
 
-            bool isRoleExists = userEnt.Roles.Any(r => r.RoleId == roleId);
+            bool isRoleExists = userEnt.Roles.Any(r => r.Id == roleId);
 
             return isRoleExists;
         }
@@ -270,7 +270,7 @@ namespace Service.Services.Implements
         {
             int userIdEnt = await _dbContext.Users
                 .Where(u => u.Email == userVMEmail)
-                .Select(u => u.UserId)
+                .Select(u => u.Id)
                 .FirstOrDefaultAsync();
 
             return userIdEnt;
@@ -284,7 +284,7 @@ namespace Service.Services.Implements
                 UserId1 = sessionUserLoggedIn?.UserId,
                 UserId2 = userId2,
                 Status = 2,
-                CreatedTime = DateTime.Now
+                CreateTime = DateTime.Now
             };
 
             Friendship friendshipEnt = _mapper.Map<Friendship>(friendShipVM);
@@ -326,7 +326,7 @@ namespace Service.Services.Implements
                 }
 
                 notificationEnt = await _dbContext.Notifications
-                    .Where(n => n.UserId == userId2 && n.Message == sessionUserLoggedIn.Username + " want to be your friend!")
+                    .Where(n => n.ReceiverUserId == userId2 && n.Message == sessionUserLoggedIn.Username + " want to be your friend!")
                     .FirstOrDefaultAsync();
 
                 if (notificationEnt != null)
@@ -372,7 +372,7 @@ namespace Service.Services.Implements
             if(sessionUserLoggedIn != null)
             {
                 notificationsEnt = await _dbContext.Notifications
-                    .Where(n => n.UserId == sessionUserLoggedIn.UserId)
+                    .Where(n => n.ReceiverUserId == sessionUserLoggedIn.UserId)
                     .OrderByDescending(n => n.CreatedTime)
                     .ToListAsync();
             }

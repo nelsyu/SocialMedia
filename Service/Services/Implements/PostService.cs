@@ -26,7 +26,7 @@ namespace Service.Services.Implements
         public async Task<PostViewModel> GetPostAsync(int postId)
         {
             Post? postEnt = await _dbContext.Posts
-                .Where(p => p.PostId == postId)
+                .Where(p => p.Id == postId)
                 .Include(p => p.User)
                 .Include(p => p.Replies).ThenInclude(r => r.User)
                 .FirstOrDefaultAsync();
@@ -50,14 +50,14 @@ namespace Service.Services.Implements
         {
             UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
             if (sessionUserLoggedIn != null)
-                return await GetPostsAsync(p => p.User != null && p.User.UserId == sessionUserLoggedIn.UserId);
+                return await GetPostsAsync(p => p.User != null && p.User.Id == sessionUserLoggedIn.UserId);
             else
                 return new List<PostViewModel>();
         }
 
         public async Task<List<PostViewModel>> GetMyPostsAsync(int userId)
         {
-            return await GetPostsAsync(p => p.User != null && p.User.UserId == userId);
+            return await GetPostsAsync(p => p.User != null && p.User.Id == userId);
         }
 
         public Task<List<PostViewModel>> PagingAsync(List<PostViewModel> postsVM, int page, int pageSize)
@@ -74,7 +74,7 @@ namespace Service.Services.Implements
 
         public async Task<List<string>> ValidatePostAsync(PostViewModel postVM)
         {
-            bool isTopicIdInvalid = !await _dbContext.Topics.AnyAsync(t => t.TopicId == postVM.TopicId);
+            bool isTopicIdInvalid = !await _dbContext.Topics.AnyAsync(t => t.Id == postVM.TopicId);
             bool isTitleInvalid = string.IsNullOrEmpty(postVM.Title);
             bool isContentInvalid = string.IsNullOrEmpty(postVM.Content);
 
@@ -82,8 +82,8 @@ namespace Service.Services.Implements
 
             if (isTopicIdInvalid)
             {
-                result.Add("TopicId");
-                result.Add("TopicId is invalid.");
+                result.Add("Id");
+                result.Add("Id is invalid.");
             }
             else if (isTitleInvalid)
             {
@@ -111,7 +111,7 @@ namespace Service.Services.Implements
             {
                 postVM.UserId = sessionUserLoggedIn.UserId;
                 postVM.PostDate = DateTime.Now;
-                //postVM.LastEditDate = DateTime.Now; 已用trigger取代
+                //postVM.EditDate = DateTime.Now; 已用trigger取代
 
                 var postEnt = _mapper.Map<Post>(postVM);
                 _dbContext.Posts.Add(postEnt);
@@ -121,7 +121,7 @@ namespace Service.Services.Implements
 
         public async Task DeletePostAsync(PostViewModel postVM)
         {
-            Post? postEnt = await _dbContext.Posts.FirstOrDefaultAsync(p => p.PostId == postVM.PostId);
+            Post? postEnt = await _dbContext.Posts.FirstOrDefaultAsync(p => p.Id == postVM.Id);
 
             if (postEnt != null)
             {
@@ -139,7 +139,7 @@ namespace Service.Services.Implements
                 postEnt.TopicId = postVM.TopicId;
                 postEnt.Title = postVM.Title;
                 postEnt.Content = postVM.Content;
-                //postEnt.LastEditDate = DateTime.Now; 已用trigger取代
+                //postEnt.EditDate = DateTime.Now; 已用trigger取代
 
                 await _dbContext.SaveChangesAsync();
             }
@@ -150,7 +150,7 @@ namespace Service.Services.Implements
         {
             List<Post> postsEnt = await _dbContext.Posts
                 .Where(condition)
-                .OrderByDescending(p => p.PostDate)
+                .OrderByDescending(p => p.CreateDate)
                 .Include(p => p.User)
                 .ToListAsync();
 

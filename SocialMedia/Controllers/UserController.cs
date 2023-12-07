@@ -36,11 +36,11 @@ namespace SocialMedia.Controllers
             TempData[ParameterKeys.LoggedInUserId] = sessionUserLoggedIn?.UserId;
             TempData[ParameterKeys.LoggedInUsername] = sessionUserLoggedIn?.Username;
             TempData[ParameterKeys.UserId2] = await _dbContext.Users
-                .Where(u => u.UserId == userId2)
-                .Select(u => u.UserId)
+                .Where(u => u.Id == userId2)
+                .Select(u => u.Id)
                 .FirstOrDefaultAsync();
             TempData[ParameterKeys.Username2] = await _dbContext.Users
-                .Where(u => u.UserId == userId2)
+                .Where(u => u.Id == userId2)
                 .Select(u => u.Username)
                 .FirstOrDefaultAsync();
             TempData[ParameterKeys.FriendshipStatus] = await _userService.FriendshipStatus(userId2);

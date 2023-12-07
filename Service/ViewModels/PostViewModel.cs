@@ -9,12 +9,12 @@
             Topics = new HashSet<TopicViewModel>();
         }
 
-        public int PostId { get; set; }
+        public int Id { get; set; }
         public int? UserId { get; set; }
         public string Title { get; set; } = null!;
         public string Content { get; set; } = null!;
         public DateTime PostDate { get; set; }
-        public DateTime LastEditDate { get; set; }
+        public DateTime EditDate { get; set; }
         public int TopicId { get; set; }
 
         public virtual TopicViewModel Topic { get; set; } = null!;

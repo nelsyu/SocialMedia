@@ -2,9 +2,9 @@
 
 public partial class FriendshipStatusViewModel
 {
-    public int StatusId { get; set; }
+    public int Id { get; set; }
 
-    public string StatusDescription { get; set; } = null!;
+    public string Description { get; set; } = null!;
 
     public virtual ICollection<FriendshipViewModel> Friendships { get; set; } = new List<FriendshipViewModel>();
 }

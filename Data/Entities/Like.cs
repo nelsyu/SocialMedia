@@ -5,7 +5,7 @@ namespace Data.Entities;
 
 public partial class Like
 {
-    public int LikeId { get; set; }
+    public int Id { get; set; }
 
     public int? UserId { get; set; }
 

@@ -43,10 +43,10 @@ public partial class SocialMediaContext : DbContext
     {
         modelBuilder.Entity<Friendship>(entity =>
         {
-            entity.HasKey(e => e.FriendshipId).HasName("PK__Friendsh__1E39AEF2142916AE");
+            entity.HasKey(e => e.Id).HasName("PK__Friendsh__1E39AEF2142916AE");
 
-            entity.Property(e => e.FriendshipId).HasColumnName("friendshipId");
-            entity.Property(e => e.CreatedTime)
+            entity.Property(e => e.Id).HasColumnName("friendshipId");
+            entity.Property(e => e.CreateTime)
                 .HasColumnType("datetime")
                 .HasColumnName("createdTime");
             entity.Property(e => e.Status).HasColumnName("status");
@@ -71,14 +71,14 @@ public partial class SocialMediaContext : DbContext
 
         modelBuilder.Entity<FriendshipStatus>(entity =>
         {
-            entity.HasKey(e => e.StatusId).HasName("PK__Friendsh__36257A188A11FB29");
+            entity.HasKey(e => e.Id).HasName("PK__Friendsh__36257A188A11FB29");
 
             entity.ToTable("FriendshipStatus");
 
-            entity.Property(e => e.StatusId)
+            entity.Property(e => e.Id)
                 .ValueGeneratedNever()
                 .HasColumnName("statusId");
-            entity.Property(e => e.StatusDescription)
+            entity.Property(e => e.Description)
                 .HasMaxLength(255)
                 .IsUnicode(false)
                 .HasColumnName("statusDescription");
@@ -86,9 +86,9 @@ public partial class SocialMediaContext : DbContext
 
         modelBuilder.Entity<Like>(entity =>
         {
-            entity.HasKey(e => e.LikeId).HasName("PK__Likes__4FC592DB659F808E");
+            entity.HasKey(e => e.Id).HasName("PK__Likes__4FC592DB659F808E");
 
-            entity.Property(e => e.LikeId).HasColumnName("likeId");
+            entity.Property(e => e.Id).HasColumnName("likeId");
             entity.Property(e => e.EmojiSymbol)
                 .HasMaxLength(255)
                 .HasColumnName("emojiSymbol");
@@ -111,57 +111,57 @@ public partial class SocialMediaContext : DbContext
 
         modelBuilder.Entity<Message>(entity =>
         {
-            entity.HasKey(e => e.MessageId).HasName("PK__Messages__4808B99399672F9C");
+            entity.HasKey(e => e.Id).HasName("PK__Messages__4808B99399672F9C");
 
-            entity.Property(e => e.MessageId).HasColumnName("messageId");
+            entity.Property(e => e.Id).HasColumnName("messageId");
             entity.Property(e => e.Content)
                 .HasColumnType("text")
                 .HasColumnName("content");
             entity.Property(e => e.IsArchived).HasColumnName("isArchived");
             entity.Property(e => e.IsRead).HasColumnName("isRead");
-            entity.Property(e => e.ReceiverId).HasColumnName("receiverId");
-            entity.Property(e => e.SenderId).HasColumnName("senderId");
-            entity.Property(e => e.SentTime)
+            entity.Property(e => e.ReceiverUserId).HasColumnName("receiverId");
+            entity.Property(e => e.SenderUserId).HasColumnName("senderId");
+            entity.Property(e => e.CreateTime)
                 .HasColumnType("datetime")
                 .HasColumnName("sentTime");
         });
 
         modelBuilder.Entity<Notification>(entity =>
         {
-            entity.HasKey(e => e.NotificationId).HasName("PK__Notifica__4BA5CEA942D20211");
+            entity.HasKey(e => e.Id).HasName("PK__Notifica__4BA5CEA942D20211");
 
-            entity.Property(e => e.NotificationId).HasColumnName("notificationId");
+            entity.Property(e => e.Id).HasColumnName("notificationId");
             entity.Property(e => e.CreatedTime)
                 .HasColumnType("datetime")
                 .HasColumnName("createdTime");
             entity.Property(e => e.Message).HasColumnName("message");
-            entity.Property(e => e.SourceUserId).HasColumnName("sourceUserId");
-            entity.Property(e => e.UserId).HasColumnName("userId");
+            entity.Property(e => e.SenderUserId).HasColumnName("sourceUserId");
+            entity.Property(e => e.ReceiverUserId).HasColumnName("userId");
 
-            entity.HasOne(d => d.SourceUser).WithMany(p => p.NotificationSourceUsers)
-                .HasForeignKey(d => d.SourceUserId)
+            entity.HasOne(d => d.SenderUser).WithMany(p => p.NotificationSourceUsers)
+                .HasForeignKey(d => d.SenderUserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Notifications_sourceUserId_Users_userId");
 
             entity.HasOne(d => d.User).WithMany(p => p.NotificationUsers)
-                .HasForeignKey(d => d.UserId)
+                .HasForeignKey(d => d.ReceiverUserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Notifications_userId_Users_userId");
         });
 
         modelBuilder.Entity<Post>(entity =>
         {
-            entity.HasKey(e => e.PostId).HasName("PK__Posts__DD0C739A52276F9A");
+            entity.HasKey(e => e.Id).HasName("PK__Posts__DD0C739A52276F9A");
 
             entity.ToTable(tb => tb.HasTrigger("UpdatePostTrigger"));
 
-            entity.Property(e => e.PostId).HasColumnName("postId");
+            entity.Property(e => e.Id).HasColumnName("postId");
             entity.Property(e => e.Content).HasColumnName("content");
-            entity.Property(e => e.LastEditDate)
+            entity.Property(e => e.EditDate)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("lastEditDate");
-            entity.Property(e => e.PostDate)
+            entity.Property(e => e.CreateDate)
                 .HasColumnType("datetime")
                 .HasColumnName("postDate");
             entity.Property(e => e.Title)
@@ -183,14 +183,14 @@ public partial class SocialMediaContext : DbContext
 
         modelBuilder.Entity<Reply>(entity =>
         {
-            entity.HasKey(e => e.ReplyId).HasName("PK__Replies__36BBF688FCD752D2");
+            entity.HasKey(e => e.Id).HasName("PK__Replies__36BBF688FCD752D2");
 
-            entity.Property(e => e.ReplyId).HasColumnName("replyId");
+            entity.Property(e => e.Id).HasColumnName("replyId");
             entity.Property(e => e.Content)
                 .HasMaxLength(255)
                 .HasColumnName("content");
             entity.Property(e => e.PostId).HasColumnName("postId");
-            entity.Property(e => e.ReplyDate)
+            entity.Property(e => e.CreateDate)
                 .HasColumnType("datetime")
                 .HasColumnName("reply_date");
             entity.Property(e => e.UserId).HasColumnName("userId");
@@ -208,20 +208,20 @@ public partial class SocialMediaContext : DbContext
 
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.HasKey(e => e.RoleId).HasName("PK__Roles__CD98462A3CB5777C");
+            entity.HasKey(e => e.Id).HasName("PK__Roles__CD98462A3CB5777C");
 
-            entity.Property(e => e.RoleId).HasColumnName("roleId");
+            entity.Property(e => e.Id).HasColumnName("roleId");
             entity.Property(e => e.Description).HasColumnName("description");
-            entity.Property(e => e.RoleName)
+            entity.Property(e => e.Name)
                 .HasMaxLength(255)
                 .HasColumnName("roleName");
         });
 
         modelBuilder.Entity<Topic>(entity =>
         {
-            entity.HasKey(e => e.TopicId).HasName("PK__Topics__72C15B41C5E0A7F3");
+            entity.HasKey(e => e.Id).HasName("PK__Topics__72C15B41C5E0A7F3");
 
-            entity.Property(e => e.TopicId).HasColumnName("topicId");
+            entity.Property(e => e.Id).HasColumnName("topicId");
             entity.Property(e => e.Title)
                 .HasMaxLength(255)
                 .HasColumnName("title");
@@ -235,11 +235,11 @@ public partial class SocialMediaContext : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("PK__Users__CB9A1CFF36F4A4B8");
+            entity.HasKey(e => e.Id).HasName("PK__Users__CB9A1CFF36F4A4B8");
 
             entity.ToTable(tb => tb.HasTrigger("InsteadOfDeleteUsersTrigger"));
 
-            entity.Property(e => e.UserId).HasColumnName("userId");
+            entity.Property(e => e.Id).HasColumnName("userId");
             entity.Property(e => e.Email)
                 .HasMaxLength(255)
                 .HasColumnName("email");
@@ -255,19 +255,19 @@ public partial class SocialMediaContext : DbContext
                 .UsingEntity<Dictionary<string, object>>(
                     "UserRole",
                     r => r.HasOne<Role>().WithMany()
-                        .HasForeignKey("RoleId")
+                        .HasForeignKey("Id")
                         .OnDelete(DeleteBehavior.ClientSetNull)
                         .HasConstraintName("FK__UserRoles__roleI__3D2915A8"),
                     l => l.HasOne<User>().WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("Id")
                         .OnDelete(DeleteBehavior.ClientSetNull)
                         .HasConstraintName("FK__UserRoles__userI__3C34F16F"),
                     j =>
                     {
-                        j.HasKey("UserId", "RoleId").HasName("PK__UserRole__7743989D46B8FC1E");
+                        j.HasKey("Id", "Id").HasName("PK__UserRole__7743989D46B8FC1E");
                         j.ToTable("UserRoles");
-                        j.IndexerProperty<int>("UserId").HasColumnName("userId");
-                        j.IndexerProperty<int>("RoleId").HasColumnName("roleId");
+                        j.IndexerProperty<int>("Id").HasColumnName("userId");
+                        j.IndexerProperty<int>("Id").HasColumnName("roleId");
                     });
         });
 

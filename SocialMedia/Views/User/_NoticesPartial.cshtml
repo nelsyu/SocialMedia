@@ -14,7 +14,7 @@
             <ul id="messagesList" class="list-group" style="width: 200px;">
                 @foreach (var notificationVM in Model)
                 {
-                    <li class="list-group-item text-light">@notificationVM.Message<br>@notificationVM.CreatedTime.ToString("yyyy-MM-dd HH:mm:ss")</li>
+                    <li class="list-group-item text-light">@notificationVM.Message<br>@notificationVM.CreateTime.ToString("yyyy-MM-dd HH:mm:ss")</li>
                 }
             </ul>
         </div>

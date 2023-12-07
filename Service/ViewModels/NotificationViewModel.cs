@@ -6,17 +6,17 @@ namespace Service.ViewModels;
 
 public partial class NotificationViewModel
 {
-    public int NotificationId { get; set; }
+    public int Id { get; set; }
 
-    public int UserId { get; set; }
+    public int ReceiverUserId { get; set; }
 
     public string Message { get; set; } = null!;
 
-    public DateTime CreatedTime { get; set; }
+    public DateTime CreateTime { get; set; }
 
-    public int SourceUserId { get; set; }
+    public int SenderUserId { get; set; }
 
-    public virtual UserViewModel SourceUser { get; set; } = null!;
+    public virtual UserViewModel SenderUser { get; set; } = null!;
 
     public virtual UserViewModel User { get; set; } = null!;
 }

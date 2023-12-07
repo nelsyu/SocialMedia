@@ -7,7 +7,7 @@
             Posts = new HashSet<PostViewModel>();
         }
 
-        public int TopicId { get; set; }
+        public int Id { get; set; }
         public int UserId { get; set; }
         public string Title { get; set; } = null!;
 

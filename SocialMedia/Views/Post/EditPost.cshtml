@@ -55,7 +55,7 @@
     <h2>Edit Post</h2>
 
     <form asp-action="EditPost" method="post" class="needs-validation" novalidate>
-        <input type="hidden" name="postId" value="@Model.PostId" />
+        <input type="hidden" name="postId" value="@Model.Id" />
 
         <div class="mb-3">
             <label for="topicId" class="form-label">Topic:</label>
@@ -65,7 +65,7 @@
                     <option value="" disabled>Select a topic</option>
                     @foreach (var topic in Model.Topics)
                     {
-                        <option value="@topic.TopicId" selected="@(Model.TopicId == topic.TopicId)">@topic.Title</option>
+                        <option value="@topic.Id" selected="@(Model.TopicId == topic.Id)">@topic.Title</option>
                     }
                 </select>
             }
@@ -90,7 +90,7 @@
 
         <div class="mb-3">
             <label for="lastEditDate" class="form-label">Last Edit Date:</label>
-            <input type="text" id="lastEditDate" name="LastEditDate" value="@Model.LastEditDate" class="form-control" readonly />
+            <input type="text" id="lastEditDate" name="LastEditDate" value="@Model.EditDate" class="form-control" readonly />
         </div>
 
         <button type="submit" class="btn btn-primary">Confirm</button>

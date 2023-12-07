@@ -109,7 +109,7 @@
         <tbody>
             @foreach (var postVM in Model.postsVM)
             {
-                <tr onclick="window.location.href='@Url.Action("DetailPost", "Post", new { postId = postVM.PostId })';" style="cursor:pointer;">
+                <tr onclick="window.location.href='@Url.Action("DetailPost", "Post", new { postId = postVM.Id })';" style="cursor:pointer;">
                     <td class="username">
                         @(postVM.User?.Username ?? "Deleted User")
                     </td>
@@ -134,7 +134,7 @@
             @for (int i = 1; i <= Model.pageVM.TotalPages; i++)
             {
                 <li class="page-item @(Model.pageVM.CurrentPage == i ? "active" : "")">
-                    <a class="page-link" href="?currentPage=@i&topicId=@TempData["TopicId"]">@i</a>
+                    <a class="page-link" href="?currentPage=@i&topicId=@TempData["Id"]">@i</a>
                 </li>
             }
         </ul>

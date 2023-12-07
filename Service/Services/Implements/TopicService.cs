@@ -46,10 +46,10 @@ namespace Service.Services.Implements
 
         public async Task DeleteTopicAsync(TopicViewModel topicVM)
         {
-            Topic? topicEnt = await _dbContext.Topics.FirstOrDefaultAsync(t => t.TopicId == topicVM.TopicId);
+            Topic? topicEnt = await _dbContext.Topics.FirstOrDefaultAsync(t => t.Id == topicVM.Id);
             if (topicEnt != null)
             {
-                List<Post> postsEnt = await _dbContext.Posts.Where(p => p.TopicId == topicVM.TopicId).ToListAsync();
+                List<Post> postsEnt = await _dbContext.Posts.Where(p => p.TopicId == topicVM.Id).ToListAsync();
                 foreach (Post postEnt in postsEnt)
                 {
                     postEnt.TopicId = 0;

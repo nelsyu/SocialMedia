@@ -52,10 +52,10 @@ namespace Service.Services.Implements
             {
                 NotificationViewModel notificationVM = new()
                 {
-                    UserId = userId2,
+                    ReceiverUserId = userId2,
                     Message = message,
-                    CreatedTime = sendTime,
-                    SourceUserId = sessionUserLoggedIn.UserId
+                    CreateTime = sendTime,
+                    SenderUserId = sessionUserLoggedIn.UserId
                 };
 
                 Notification notificationEnt = _mapper.Map<Notification>(notificationVM);

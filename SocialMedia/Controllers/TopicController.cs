@@ -55,7 +55,7 @@ namespace SocialMedia.Controllers
                 TotalPages = totalPages
             };
 
-            TempData["TopicId"] = topicId;
+            TempData["Id"] = topicId;
 
             return View((postsVM, pageVM));
         }

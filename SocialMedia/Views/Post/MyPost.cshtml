@@ -113,7 +113,7 @@
         <tbody>
             @foreach (var postVM in Model.postsVM)
             {
-                <tr onclick="window.location.href='@Url.Action("DetailPost", "Post", new { postId = postVM.PostId })';" style="cursor:pointer;">
+                <tr onclick="window.location.href='@Url.Action("DetailPost", "Post", new { postId = postVM.Id })';" style="cursor:pointer;">
                     <td class="username">
                         @(postVM.User?.Username ?? "Deleted User")
                     </td>
@@ -127,16 +127,16 @@
                         @postVM.PostDate.ToString("yyyy-MM-dd HH:mm:ss")
                     </td>
                     <td>
-                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deletePostModal_@postVM.PostId" onclick="event.stopPropagation();">
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deletePostModal_@postVM.Id" onclick="event.stopPropagation();">
                             Delete
                         </button>
 
                         <!-- Modal -->
-                        <div class="modal fade" id="deletePostModal_@postVM.PostId" tabindex="-1" aria-labelledby="deletePostModalLabel_@postVM.PostId" aria-hidden="true">
+                        <div class="modal fade" id="deletePostModal_@postVM.Id" tabindex="-1" aria-labelledby="deletePostModalLabel_@postVM.Id" aria-hidden="true">
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="deletePostModalLabel_@postVM.PostId">Confirm Delete Post</h5>
+                                        <h5 class="modal-title" id="deletePostModalLabel_@postVM.Id">Confirm Delete Post</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
@@ -147,7 +147,7 @@
                                             Cancel
                                         </button>
                                         <form class="delete-form" method="post" asp-controller="Post" asp-action="DeletePost">
-                                            <input type="hidden" name="postId" value="@postVM.PostId" />
+                                            <input type="hidden" name="postId" value="@postVM.Id" />
                                             <button type="submit" class="btn btn-danger">Delete</button>
                                         </form>
                                     </div>

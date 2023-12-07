@@ -7,11 +7,11 @@
             Likes = new HashSet<LikeViewModel>();
         }
 
-        public int ReplyId { get; set; }
+        public int Id { get; set; }
         public int? PostId { get; set; }
         public int? UserId { get; set; }
         public string Content { get; set; } = null!;
-        public DateTime ReplyDate { get; set; }
+        public DateTime CreateDate { get; set; }
 
         public virtual PostViewModel? Post { get; set; }
         public virtual UserViewModel? User { get; set; }

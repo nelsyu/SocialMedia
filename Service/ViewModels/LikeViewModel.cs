@@ -2,7 +2,7 @@
 {
     public partial class LikeViewModel
     {
-        public int LikeId { get; set; }
+        public int Id { get; set; }
         public int? UserId { get; set; }
         public int? PostId { get; set; }
         public int? ReplyId { get; set; }

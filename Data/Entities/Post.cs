@@ -5,7 +5,7 @@ namespace Data.Entities;
 
 public partial class Post
 {
-    public int PostId { get; set; }
+    public int Id { get; set; }
 
     public int? UserId { get; set; }
 
@@ -13,9 +13,9 @@ public partial class Post
 
     public string Content { get; set; } = null!;
 
-    public DateTime PostDate { get; set; }
+    public DateTime CreateDate { get; set; }
 
-    public DateTime LastEditDate { get; set; }
+    public DateTime EditDate { get; set; }
 
     public int TopicId { get; set; }
 

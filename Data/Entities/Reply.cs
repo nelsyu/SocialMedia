@@ -5,7 +5,7 @@ namespace Data.Entities;
 
 public partial class Reply
 {
-    public int ReplyId { get; set; }
+    public int Id { get; set; }
 
     public int? PostId { get; set; }
 
@@ -13,7 +13,7 @@ public partial class Reply
 
     public string Content { get; set; } = null!;
 
-    public DateTime ReplyDate { get; set; }
+    public DateTime CreateDate { get; set; }
 
     public virtual ICollection<Like> Likes { get; set; } = new List<Like>();
 

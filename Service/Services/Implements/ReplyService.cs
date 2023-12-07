@@ -30,9 +30,9 @@ namespace Service.Services.Implements
             {
                 replyVM.UserId = await _dbContext.Users
                     .Where(u => u.Username == sessionUserLoggedIn.Username)
-                    .Select(u => u.UserId)
+                    .Select(u => u.Id)
                     .FirstOrDefaultAsync();
-                replyVM.ReplyDate = DateTime.Now;
+                replyVM.CreateDate = DateTime.Now;
             }
 
             var replyEnt = _mapper.Map<Reply>(replyVM);

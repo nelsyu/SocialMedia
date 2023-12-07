@@ -112,7 +112,7 @@
             <div class="float-end">
                 @if (!string.IsNullOrEmpty(TempData[ParameterKeys.LoggedInUsername]?.ToString()) && Model.PostVM.User?.Username == TempData[ParameterKeys.LoggedInUsername]?.ToString())
                 {
-                    <a class="btn btn-danger btn-rounded" href="@Url.Action("EditPost", "Post", new { postId = Model.PostVM.PostId })">Edit</a>
+                    <a class="btn btn-danger btn-rounded" href="@Url.Action("EditPost", "Post", new { postId = Model.PostVM.Id })">Edit</a>
                 }
             </div>
         </div>
@@ -133,7 +133,7 @@
                 </div>
                 <form method="post" asp-controller="Post" asp-action="AddReply" onsubmit="return checkLogin();">
                     <div class="modal-body">
-                        <input type="hidden" name="PostId" value="@Model.PostVM.PostId" />
+                        <input type="hidden" name="PostId" value="@Model.PostVM.Id" />
                         <div class="form-group">
                             <textarea class="form-control" id="replyContent" name="Content" rows="3" placeholder="Type your reply here..." required></textarea>
                         </div>
@@ -151,7 +151,7 @@
     <div id="replies-section" class="mt-4">
         <h3>Replies</h3>
         <div class="scrollable-section">
-            @foreach (var reply in Model.PostVM.Replies.OrderByDescending(rVM => rVM.ReplyDate))
+            @foreach (var reply in Model.PostVM.Replies.OrderByDescending(rVM => rVM.CreateDate))
             {
                 <div class="card mt-3">
                     <div class="card-header">
@@ -161,7 +161,7 @@
                         <p class="card-text">@reply.Content</p>
                     </div>
                     <div class="card-footer">
-                        <span class="reply-date">@reply.ReplyDate.ToString("yyyy-MM-dd HH:mm:ss")</span>
+                        <span class="reply-date">@reply.CreateDate.ToString("yyyy-MM-dd HH:mm:ss")</span>
                     </div>
                 </div>
             }

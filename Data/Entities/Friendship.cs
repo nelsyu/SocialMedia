@@ -5,7 +5,7 @@ namespace Data.Entities;
 
 public partial class Friendship
 {
-    public int FriendshipId { get; set; }
+    public int Id { get; set; }
 
     public int UserId1 { get; set; }
 
@@ -13,7 +13,7 @@ public partial class Friendship
 
     public int Status { get; set; }
 
-    public DateTime CreatedTime { get; set; }
+    public DateTime CreateTime { get; set; }
 
     public virtual FriendshipStatus StatusNavigation { get; set; } = null!;
 
