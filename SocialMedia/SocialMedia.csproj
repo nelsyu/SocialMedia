@@ -38,6 +38,8 @@
 
   <ItemGroup>
     <Folder Include="logs\" />
+    <Folder Include="wwwroot\lib\axios\" />
+    <Folder Include="wwwroot\lib\vue\" />
   </ItemGroup>
 
 </Project>

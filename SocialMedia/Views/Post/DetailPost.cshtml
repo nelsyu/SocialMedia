@@ -108,7 +108,7 @@
         </div>
         <div class="card-footer">
             <span class="username">@Model.PostVM.User?.Username</span>
-            <span class="post-date">@Model.PostVM.PostDate.ToString("yyyy-MM-dd HH:mm:ss")</span>
+            <span class="post-date">@Model.PostVM.CreateDate.ToString("yyyy-MM-dd HH:mm:ss")</span>
             <div class="float-end">
                 @if (!string.IsNullOrEmpty(TempData[ParameterKeys.LoggedInUsername]?.ToString()) && Model.PostVM.User?.Username == TempData[ParameterKeys.LoggedInUsername]?.ToString())
                 {
@@ -167,20 +167,4 @@
             }
         </div>
     </div>
-
-    <script>
-        function checkLogin() {
-            $.ajax({
-                url: '@Url.Action("IsLoggedIn", "User")',
-                success: function (data) {
-                    if (!data) {
-                        alert("Please log in to your account first.");
-                    }
-                },
-                error: function (error) {
-                    console.error('Error checking login status:', error);
-                }
-            });
-        }
-    </script>
 </div>

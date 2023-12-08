@@ -116,30 +116,21 @@
         <script src="~/lib/jquery/dist/jquery.min.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
         <script src="~/js/site.js" asp-append-version="true"></script>
+        <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
+
+        <script src="~/js/Views/Shared/CheckLogin.js" asp-append-version="true"></script>
+        
         <script>
-            async function checkLogin() {
-                await $.ajax({
-                    url: '@Url.Action("IsLoggedIn", "User")',
-                    success: function (data) {
-                        if (!data) {
-                            alert("Please log in to your account first.");
-                        }
-                    },
-                    error: function (error) {
-                        console.error('Error checking login status:', error);
-                    }
-                });
-            }
-
-            $(document).ready(function () {
-                loadFriends();
+            $(function () {
+                GetFriends();
             });
 
-            async function loadFriends() {
+            async function GetFriends() {
                 try {
                     const response = await $.ajax({
-                        url: '@Url.Action("GetFriends", "User")',
+                        url: '/User/GetFriends',
                         method: 'GET'
                     });
 
@@ -149,14 +140,14 @@
                 }
             }
 
-            $(document).ready(function () {
-                loadNotifications();
+            $(function () {
+                GetNotifications();
             });
 
-            async function loadNotifications() {
+            async function GetNotifications() {
                 try {
                     const response = await $.ajax({
-                        url: '@Url.Action("ReceiveMessage", "User")',
+                        url: '/User/ReceiveMessage',
                         method: 'GET'
                     });
 

@@ -89,10 +89,10 @@
 
 @section Scripts {
     <script>
-        $(document).ready(function () {
-            $("#btnRefreshCaptcha").click(function () {
+        $(function () {
+            $("#btnRefreshCaptcha").on("click", function () {
                 $.ajax({
-                    url: '@Url.Action("RefreshCaptcha", "User")',
+                    url: '/User/RefreshCaptcha',
                     method: 'GET',
                     dataType: 'json',
                     success: function (data) {

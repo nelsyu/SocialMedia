@@ -117,13 +117,12 @@
 </div>
 
 @section Scripts {
-    <!-- JavaScript to handle QR code regeneration -->
     <script>
-        $(document).ready(function () {
+        $(function () {
             $('#regenerateQRCodeButton').on('click', function () {
                 // Make an AJAX request to regenerate the QR code
                 $.ajax({
-                    url: '@Url.Action("GenerateOTPQRCode", "Home")',
+                    url: '/Home/GenerateOTPQRCode',
                     type: 'GET',
                     success: function (data) {
                         // Update the QR code image and the secret key

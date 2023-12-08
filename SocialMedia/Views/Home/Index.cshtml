@@ -89,9 +89,9 @@
     }
 </style>
 
-<div class="container">
+<div id="app" class="container">
     <h2>All Posts</h2>
-    <table class="table" id="postTable">
+    <table class="table">
         <thead>
             <tr>
                 <th scope="col" class="username">Username</th>
@@ -100,77 +100,40 @@
                 <th scope="col" class="post-date">Post Date</th>
             </tr>
         </thead>
-        <tbody id="postBody">
-            <!-- Posts will be dynamically added here using JavaScript -->
+        <tbody>
+            <tr v-for="post in posts" :key="post.id" v-on:click="goToPostDetail(post.id)" style="cursor:pointer;">
+                <td class="username">{{ post.user ? post.user.username : 'Deleted User' }}</td>
+                <td class="title">{{ post.title }}</td>
+                <td class="content">{{ post.content }}</td>
+                <td class="post-date">{{ new Date(post.postDate).toLocaleString() }}</td>
+            </tr>
         </tbody>
     </table>
 
     <!-- Pagination Section -->
     <nav>
-        <ul class="pagination" id="pagination">
-            <!-- Pagination links will be dynamically added here using JavaScript -->
+        <ul class="pagination">
+            <li v-for="page in totalPages" :key="page" :class="{ 'page-item': true, 'active': page === currentPage }">
+                <button class="page-link" v-on:click="getPosts(postsType, apiPath, page)">{{ page }}</button>
+            </li>
         </ul>
     </nav>
 </div>
 
 @section scripts {
+    <script src="~/js/Views/Post/GetPosts.js" asp-append-version="true"></script>
     <script>
-        $(document).ready(function () {
-            let currentRequest;
+        // 將 Vue 實例掛載到 DOM 中
+        const vm = app.mount('#app');
 
-            function disablePagination() {
-                $('#pagination').off('click', '.page-link');
-            }
+        // 外部呼叫 getAllPosts 方法，傳遞 API 路徑和頁數
+        function externalFunction() {
+            vm.postsType = 'all';
+            vm.apiPath = '/Post/GetPosts';
+            const page = 1;
+            vm.getPosts(vm.postsType, vm.apiPath, page);
+        }
 
-            function enablePagination() {
-                $('#pagination').on('click', '.page-link', function (e) {
-                    e.preventDefault();
-                    const currentPage = $(this).data('current-page');
-                    getAllPosts(currentPage);
-                });
-            }
-
-            function getAllPosts(currentPage) {
-                disablePagination();
-
-                if (currentRequest) {
-                    currentRequest.abort();
-                }
-
-                currentRequest = $.get('/Post/GetAllPosts', { currentPage }, function (data) {
-                    $('#postBody').empty();
-                    $('#pagination').empty();
-
-                    data.posts.forEach(post => {
-                        const row = `
-                                    <tr onclick="window.location.href='/Post/DetailPost?postId=${post.postId}';" style="cursor:pointer;">
-                                        <td class="username">${post.user ? post.user.username : 'Deleted User'}</td>
-                                        <td class="title">${post.title}</td>
-                                        <td class="content">${post.content}</td>
-                                        <td class="post-date">${new Date(post.postDate).toLocaleString()}</td>
-                                    </tr>`;
-                        $('#postBody').append(row);
-                    });
-
-                    for (let i = 1; i <= data.totalPages; i++) {
-                        const liClass = i === data.currentPage ? 'page-item active' : 'page-item';
-                        const button = `<button class="page-link" data-current-page="${i}">${i}</button>`;
-                        const li = `<li class="${liClass}">${button}</li>`;
-                        $('#pagination').append(li);
-                    }
-
-                    enablePagination();
-                })
-                    .fail(function (error) {
-                        console.log(error);
-                    })
-                    .always(function () {
-                        enablePagination();
-                        currentRequest = null;
-                    });
-            }
-
-            getAllPosts(1);
-        });
+        externalFunction();
     </script>
 }

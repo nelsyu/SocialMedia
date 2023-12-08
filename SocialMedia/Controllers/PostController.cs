@@ -31,17 +31,23 @@ namespace SocialMedia.Controllers
             return View();
         }
 
-        public async Task<IActionResult> GetAllPosts(int currentPage = 1)
+        public async Task<IActionResult> GetPosts(string postsType = "all", int currentPage = 1)
         {
             if (currentPage < 1)
                 return RedirectToAction("Index", "Home");
             int pageSize = 5;
-            List<PostViewModel> postsVM = await _postService.GetAllPostsAsync();
+            List<PostViewModel> postsVM = new();
+
+            if(postsType == "all")
+                postsVM = await _postService.GetAllPostsAsync();
+            else if(postsType == "my")
+                postsVM = await _postService.GetMyPostsAsync();
+
             int totalPosts = postsVM.Count;
             postsVM = await _postService.PagingAsync(postsVM, currentPage, pageSize);
             int totalPages = (int)Math.Ceiling((double)totalPosts / pageSize);
 
-            return Json(new { posts = postsVM, currentPage, totalPages });
+            return Json(new { postsVM, currentPage, totalPages });
         }
 
         [TypeFilter(typeof(AuthenticationFilter))]
@@ -98,9 +104,9 @@ namespace SocialMedia.Controllers
         }
 
         [TypeFilter(typeof(AuthenticationFilter))]
-        public async Task<IActionResult> DeletePost(PostViewModel postVM)
+        public async Task<IActionResult> DeletePost(int postId)
         {
-            await _postService.DeletePostAsync(postVM);
+            await _postService.DeletePostAsync(postId);
 
             return RedirectToAction("MyPost", "Post");
         }

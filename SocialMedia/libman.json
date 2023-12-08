@@ -9,6 +9,19 @@
         "dist/browser/signalr.js",
         "dist/browser/signalr.min.js"
       ]
+    },
+    {
+      "provider": "cdnjs",
+      "library": "vue@3.3.10",
+      "destination": "wwwroot/lib/vue/",
+      "files": [
+        "vue.global.min.js"
+      ]
+    },
+    {
+      "provider": "cdnjs",
+      "library": "axios@1.6.2",
+      "destination": "wwwroot/lib/axios/"
     }
   ]
 }
