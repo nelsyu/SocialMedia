@@ -31,7 +31,7 @@ namespace SocialMedia.Controllers
             return View();
         }
 
-        public async Task<IActionResult> GetPosts(string postsType = "all", int currentPage = 1)
+        public async Task<IActionResult> GetPosts(string postsType = "all", int userId = 0, int currentPage = 1)
         {
             if (currentPage < 1)
                 return RedirectToAction("Index", "Home");
@@ -42,6 +42,8 @@ namespace SocialMedia.Controllers
                 postsVM = await _postService.GetAllPostsAsync();
             else if(postsType == "my")
                 postsVM = await _postService.GetMyPostsAsync();
+            else if (postsType == "user")
+                postsVM = await _postService.GetMyPostsAsync(userId);
 
             int totalPosts = postsVM.Count;
             postsVM = await _postService.PagingAsync(postsVM, currentPage, pageSize);
@@ -51,24 +53,9 @@ namespace SocialMedia.Controllers
         }
 
         [TypeFilter(typeof(AuthenticationFilter))]
-        public async Task<IActionResult> MyPost(int currentPage = 1)
+        public IActionResult MyPost()
         {
-            if (currentPage < 1)
-                return RedirectToAction("Index", "Home");
-            int pageSize = 5;
-            List<PostViewModel> postsVM = await _postService.GetMyPostsAsync();
-            int totalPosts = postsVM.Count;
-            postsVM = await _postService.PagingAsync(postsVM, currentPage, pageSize);
-            int totalPages = (int)Math.Ceiling((double)totalPosts / pageSize);
-
-            PageViewModel pageVM = new()
-            {
-                CurrentPage = currentPage,
-                PageSize = pageSize,
-                TotalPages = totalPages
-            };
-
-            return View((postsVM, pageVM));
+            return View();
         }
 
         [TypeFilter(typeof(AuthenticationFilter))]

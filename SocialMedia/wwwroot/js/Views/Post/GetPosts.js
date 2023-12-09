@@ -7,8 +7,8 @@
         };
     },
     methods: {
-        getPosts(postsType, apiPath, page) {
-            axios.get(apiPath, { params: {postsType: postsType, currentPage: page } })
+        getPosts(postsType, userId, apiPath, page) {
+            axios.get(apiPath, { params: {postsType: postsType, userId: userId, currentPage: page } })
                 .then(response => {
                     this.posts = response.data.postsVM;
                     this.currentPage = response.data.currentPage;
