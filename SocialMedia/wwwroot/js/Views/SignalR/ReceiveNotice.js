@@ -1,6 +1,4 @@
-﻿"use strict";
-
-var connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
+﻿var connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
 
 connection.start().then(function () {
 }).catch(function (err) {
@@ -10,7 +8,8 @@ connection.start().then(function () {
 connection.on("ReceiveMessage", function (message, sendTime) {
     var li = document.createElement("li");
     li.classList.add("list-group-item", "text-light");
-    document.getElementById("messagesList").appendChild(li);
     li.innerHTML = `${message}<br>${sendTime}`;
+    var notificationList = document.getElementById("notificationList");
+    var firstChild = notificationList.firstChild;
+    notificationList.insertBefore(li, firstChild);
 });
-

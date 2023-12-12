@@ -71,9 +71,9 @@ namespace SocialMedia.Controllers
 
         [TypeFilter(typeof(AuthenticationFilter))]
         [HttpPost]
-        public async Task<IActionResult> DeleteTopic(TopicViewModel topicVM)
+        public async Task<IActionResult> DeleteTopic(int topicId)
         {
-            await _topicService.DeleteTopicAsync(topicVM);
+            await _topicService.DeleteTopicAsync(topicId);
 
             return RedirectToAction("Index", "Topic");
         }

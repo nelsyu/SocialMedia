@@ -89,7 +89,7 @@
     }
 </style>
 
-<div id="app" class="container">
+<div id="allPosts" class="container">
     <h2>All Posts</h2>
     <table class="table">
         <thead>
@@ -124,7 +124,7 @@
     <script src="~/js/Views/Post/GetPosts.js" asp-append-version="true"></script>
     <script>
         // 將 Vue 實例掛載到 DOM 中
-        const vm = app.mount('#app');
+        const vm = appGetPosts.mount('#allPosts');
 
         // 外部呼叫 getAllPosts 方法，傳遞 API 路徑和頁數
         function externalFunction() {

@@ -72,26 +72,26 @@
         background-color: rgba(0, 123, 255, 0.1);
     }
 
-    .table th.username {
+    .post th.username {
         width: 10%;
     }
 
-    .table th.title {
+    .post th.title {
         width: 20%;
     }
 
-    .table th.content {
+    .post th.content {
         width: 50%;
     }
 
-    .table th.post-date {
+    .post th.post-date {
         width: 30%;
     }
 </style>
 
-<div id="app" class="container">
+<div id="myPosts" class="container">
     <h2>My Posts</h2>
-    <table class="table">
+    <table class="post">
         <thead>
             <tr>
                 <th scope="col" class="username">Username</th>
@@ -123,10 +123,8 @@
 @section scripts {
     <script src="~/js/Views/Post/GetPosts.js" asp-append-version="true"></script>
     <script>
-        // 將 Vue 實例掛載到 DOM 中
-        const vm = app.mount('#app');
+        const vm = appGetPosts.mount('#myPosts');
 
-        // 外部呼叫 getAllPosts 方法，傳遞 API 路徑和頁數
         function externalFunction() {
             vm.postsType = 'my';
             vm.userId = 0;

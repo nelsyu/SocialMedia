@@ -111,7 +111,7 @@ namespace Service.Services.Implements
             {
                 postVM.UserId = sessionUserLoggedIn.UserId;
                 postVM.CreateDate = DateTime.Now;
-                //postVM.EditDate = DateTime.Now; 已用trigger取代
+                postVM.EditDate = DateTime.Now;
 
                 var postEnt = _mapper.Map<Post>(postVM);
                 _dbContext.Posts.Add(postEnt);

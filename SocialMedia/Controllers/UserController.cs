@@ -15,15 +15,13 @@ namespace SocialMedia.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IUserService _userService;
-        private readonly IPostService _postService;
         private readonly SocialMediaContext _dbContext;
         private readonly ISession? _session;
 
-        public UserController(ILogger<HomeController> logger, IUserService userService, IPostService postService, SocialMediaContext dbContext, IHttpContextAccessor httpContextAccessor)
+        public UserController(ILogger<HomeController> logger, IUserService userService, SocialMediaContext dbContext, IHttpContextAccessor httpContextAccessor)
         {
             _logger = logger;
             _userService = userService;
-            _postService = postService;
             _dbContext = dbContext;
             _session = httpContextAccessor.HttpContext?.Session;
         }
@@ -32,7 +30,6 @@ namespace SocialMedia.Controllers
         public async Task<IActionResult> Index(int userId2)
         {
             UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
-            List<PostViewModel> postsVM = await _postService.GetMyPostsAsync(userId2);
             TempData[ParameterKeys.LoggedInUserId] = sessionUserLoggedIn?.UserId;
             TempData[ParameterKeys.LoggedInUsername] = sessionUserLoggedIn?.Username;
             TempData[ParameterKeys.UserId2] = await _dbContext.Users
@@ -45,7 +42,7 @@ namespace SocialMedia.Controllers
                 .FirstOrDefaultAsync();
             TempData[ParameterKeys.FriendshipStatus] = await _userService.FriendshipStatus(userId2);
 
-            return View(postsVM);
+            return View();
         }
 
         public async Task<IActionResult> Register()

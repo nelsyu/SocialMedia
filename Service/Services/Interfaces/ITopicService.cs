@@ -6,6 +6,6 @@ namespace Service.Services.Interfaces
     {
         Task<List<TopicViewModel>> GetAllTopicsAsync();
         Task CreateTopicAsync(TopicViewModel topicVM, string title);
-        Task DeleteTopicAsync(TopicViewModel topicVM);
+        Task DeleteTopicAsync(int topicId);
     }
 }

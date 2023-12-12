@@ -10,13 +10,11 @@ namespace SocialMedia.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly IPostService _postService;
         private readonly IUserService _userService;
 
-        public HomeController(ILogger<HomeController> logger, IPostService postService, IUserService userService)
+        public HomeController(ILogger<HomeController> logger, IUserService userService)
         {
             _logger = logger;
-            _postService = postService;
             _userService = userService;
         }
 

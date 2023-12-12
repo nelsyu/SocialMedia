@@ -1,4 +1,4 @@
-﻿const app = Vue.createApp({
+﻿const appGetPosts = Vue.createApp({
     data() {
         return {
             posts: [],

@@ -31,27 +31,6 @@ namespace SocialMedia.Controllers
             return View();
         }
 
-        public async Task<IActionResult> GetPosts(string postsType = "all", int userId = 0, int currentPage = 1)
-        {
-            if (currentPage < 1)
-                return RedirectToAction("Index", "Home");
-            int pageSize = 5;
-            List<PostViewModel> postsVM = new();
-
-            if(postsType == "all")
-                postsVM = await _postService.GetAllPostsAsync();
-            else if(postsType == "my")
-                postsVM = await _postService.GetMyPostsAsync();
-            else if (postsType == "user")
-                postsVM = await _postService.GetMyPostsAsync(userId);
-
-            int totalPosts = postsVM.Count;
-            postsVM = await _postService.PagingAsync(postsVM, currentPage, pageSize);
-            int totalPages = (int)Math.Ceiling((double)totalPosts / pageSize);
-
-            return Json(new { postsVM, currentPage, totalPages });
-        }
-
         [TypeFilter(typeof(AuthenticationFilter))]
         public IActionResult MyPost()
         {
@@ -145,6 +124,27 @@ namespace SocialMedia.Controllers
             await _replyService.CreateReplyAsync(replyVM);
 
             return RedirectToAction("DetailPost", "Post", new { replyVM.PostId });
+        }
+
+        public async Task<IActionResult> GetPosts(string postsType = "all", int userId = 0, int currentPage = 1)
+        {
+            if (currentPage < 1)
+                return RedirectToAction("Index", "Home");
+            int pageSize = 5;
+            List<PostViewModel> postsVM = new();
+
+            if(postsType == "all")
+                postsVM = await _postService.GetAllPostsAsync();
+            else if(postsType == "my")
+                postsVM = await _postService.GetMyPostsAsync();
+            else if (postsType == "user")
+                postsVM = await _postService.GetMyPostsAsync(userId);
+
+            int totalPosts = postsVM.Count;
+            postsVM = await _postService.PagingAsync(postsVM, currentPage, pageSize);
+            int totalPages = (int)Math.Ceiling((double)totalPosts / pageSize);
+
+            return Json(new { postsVM, currentPage, totalPages });
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

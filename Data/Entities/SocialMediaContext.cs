@@ -122,9 +122,7 @@ public partial class SocialMediaContext : DbContext
             entity.ToTable("Post", tb => tb.HasTrigger("UpdatePostTrigger"));
 
             entity.Property(e => e.CreateDate).HasColumnType("datetime");
-            entity.Property(e => e.EditDate)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
+            entity.Property(e => e.EditDate).HasColumnType("datetime");
             entity.Property(e => e.Title).HasMaxLength(255);
 
             entity.HasOne(d => d.Topic).WithMany(p => p.Posts)
