@@ -70,7 +70,7 @@ namespace Service.Services.Implements
         public async Task<List<string>> ValidateLoginAsync(UserViewModel userVM, object captchaCode)
         {
             bool IsEmailInvalid = !await _dbContext.Users.AnyAsync(u => u.Email == userVM.Email);
-            bool IsPasswordInvalid = !await _dbContext.Users.AnyAsync(u => u.Password == userVM.Password);
+            bool IsPasswordInvalid = !await _dbContext.Users.AnyAsync(u => u.Email == userVM.Email && u.Password == userVM.Password);
             bool IsConfirmCaptchaInvalid = !Equals(captchaCode, userVM.ConfirmCaptcha);
 
             List<string> result = new();
