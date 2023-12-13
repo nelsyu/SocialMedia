@@ -53,6 +53,14 @@ namespace SocialMedia.Controllers
             return View();
         }
 
+        public async Task<IActionResult> Login()
+        {
+            if (await _userService.IsLoginAsync())
+                return RedirectToAction("Index", "Home");
+
+            return View();
+        }
+
         [HttpPost]
         public async Task<IActionResult> Register(UserViewModel userVM)
         {
@@ -72,31 +80,6 @@ namespace SocialMedia.Controllers
             }
         }
 
-        public async Task<IActionResult> Login()
-        {
-            if (await _userService.IsLoginAsync())
-                return RedirectToAction("Index", "Home");
-
-            (byte[] captchaImage, string captchaCode) = await _userService.GenerateCaptchaImageAsync();
-
-            UserViewModel userVM = new()
-            {
-                CaptchaImage = captchaImage
-            };
-            HttpContext.Session.SetString(ParameterKeys.CaptchaCode, captchaCode);
-
-            return View(userVM);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> RefreshCaptcha()
-        {
-            (byte[] captchaImage, string captchaCode) = await _userService.GenerateCaptchaImageAsync();
-            HttpContext.Session.SetString(ParameterKeys.CaptchaCode, captchaCode);
-
-            return Json(new { image = Convert.ToBase64String(captchaImage) });
-        }
-
         [HttpPost]
         public async Task<IActionResult> Login(UserViewModel userVM)
         {
@@ -105,11 +88,6 @@ namespace SocialMedia.Controllers
             if (result[0] != "")
             {
                 ModelState.AddModelError(result[0], result[1]);
-
-                // 生成 captcha 圖片
-                (byte[] captchaImage, string captchaCode) = await _userService.GenerateCaptchaImageAsync();
-                userVM.CaptchaImage = captchaImage;
-                HttpContext.Session.SetString(ParameterKeys.CaptchaCode, captchaCode);
 
                 return View(userVM);
             }
@@ -120,6 +98,15 @@ namespace SocialMedia.Controllers
 
                 return RedirectToAction("ValidateQRCodeOTP", "User");
             }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetCaptcha()
+        {
+            (byte[] captchaImage, string captchaCode) = await _userService.GenerateCaptchaImageAsync();
+            HttpContext.Session.SetString(ParameterKeys.CaptchaCode, captchaCode);
+
+            return File(captchaImage, "image/png");
         }
 
         [TypeFilter(typeof(AuthenticationFilter))]

@@ -67,14 +67,14 @@
 
                             <div class="input-group">
                                 <input asp-for="ConfirmCaptcha" class="form-control" />
-                                <img src="data:image/png;base64,@Convert.ToBase64String(Model.CaptchaImage)" alt="Captcha Image" class="captcha-image rounded" style="max-width: 100px; height: auto;" />
+                                <img src="/User/GetCaptcha" alt="Captcha Image" class="captcha-image rounded" style="max-width: 100px; height: auto;" />
                             </div>
                             <span asp-validation-for="ConfirmCaptcha" class="text-danger"></span>
                         </div>
 
                         <div class="d-flex justify-content-between">
                             <button type="submit" class="btn btn-primary btn-block mb-3">Login</button>
-                            <button type="button" class="btn btn-secondary btn-block mb-3" id="btnRefreshCaptcha">Refresh Captcha</button>
+                            <button type="button" class="btn btn-secondary btn-block mb-3" id="btnRefreshCaptcha" onclick="refreshCaptcha()">Refresh Captcha</button>
                         </div>
                     </form>
                 </div>
@@ -91,18 +91,14 @@
     <script>
         $(function () {
             $("#btnRefreshCaptcha").on("click", function () {
-                $.ajax({
-                    url: '/User/RefreshCaptcha',
-                    method: 'GET',
-                    dataType: 'json',
-                    success: function (data) {
-                        $('.captcha-image').attr('src', "data:image/png;base64," + data.image);
+                axios.get('/User/GetCaptcha')
+                    .then(function (response) {
+                        $('.captcha-image').attr('src', "/User/GetCaptcha");
                         $('[name="ConfirmCaptcha"]').val("");
-                    },
-                    error: function (error) {
+                    })
+                    .catch(function (error) {
                         console.error('Error refreshing captcha:', error);
-                    }
-                });
+                    });
             });
         });
     </script>
