@@ -100,15 +100,6 @@ namespace SocialMedia.Controllers
             }
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetCaptcha()
-        {
-            (byte[] captchaImage, string captchaCode) = await _userService.GenerateCaptchaImageAsync();
-            HttpContext.Session.SetString(ParameterKeys.CaptchaCode, captchaCode);
-
-            return File(captchaImage, "image/png");
-        }
-
         [TypeFilter(typeof(AuthenticationFilter))]
         [HttpPost]
         public async Task<IActionResult> SaveQRCodeOTP([FromForm] string QRCodeOTPSK)

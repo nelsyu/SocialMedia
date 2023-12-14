@@ -67,7 +67,7 @@
 
                             <div class="input-group">
                                 <input asp-for="ConfirmCaptcha" class="form-control" />
-                                <img src="/User/GetCaptcha" alt="Captcha Image" class="captcha-image rounded" style="max-width: 100px; height: auto;" />
+                                <img src="/getCaptcha" alt="Captcha Image" class="captcha-image rounded" style="max-width: 100px; height: auto;" />
                             </div>
                             <span asp-validation-for="ConfirmCaptcha" class="text-danger"></span>
                         </div>
@@ -91,9 +91,9 @@
     <script>
         $(function () {
             $("#btnRefreshCaptcha").on("click", function () {
-                axios.get('/User/GetCaptcha')
+                axios.get('/getCaptcha')
                     .then(function (response) {
-                        $('.captcha-image').attr('src', "/User/GetCaptcha");
+                        $('.captcha-image').attr('src', "/getCaptcha");
                         $('[name="ConfirmCaptcha"]').val("");
                     })
                     .catch(function (error) {

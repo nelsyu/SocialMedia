@@ -15,7 +15,7 @@ namespace Service.Services.Interfaces
         Task<string> IsQRCodeOTPSecretKeyAsync(int? userId);
         Task<List<string>> VerifyQRCodeOTPAsync(int? userId, string confirmTotp);
         Task<(byte[], string)> GenerateCaptchaImageAsync();
-        Task<(byte[], string)> GenerateOTPQRCodeAsync();
+        Task<(byte[], string)> GetOTPQRCodeAsync();
         Task<List<UserViewModel>> GetAllFriendsAsync();
         Task<bool> FindRole(int? userId, int roleId);
         Task<int> FindUserId(string userVMEmail);

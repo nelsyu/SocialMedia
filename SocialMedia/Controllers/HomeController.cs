@@ -31,7 +31,7 @@ namespace SocialMedia.Controllers
         [TypeFilter(typeof(AuthenticationFilter))]
         public async Task<IActionResult> Settings()
         {
-            (byte[] oTPQRCode, string secretKey) = await _userService.GenerateOTPQRCodeAsync();
+            (byte[] oTPQRCode, string secretKey) = await _userService.GetOTPQRCodeAsync();
 
             OTPViewModel oTPVM = new OTPViewModel
             {
@@ -42,11 +42,10 @@ namespace SocialMedia.Controllers
             return View(oTPVM);
         }
 
-
         [TypeFilter(typeof(AuthenticationFilter))]
-        public async Task<IActionResult> GenerateOTPQRCode()
+        public async Task<IActionResult> GetOTPQRCode()
         {
-            (byte[] oTPQRCode, string secretKey) = await _userService.GenerateOTPQRCodeAsync();
+            (byte[] oTPQRCode, string secretKey) = await _userService.GetOTPQRCodeAsync();
 
             return Json(new { oTPQRCode = Convert.ToBase64String(oTPQRCode), oTPQRCodeSK = secretKey });
         }

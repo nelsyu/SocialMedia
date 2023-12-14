@@ -122,7 +122,7 @@
             $('#regenerateQRCodeButton').on('click', function () {
                 // Make an AJAX request to regenerate the QR code
                 $.ajax({
-                    url: '/Home/GenerateOTPQRCode',
+                    url: '/Home/GetOTPQRCode',
                     type: 'GET',
                     success: function (data) {
                         // Update the QR code image and the secret key

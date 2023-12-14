@@ -207,7 +207,7 @@ namespace Service.Services.Implements
             return (img, captchaCode);
         }
 
-        public async Task<(byte[], string)> GenerateOTPQRCodeAsync()
+        public async Task<(byte[], string)> GetOTPQRCodeAsync()
         {
             UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
             string secretKey = Base32Encoding.ToString(OtpNet.KeyGeneration.GenerateRandomKey());
