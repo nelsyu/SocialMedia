@@ -6,7 +6,7 @@ namespace Service.Services.Interfaces
     {
         Task<List<string>> ValidateRegisterAsync(UserViewModel userVM);
         Task RegisterAsync(UserViewModel userVM);
-        Task<List<string>> ValidateLoginAsync(UserViewModel userVM, object captchaCode);
+        Task<List<string>> ValidateLoginAsync(UserViewModel userVM);
         Task LoginSuccessfulAsync(int? userId);
         Task<bool> IsLoginAsync();
         Task LogoutAsync();

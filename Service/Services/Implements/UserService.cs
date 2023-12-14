@@ -10,6 +10,7 @@ using Library.Extensions;
 using System.Text.RegularExpressions;
 using Microsoft.IdentityModel.Tokens;
 using Library.Constants;
+using Lazy.Captcha.Core;
 
 namespace Service.Services.Implements
 {
@@ -18,12 +19,14 @@ namespace Service.Services.Implements
         private readonly SocialMediaContext _dbContext;
         private readonly IMapper _mapper;
         private readonly ISession? _session;
+        private readonly ICaptcha _captcha;
 
-        public UserService(SocialMediaContext dbContext, IMapper mapper, IHttpContextAccessor httpContextAccessor)
+        public UserService(SocialMediaContext dbContext, IMapper mapper, IHttpContextAccessor httpContextAccessor, ICaptcha captcha)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _session = httpContextAccessor.HttpContext?.Session;
+            _captcha = captcha;
         }
 
         public async Task<List<string>> ValidateRegisterAsync(UserViewModel userVM)
@@ -67,11 +70,11 @@ namespace Service.Services.Implements
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<List<string>> ValidateLoginAsync(UserViewModel userVM, object captchaCode)
+        public async Task<List<string>> ValidateLoginAsync(UserViewModel userVM)
         {
             bool IsEmailInvalid = !await _dbContext.Users.AnyAsync(u => u.Email == userVM.Email);
             bool IsPasswordInvalid = !await _dbContext.Users.AnyAsync(u => u.Email == userVM.Email && u.Password == userVM.Password);
-            bool IsConfirmCaptchaInvalid = !Equals(captchaCode, userVM.ConfirmCaptcha);
+            bool IsConfirmCaptchaInvalid = !_captcha.Validate(userVM.UId, userVM.CaptchaCode);
 
             List<string> result = new();
 

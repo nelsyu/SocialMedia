@@ -9,7 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Service", "Service\Service.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data", "Data\Data.csproj", "{A146D236-0416-40C9-804B-6DC156C9550A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Library", "Library\Library.csproj", "{AB5F2EEB-E01F-4C5E-B8EA-CE22686D4350}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Extensions", "Library\Extensions.csproj", "{AB5F2EEB-E01F-4C5E-B8EA-CE22686D4350}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Library", "Library", "{0E610D17-CE8B-4E9B-A1E6-F9E9B60593DD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lazy.Captcha.Core", "..\lazy-captcha\Lazy.Captcha.Core\Lazy.Captcha.Core.csproj", "{04564EA7-F7A9-4C40-8136-1E9CDB9582E6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,9 +37,17 @@ Global
 		{AB5F2EEB-E01F-4C5E-B8EA-CE22686D4350}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AB5F2EEB-E01F-4C5E-B8EA-CE22686D4350}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AB5F2EEB-E01F-4C5E-B8EA-CE22686D4350}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04564EA7-F7A9-4C40-8136-1E9CDB9582E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04564EA7-F7A9-4C40-8136-1E9CDB9582E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04564EA7-F7A9-4C40-8136-1E9CDB9582E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04564EA7-F7A9-4C40-8136-1E9CDB9582E6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{AB5F2EEB-E01F-4C5E-B8EA-CE22686D4350} = {0E610D17-CE8B-4E9B-A1E6-F9E9B60593DD}
+		{04564EA7-F7A9-4C40-8136-1E9CDB9582E6} = {0E610D17-CE8B-4E9B-A1E6-F9E9B60593DD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {778B1468-2AB2-4DBC-B674-AE59A4198828}

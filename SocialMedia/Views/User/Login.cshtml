@@ -63,13 +63,14 @@
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="ConfirmCaptcha" class="form-label">Confirm Captcha</label>
+                            <label asp-for="CaptchaCode" class="form-label">Confirm Captcha</label>
 
                             <div class="input-group">
-                                <input asp-for="ConfirmCaptcha" class="form-control" />
-                                <img src="/getCaptcha" alt="Captcha Image" class="captcha-image rounded" style="max-width: 100px; height: auto;" />
+                                <input type="hidden" asp-for="UId" />
+                                <input asp-for="CaptchaCode" class="form-control" />
+                                <img id="captchaImage" alt="Captcha Image" class="captcha-image rounded" style="max-width: 100px; height: auto;" />
                             </div>
-                            <span asp-validation-for="ConfirmCaptcha" class="text-danger"></span>
+                            <span asp-validation-for="CaptchaCode" class="text-danger"></span>
                         </div>
 
                         <div class="d-flex justify-content-between">
@@ -90,16 +91,19 @@
 @section Scripts {
     <script>
         $(function () {
-            $("#btnRefreshCaptcha").on("click", function () {
-                axios.get('/getCaptcha')
+            function refreshCaptcha() {
+                axios.get('/generateCaptcha')
                     .then(function (response) {
-                        $('.captcha-image').attr('src', "/getCaptcha");
-                        $('[name="ConfirmCaptcha"]').val("");
+                        $('#captchaImage').attr('src', `data:image/gif;base64,${response.data.img}`);
+                        $('[name="CaptchaCode"]').val("");
+                        $('[name="UId"]').val(response.data.uId);
                     })
                     .catch(function (error) {
                         console.error('Error refreshing captcha:', error);
                     });
-            });
+            }
+            $("#btnRefreshCaptcha").on("click", refreshCaptcha);
+            refreshCaptcha();
         });
     </script>
 }

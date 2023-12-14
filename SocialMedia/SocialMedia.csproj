@@ -32,7 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Library\Library.csproj" />
+    <ProjectReference Include="..\Library\Extensions.csproj" />
     <ProjectReference Include="..\Service\Service.csproj" />
   </ItemGroup>
 

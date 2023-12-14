@@ -20,8 +20,9 @@ namespace Service.ViewModels
 
         #region My property
         public string ConfirmPassword { get; set; } = null!;
+        public string UId { get; set; } = null!;
         public byte[] CaptchaImage { get; set; } = null!;
-        public string ConfirmCaptcha { get; set; } = null!;
+        public string CaptchaCode { get; set; } = null!;
         public string ConfirmQRCodeOTP { get; set; } = null!;
         #endregion
 

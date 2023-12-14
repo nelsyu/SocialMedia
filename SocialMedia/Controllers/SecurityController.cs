@@ -1,4 +1,5 @@
-﻿using Library.Constants;
+﻿using Lazy.Captcha.Core;
+using Library.Constants;
 using Microsoft.AspNetCore.Mvc;
 using Service.Services.Interfaces;
 
@@ -7,12 +8,12 @@ namespace SocialMedia.Controllers
     public class SecurityController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly IUserService _userService;
+        private readonly ICaptcha _captcha;
 
-        public SecurityController(ILogger<HomeController> logger, IUserService userService)
+        public SecurityController(ILogger<HomeController> logger, ICaptcha captcha)
         {
             _logger = logger;
-            _userService = userService;
+            _captcha = captcha;
         }
 
         public IActionResult Index()
@@ -20,13 +21,14 @@ namespace SocialMedia.Controllers
             return View();
         }
 
-        [HttpGet("getCaptcha")]
-        public async Task<IActionResult> GetCaptcha()
+        [HttpGet("generateCaptcha")]
+        public IActionResult generateCaptcha()
         {
-            (byte[] captchaImage, string captchaCode) = await _userService.GenerateCaptchaImageAsync();
-            HttpContext.Session.SetString(ParameterKeys.CaptchaCode, captchaCode);
+            string uId = Guid.NewGuid().ToString().Replace("-", "");
+            CaptchaData captchaImage = _captcha.Generate(uId);
+            var captcha = new {uId, img = captchaImage.Base64};
 
-            return File(captchaImage, "image/png");
+            return Ok(captcha);
         }
     }
 }

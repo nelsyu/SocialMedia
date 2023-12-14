@@ -2,7 +2,6 @@
 {
     public static class ParameterKeys
     {
-        public static string CaptchaCode => "CaptchaCode";
         public static string LoggedInUserId => "LoggedInUserId";
         public static string LoggedInUsername => "LoggedInUsername";
         public static string TopicId => "TopicId";

@@ -83,7 +83,7 @@ namespace SocialMedia.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(UserViewModel userVM)
         {
-            List<string> result = await _userService.ValidateLoginAsync(userVM, HttpContext.Session.GetString(ParameterKeys.CaptchaCode) ?? "");
+            List<string> result = await _userService.ValidateLoginAsync(userVM);
 
             if (result[0] != "")
             {

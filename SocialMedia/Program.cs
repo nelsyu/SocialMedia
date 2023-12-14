@@ -1,4 +1,4 @@
-using AutoMapper;
+ï»¿using AutoMapper;
 using Data.Entities;
 using Library.Config;
 using Library.Constants;
@@ -14,10 +14,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-// ±N Controllers ªA°È²K¥[¨ì®e¾¹¡A¨Ã°t¸m JSON ¿ï¶µ¥H©¿²¤¹ï¶H°Ñ¦Ò´`Àô
+// å°‡ Controllers æœå‹™æ·»åŠ åˆ°å®¹å™¨ï¼Œä¸¦é…ç½® JSON é¸é …ä»¥å¿½ç•¥å°è±¡åƒè€ƒå¾ªç’°
 builder.Services.AddControllersWithViews().AddJsonOptions(option =>
 {
-    // ³]¸m JSON §Ç¦C¤Æ¿ï¶µ¡A¥H©¿²¤¹ï¶H°Ñ¦Ò´`Àô
+    // è¨­ç½® JSON åºåˆ—åŒ–é¸é …ï¼Œä»¥å¿½ç•¥å°è±¡åƒè€ƒå¾ªç’°
     option.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
 
@@ -32,13 +32,16 @@ AutoMapper.IConfigurationProvider config = new MapperConfiguration(cfg =>
 builder.Services.AddSingleton(config);
 builder.Services.AddScoped<IMapper, Mapper>();
 
-// ±N¤@­ÓªA°Èªº¤¶­±©M¹ê²{¶i¦æÃöÁp¡A¨Ã±N¨ä²K¥[¨ì ASP.NET Core ªº DI ®e¾¹¤¤¡A¨Ï±o¦bÀ³¥Îµ{§Ç¤¤¯à°÷¤è«K¦a¨Ï¥Î¨Ì¿àª`¤J¡C
+// å°‡ä¸€å€‹æœå‹™çš„ä»‹é¢å’Œå¯¦ç¾é€²è¡Œé—œè¯ï¼Œä¸¦å°‡å…¶æ·»åŠ åˆ° ASP.NET Core çš„ DI å®¹å™¨ä¸­ï¼Œä½¿å¾—åœ¨æ‡‰ç”¨ç¨‹åºä¸­èƒ½å¤ æ–¹ä¾¿åœ°ä½¿ç”¨ä¾è³´æ³¨å…¥ã€‚
 builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IReplyService, ReplyService>();
 builder.Services.AddScoped<ITopicService, TopicService>();
 
-// ²K¥[ Session ªA°È
+//æ™®é€šéªŒè¯ç 
+builder.Services.AddCaptcha(builder.Configuration);
+
+// æ·»åŠ  Session æœå‹™
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
@@ -57,7 +60,7 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
 {
     options.MinimumSameSitePolicy = SameSiteMode.Lax;
     options.HttpOnly = HttpOnlyPolicy.Always;
-    options.Secure = CookieSecurePolicy.Always; // ³o¨½¬O³]¸mSecure¼Ğ»xªº¦a¤è
+    options.Secure = CookieSecurePolicy.Always; // é€™é‡Œæ˜¯è¨­ç½®Secureæ¨™èªŒçš„åœ°æ–¹
 });
 
 // Configure Serilog
@@ -80,7 +83,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-// °t¸mÀ³¥Îµ{¦¡¨Ï¥Î Session ªA°Èªº¤èªk
+// é…ç½®æ‡‰ç”¨ç¨‹å¼ä½¿ç”¨ Session æœå‹™çš„æ–¹æ³•
 app.UseSession();
 
 app.UseRouting();
