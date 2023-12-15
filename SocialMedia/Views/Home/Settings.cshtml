@@ -68,48 +68,38 @@
         </div>
     </div>
 
-    <!-- TOTP Button -->
+    <!-- QRCodeOTP -->
     <div class="d-grid gap-2">
-        <button type="button" class="btn btn-primary custom-btn" data-bs-toggle="modal" data-bs-target="#totpModal">
-            ENABLE TOTP
+        <button type="button" class="btn btn-primary custom-btn" data-bs-toggle="modal" data-bs-target="#qRCodeOTPModal">
+            ENABLE QRCodeOTP
         </button>
     </div>
 
-    <!-- TOTP Modal -->
-    <div class="modal fade" id="totpModal" tabindex="-1" aria-labelledby="totpModalLabel" aria-hidden="true">
+    <!-- QRCodeOTP Modal -->
+    <div class="modal fade" id="qRCodeOTPModal" tabindex="-1" aria-labelledby="qRCodeOTPModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="totpModalLabel">TOTP QRCode</h5>
+                    <h5 class="modal-title" id="qRCodeOTPModalLabel">QRCodeOTP</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <!-- TOTP QRCode Image -->
-                    <img src="data:image/png;base64,@Convert.ToBase64String(Model.OTPQRCode)" alt="TotpQRCode Image" style="max-width: 100%; height: auto;" />
+                    <!-- QRCodeOTP Image -->
+                    <img src="data:image/png;base64,@Convert.ToBase64String(Model.OTPQRCode)" alt="qRCodeOTP Image" style="max-width: 100%; height: auto;" />
+                    <!-- QRCodeOTP SK -->
+                    <form id="qRCodeOTPForm" asp-controller="User" asp-action="SaveQRCodeOTP" method="post">
+                        <input type="text" name="QRCodeOTPSK" id="qRCodeOTPSK" value="@Model.OTPQRCodeSK" style="margin-left: 30px; width: 350px;" readonly />
+                        <button type="button" id="copyQRCodeOTPSK">Copy</button>
+                    </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <!-- Regenerate QR Code Button -->
-                    <button type="button" class="btn btn-success" id="regenerateQRCodeButton">
+                    <button type="button" class="btn btn-success" id="regenerateQRCodeOTP">
                         Regenerate QR Code
                     </button>
                     <!-- Save and Enable OTP Button -->
-                    <button type="button" class="btn btn-danger" id="saveTOTPButton">Save and Enable OTP</button>
-                    <!-- TOTP Form -->
-                    <form id="tOTPForm" asp-controller="User" asp-action="SaveQRCodeOTP" method="post">
-                        <input type="hidden" name="QRCodeOTPSK" id="tOTPQRCodeInput" value="@Model.OTPQRCodeSK" />
-                    </form>
-                    
-                    <!-- JavaScript to submit the TOTP Form -->
-                    <script>
-                        var saveTOTPButton = document.getElementById('saveTOTPButton');
-                        var tOTPQRCodeInput = document.getElementById('tOTPQRCodeInput');
-                        var tOTPForm = document.getElementById('tOTPForm');
-
-                        saveTOTPButton.addEventListener('click', function () {
-                            tOTPForm.submit();
-                        });
-                    </script>
+                    <button type="button" class="btn btn-danger" id="saveQRCodeOTP">Save and Enable OTP</button>
                 </div>
             </div>
         </div>
@@ -118,26 +108,22 @@
 
 @section Scripts {
     <script>
-        $(function () {
-            $('#regenerateQRCodeButton').on('click', function () {
-                // Make an AJAX request to regenerate the QR code
-                $.ajax({
-                    url: '/Home/GetOTPQRCode',
-                    type: 'GET',
-                    success: function (data) {
-                        // Update the QR code image and the secret key
-                        $('#totpModal img').attr('src', 'data:image/png;base64,' + data.oTPQRCode);
-                        $('#tOTPQRCodeInput').val(data.oTPQRCodeSK);
+        $('#saveQRCodeOTP').on('click', () => $('#qRCodeOTPForm').submit());
 
-                        // Log to console for debugging
-                        console.log('QR Code regenerated successfully.');
-                    },
-                    error: function () {
-                        // Handle error if needed
-                        console.error('Failed to regenerate QR code.');
-                    }
-                });
-            });
+        $('#regenerateQRCodeOTP').on('click', async () => {
+            try {
+                const response = await axios.get('/Home/GetOTPQRCode');
+                const { oTPQRCode, oTPQRCodeSK } = response.data;
+
+                $('#qRCodeOTPModal img').attr('src', `data:image/png;base64,${oTPQRCode}`);
+                $('#qRCodeOTPSK').val(oTPQRCodeSK);
+
+                console.log('QR Code regenerated successfully.');
+            } catch (error) {
+                console.error('Failed to regenerate QR code.', error);
+            }
         });
+
+        $('#copyQRCodeOTPSK').on('click', () => $('#qRCodeOTPSK').select().focus() && document.execCommand('copy'));
     </script>
 }
