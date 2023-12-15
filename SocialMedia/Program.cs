@@ -37,6 +37,7 @@ builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IReplyService, ReplyService>();
 builder.Services.AddScoped<ITopicService, TopicService>();
+builder.Services.AddScoped<IFriendService, FriendService>();
 
 //普通验证码
 builder.Services.AddCaptcha(builder.Configuration);

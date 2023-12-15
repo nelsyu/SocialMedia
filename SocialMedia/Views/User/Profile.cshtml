@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "User-Index";
+    ViewData["Title"] = "Profile" + @TempData[ParameterKeys.Username2];
 }
 @using Library.Constants
 @using Library.Extensions
@@ -118,14 +118,14 @@
                         <button type="button" id="button" class="btn btn-success">
                             Friend
                         </button>
-                        <button type="button" class="btn btn-danger unfriend" onclick="checkLogin(); location.href='@Url.Action("FriendDeny", "User", new { userId2 = userId2 })'">
+                    <button type="button" class="btn btn-danger unfriend" onclick="checkLogin(); location.href='/RejectFriendRequest/?userId2=' + @userId2;">
                             Unfriend
                         </button>
                     </div>
             }
             else if ((int)friendshipStatus == 2)
             {
-                    <button type="button" id="button" class="btn btn-primary pending" onclick="checkLogin(); location.href='@Url.Action("FriendDeny", "User", new { userId2 = userId2 })'">
+                <button type="button" id="button" class="btn btn-primary pending" onclick="checkLogin(); location.href='/RejectFriendRequest/?userId2=' + @userId2;">
                         Pending
                     </button>
             }
@@ -133,10 +133,10 @@
             {
                     <div style="display: flex; justify-content: space-between;">
                         <button type="button" id="button" class="btn btn-success confirm">
-                            Confirm
+                            Accept
                         </button>
-                        <button type="button" class="btn btn-danger deny" onclick="checkLogin(); location.href='@Url.Action("FriendDeny", "User", new { userId2 = userId2 })'">
-                            Deny
+                    <button type="button" class="btn btn-danger deny" onclick="checkLogin(); location.href='/RejectFriendRequest/?userId2=' + @userId2;">
+                            Reject
                         </button>
                     </div>
             }
@@ -195,7 +195,7 @@
                         return console.error(err.toString());
                     });
 
-                    location.href = '@Url.Action("FriendAdd", "User", new { userId2 = @userId2 })';
+                    location.href = '/AddFriend/?userId2=' + @userId2;
                 });
             });
         </script>
@@ -212,7 +212,7 @@
                         return console.error(err.toString());
                     });
 
-                    location.href = '@Url.Action("FriendConfirm", "User", new { userId2 = @userId2 })';
+                    location.href = '/AcceptFriendRequest/?userId2=' + @userId2;
                 });
             });
         </script>

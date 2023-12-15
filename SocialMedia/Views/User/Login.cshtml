@@ -92,7 +92,7 @@
     <script>
         $(function () {
             function refreshCaptcha() {
-                axios.get('/generateCaptcha')
+                axios.get('/GenerateCaptcha')
                     .then(function (response) {
                         $('#captchaImage').attr('src', `data:image/gif;base64,${response.data.img}`);
                         $('[name="CaptchaCode"]').val("");

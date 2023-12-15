@@ -127,13 +127,13 @@
         
         <script>
             $(function () {
-                GetFriends();
+                GetAllFriends();
             });
 
-            async function GetFriends() {
+            async function GetAllFriends() {
                 try {
                     const response = await $.ajax({
-                        url: '/User/GetFriends',
+                        url: '/GetAllFriends',
                         method: 'GET'
                     });
 

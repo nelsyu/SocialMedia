@@ -14,15 +14,9 @@ namespace Service.Services.Interfaces
         Task SaveQRCodeOTPAsync(string QRCodeOTPSK);
         Task<string> IsQRCodeOTPSecretKeyAsync(int? userId);
         Task<List<string>> VerifyQRCodeOTPAsync(int? userId, string confirmTotp);
-        Task<(byte[], string)> GenerateCaptchaImageAsync();
         Task<(byte[], string)> GetOTPQRCodeAsync();
-        Task<List<UserViewModel>> GetAllFriendsAsync();
         Task<bool> FindRole(int? userId, int roleId);
         Task<int> FindUserId(string userVMEmail);
-        Task FriendAdd(int userId2);
-        Task FriendConfirm(int userId2);
-        Task FriendDeny(int userId2);
-        Task<int?> FriendshipStatus(int userId2);
         Task<List<NotificationViewModel>> GetNotificationsAsync();
     }
 }

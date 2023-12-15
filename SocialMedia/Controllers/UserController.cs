@@ -8,6 +8,7 @@ using Library.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Data.Entities;
 using Library.Constants;
+using Lazy.Captcha.Core;
 
 namespace SocialMedia.Controllers
 {
@@ -15,19 +16,24 @@ namespace SocialMedia.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IUserService _userService;
+        private readonly IFriendService _friendService;
         private readonly SocialMediaContext _dbContext;
         private readonly ISession? _session;
+        private readonly ICaptcha _captcha;
 
-        public UserController(ILogger<HomeController> logger, IUserService userService, SocialMediaContext dbContext, IHttpContextAccessor httpContextAccessor)
+        public UserController(ILogger<HomeController> logger, IUserService userService, IFriendService friendService, SocialMediaContext dbContext, IHttpContextAccessor httpContextAccessor, ICaptcha captcha)
         {
             _logger = logger;
             _userService = userService;
+            _friendService = friendService;
             _dbContext = dbContext;
             _session = httpContextAccessor.HttpContext?.Session;
+            _captcha = captcha;
         }
 
         [TypeFilter(typeof(AuthenticationFilter))]
-        public async Task<IActionResult> Index(int userId2)
+        [Route("Profile")]
+        public async Task<IActionResult> Profile(int userId2)
         {
             UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
             TempData[ParameterKeys.LoggedInUserId] = sessionUserLoggedIn?.UserId;
@@ -40,7 +46,7 @@ namespace SocialMedia.Controllers
                 .Where(u => u.Id == userId2)
                 .Select(u => u.Username)
                 .FirstOrDefaultAsync();
-            TempData[ParameterKeys.FriendshipStatus] = await _userService.FriendshipStatus(userId2);
+            TempData[ParameterKeys.FriendshipStatus] = await _friendService.FriendshipStatus(userId2);
 
             return View();
         }
@@ -59,6 +65,45 @@ namespace SocialMedia.Controllers
                 return RedirectToAction("Index", "Home");
 
             return View();
+        }
+
+        public async Task<IActionResult> ValidateQRCodeOTP()
+        {
+            var userId = TempData[ParameterKeys.LoggedInUserId];
+
+            if (userId == null)
+                return RedirectToAction("Login", "User");
+
+            TempData[ParameterKeys.LoggedInUserId] = userId;
+
+            if (string.IsNullOrEmpty(await _userService.IsQRCodeOTPSecretKeyAsync((int)userId)))
+            {
+                await _userService.LoginSuccessfulAsync((int)userId);
+
+                return RedirectToAction("Index", "Home");
+            }
+            else
+            {
+                return View();
+            }
+        }
+
+        [TypeFilter(typeof(AuthenticationFilter))]
+        public async Task<IActionResult> Logout()
+        {
+            await _userService.LogoutAsync();
+
+            return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet("GenerateCaptcha")]
+        public IActionResult GenerateCaptcha()
+        {
+            string uId = Guid.NewGuid().ToString().Replace("-", "");
+            CaptchaData captchaImage = _captcha.Generate(uId);
+            var captcha = new { uId, img = captchaImage.Base64 };
+
+            return Ok(captcha);
         }
 
         [HttpPost]
@@ -100,36 +145,6 @@ namespace SocialMedia.Controllers
             }
         }
 
-        [TypeFilter(typeof(AuthenticationFilter))]
-        [HttpPost]
-        public async Task<IActionResult> SaveQRCodeOTP([FromForm] string QRCodeOTPSK)
-        {
-             await _userService.SaveQRCodeOTPAsync(QRCodeOTPSK);
-
-            return RedirectToAction("Index", "Home");
-        }
-
-        public async Task<IActionResult> ValidateQRCodeOTP()
-        {
-            var userId = TempData[ParameterKeys.LoggedInUserId];
-
-            if (userId == null)
-                return RedirectToAction("Login", "User");
-
-            TempData[ParameterKeys.LoggedInUserId] = userId;
-
-            if (string.IsNullOrEmpty(await _userService.IsQRCodeOTPSecretKeyAsync((int)userId)))
-            {
-                await _userService.LoginSuccessfulAsync((int)userId);
-
-                return RedirectToAction("Index", "Home");
-            }
-            else
-            {
-                return View();
-            }
-        }
-
         [HttpPost]
         public async Task<IActionResult> ValidateQRCodeOTP(UserViewModel userVM)
         {
@@ -155,9 +170,10 @@ namespace SocialMedia.Controllers
         }
 
         [TypeFilter(typeof(AuthenticationFilter))]
-        public async Task<IActionResult> Logout()
+        [HttpPost]
+        public async Task<IActionResult> SaveQRCodeOTP([FromForm] string QRCodeOTPSK)
         {
-            await _userService.LogoutAsync();
+             await _userService.SaveQRCodeOTPAsync(QRCodeOTPSK);
 
             return RedirectToAction("Index", "Home");
         }
@@ -175,36 +191,6 @@ namespace SocialMedia.Controllers
         {
             bool isUserLoggedIn = await _userService.IsLoginAsync();
             return Json(isUserLoggedIn);
-        }
-
-        public async Task<IActionResult> GetFriends()
-        {
-            List<UserViewModel> usersVM = await _userService.GetAllFriendsAsync();
-            return PartialView("_FriendsPartial", usersVM);
-        }
-
-        [TypeFilter(typeof(AuthenticationFilter))]
-        public async Task<IActionResult> FriendAdd(int userId2)
-        {
-            await _userService.FriendAdd(userId2);
-
-            return Redirect($"/User?userId2={userId2}");
-        }
-
-        [TypeFilter(typeof(AuthenticationFilter))]
-        public async Task<IActionResult> FriendConfirm(int userId2)
-        {
-            await _userService.FriendConfirm(userId2);
-
-            return Redirect($"/User?userId2={userId2}");
-        }
-
-        [TypeFilter(typeof(AuthenticationFilter))]
-        public async Task<IActionResult> FriendDeny(int userId2)
-        {
-            await _userService.FriendDeny(userId2);
-
-            return Redirect($"/User?userId2={userId2}");
         }
 
         public async Task<IActionResult> ReceiveMessage()
