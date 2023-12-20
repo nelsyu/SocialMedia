@@ -14,17 +14,17 @@ namespace SocialMedia.Controllers
 {
     public class UserController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
         private readonly IUserService _userService;
+        private readonly IValidationService _validationService;
         private readonly IFriendService _friendService;
         private readonly SocialMediaContext _dbContext;
         private readonly ISession? _session;
         private readonly ICaptcha _captcha;
 
-        public UserController(ILogger<HomeController> logger, IUserService userService, IFriendService friendService, SocialMediaContext dbContext, IHttpContextAccessor httpContextAccessor, ICaptcha captcha)
+        public UserController(IUserService userService, IValidationService validationService, IFriendService friendService, SocialMediaContext dbContext, IHttpContextAccessor httpContextAccessor, ICaptcha captcha)
         {
-            _logger = logger;
             _userService = userService;
+            _validationService = validationService;
             _friendService = friendService;
             _dbContext = dbContext;
             _session = httpContextAccessor.HttpContext?.Session;
@@ -67,24 +67,26 @@ namespace SocialMedia.Controllers
             return View();
         }
 
-        public async Task<IActionResult> ValidateQRCodeOTP()
+        public async Task<IActionResult> ValidateQRCodeOTP(int userId)
         {
-            var userId = TempData[ParameterKeys.LoggedInUserId];
-
-            if (userId == null)
+            if (userId == 0)
                 return RedirectToAction("Login", "User");
 
-            TempData[ParameterKeys.LoggedInUserId] = userId;
-
-            if (string.IsNullOrEmpty(await _userService.IsQRCodeOTPSecretKeyAsync((int)userId)))
+            QRCodeOTPViewModel QRCodeOTPVM = new QRCodeOTPViewModel
             {
-                await _userService.LoginSuccessfulAsync((int)userId);
+                UserId = userId,
+                QRCodeOTP = ""
+            };
 
-                return RedirectToAction("Index", "Home");
+            if (await _userService.HasQRCodeOTPSKAsync(userId))
+            {
+                return View(QRCodeOTPVM);
             }
             else
-            {
-                return View();
+            { 
+                await _userService.LoginSuccessfulAsync(userId);
+
+                return RedirectToAction("Index", "Home");
             }
         }
 
@@ -109,7 +111,7 @@ namespace SocialMedia.Controllers
         [HttpPost]
         public async Task<IActionResult> Register(UserViewModel userVM)
         {
-            List<string> result = await _userService.ValidateRegisterAsync(userVM);
+            List<string> result = await _validationService.ValidateRegisterAsync(userVM);
 
             if (result[0] != "")
             {
@@ -128,7 +130,7 @@ namespace SocialMedia.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(UserViewModel userVM)
         {
-            List<string> result = await _userService.ValidateLoginAsync(userVM);
+            List<string> result = await _validationService.ValidateLoginAsync(userVM);
 
             if (result[0] != "")
             {
@@ -139,31 +141,28 @@ namespace SocialMedia.Controllers
             else
             {
                 int userId = await _userService.FindUserId(userVM.Email);
-                TempData[ParameterKeys.LoggedInUserId] = userId;
 
-                return RedirectToAction("ValidateQRCodeOTP", "User");
+                return RedirectToAction("ValidateQRCodeOTP", "User", new { userId });
             }
         }
 
         [HttpPost]
-        public async Task<IActionResult> ValidateQRCodeOTP(UserViewModel userVM)
+        public async Task<IActionResult> ValidateQRCodeOTP([FromForm] QRCodeOTPViewModel qRCodeOTPVM)
         {
-            var userId = TempData[ParameterKeys.LoggedInUserId];
-
-            if (userId == null)
+            if (qRCodeOTPVM.UserId == 0)
                 return RedirectToAction("Login", "User");
 
-            List<string> result = await _userService.VerifyQRCodeOTPAsync((int)userId, userVM.ConfirmQRCodeOTP);
+            List<string> result = await _userService.VerifyQRCodeOTPAsync(qRCodeOTPVM.UserId, qRCodeOTPVM.QRCodeOTP);
 
             if (result[0] != "")
             {
                 ModelState.AddModelError(result[0], result[1]);
 
-                return View(userVM);
+                return View(qRCodeOTPVM);
             }
             else
             {
-                await _userService.LoginSuccessfulAsync((int)userId);
+                await _userService.LoginSuccessfulAsync(qRCodeOTPVM.UserId);
 
                 return RedirectToAction("Index", "Home");
             }
@@ -193,17 +192,12 @@ namespace SocialMedia.Controllers
             return Json(isUserLoggedIn);
         }
 
-        public async Task<IActionResult> ReceiveMessage()
+        [Route("GetNotification")]
+        public async Task<IActionResult> GetNotification()
         {
-            List<NotificationViewModel> notificationsVM = await _userService.GetNotificationsAsync();
+            List<NotificationViewModel> notificationsVM = await _userService.GetNotificationAsync();
             
             return PartialView("_NoticesPartial", notificationsVM);
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }

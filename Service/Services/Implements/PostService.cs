@@ -72,37 +72,6 @@ namespace Service.Services.Implements
             return Task.FromResult(postsVM);
         }
 
-        public async Task<List<string>> ValidatePostAsync(PostViewModel postVM)
-        {
-            bool isTopicIdInvalid = !await _dbContext.Topics.AnyAsync(t => t.Id == postVM.TopicId);
-            bool isTitleInvalid = string.IsNullOrEmpty(postVM.Title);
-            bool isContentInvalid = string.IsNullOrEmpty(postVM.Content);
-
-            List<string> result = new();
-
-            if (isTopicIdInvalid)
-            {
-                result.Add("Id");
-                result.Add("Id is invalid.");
-            }
-            else if (isTitleInvalid)
-            {
-                result.Add("Title");
-                result.Add("Title is invalid.");
-            }
-            else if (isContentInvalid)
-            {
-                result.Add("Content");
-                result.Add("Content is invalid");
-            }
-            else
-            {
-                result.Add("");
-            }
-
-            return result;
-        }
-
         public async Task CreatePostAsync(PostViewModel postVM)
         {
             UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);

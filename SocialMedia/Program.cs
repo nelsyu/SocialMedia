@@ -32,12 +32,14 @@ AutoMapper.IConfigurationProvider config = new MapperConfiguration(cfg =>
 builder.Services.AddSingleton(config);
 builder.Services.AddScoped<IMapper, Mapper>();
 
-// 將一個服務的介面和實現進行關聯，並將其添加到 ASP.NET Core 的 DI 容器中，使得在應用程序中能夠方便地使用依賴注入。
+#region 將介面和實現進行關聯，並將其添加到 ASP.NET Core 的 DI 容器中，使得在應用程序中能夠方便地使用依賴注入
 builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IReplyService, ReplyService>();
 builder.Services.AddScoped<ITopicService, TopicService>();
 builder.Services.AddScoped<IFriendService, FriendService>();
+builder.Services.AddScoped<IValidationService, ValidationService>();
+#endregion
 
 //普通验证码
 builder.Services.AddCaptcha(builder.Configuration);

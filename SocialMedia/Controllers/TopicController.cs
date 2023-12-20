@@ -13,15 +13,13 @@ namespace SocialMedia.Controllers
 {
     public class TopicController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
         private readonly ITopicService _topicService;
         private readonly IPostService _postService;
         private readonly IUserService _userService;
         private readonly ISession? _session;
 
-        public TopicController(ILogger<HomeController> logger, ITopicService topicService, IPostService postService, IUserService userService, IHttpContextAccessor httpContextAccessor)
+        public TopicController(ITopicService topicService, IPostService postService, IUserService userService, IHttpContextAccessor httpContextAccessor)
         {
-            _logger = logger;
             _topicService = topicService;
             _postService = postService;
             _userService = userService;
@@ -76,12 +74,6 @@ namespace SocialMedia.Controllers
             await _topicService.DeleteTopicAsync(topicId);
 
             return RedirectToAction("Index", "Topic");
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }

@@ -133,10 +133,9 @@
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="event.stopPropagation();">
                                         Cancel
                                     </button>
-                                    <form class="delete-form" method="post" asp-controller="Post" asp-action="DeletePost">
-                                        <input type="hidden" name="postId" value="@Model.PostVM.Id" />
-                                        <button type="submit" class="btn btn-danger">Delete</button>
-                                    </form>
+                                    <button type="submit" class="btn btn-danger" onclick="DeletePost(@Model.PostVM.Id)">
+                                        Delete
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -159,7 +158,7 @@
                     <h5 class="modal-title" id="replyModalLabel">Add Reply</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form method="post" asp-controller="Post" asp-action="AddReply" onsubmit="return checkLogin();">
+                <form id="replyForm">
                     <div class="modal-body">
                         <input type="hidden" name="PostId" value="@Model.PostVM.Id" />
                         <div class="form-group">
@@ -168,7 +167,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary btn-rounded">Submit Reply</button>
+                        <button type="button" class="btn btn-primary btn-rounded" onclick="SubmitReply()">Submit Reply</button>
                     </div>
                 </form>
             </div>
@@ -196,3 +195,39 @@
         </div>
     </div>
 </div>
+
+@section Scripts{
+    <script>
+        function SubmitReply() {
+            var formData = new FormData(document.getElementById('replyForm'));
+
+            axios.post('/AddReply', formData, {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                }
+            })
+                .then(function (response) {
+                    console.log(response);
+                    window.location.href = '/Post/DetailPost?postId=' + formData.get('PostId');
+                })
+                .catch(function (error) {
+                    console.error(error);
+                });
+        }
+
+        function DeletePost(postId) {
+            axios.post('/DeletePost', { postId: postId }, {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                }
+            })
+                .then(response => {
+                    console.log(response.data);
+                    window.location.href = '/Post/MyPost';
+                })
+                .catch(error => {
+                    console.error('There was an error with the Axios request:', error);
+                });
+        }
+    </script>
+}

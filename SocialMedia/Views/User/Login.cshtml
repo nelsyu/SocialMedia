@@ -75,7 +75,7 @@
 
                         <div class="d-flex justify-content-between">
                             <button type="submit" class="btn btn-primary btn-block mb-3">Login</button>
-                            <button type="button" class="btn btn-secondary btn-block mb-3" id="btnRefreshCaptcha" onclick="refreshCaptcha()">Refresh Captcha</button>
+                            <button type="button" class="btn btn-secondary btn-block mb-3" id="btnRefreshCaptcha" onclick="RefreshCaptcha()">Refresh Captcha</button>
                         </div>
                     </form>
                 </div>
@@ -90,20 +90,18 @@
 
 @section Scripts {
     <script>
-        $(function () {
-            function refreshCaptcha() {
-                axios.get('/GenerateCaptcha')
-                    .then(function (response) {
-                        $('#captchaImage').attr('src', `data:image/gif;base64,${response.data.img}`);
-                        $('[name="CaptchaCode"]').val("");
-                        $('[name="UId"]').val(response.data.uId);
-                    })
-                    .catch(function (error) {
-                        console.error('Error refreshing captcha:', error);
-                    });
-            }
-            $("#btnRefreshCaptcha").on("click", refreshCaptcha);
-            refreshCaptcha();
-        });
+        function RefreshCaptcha() {
+            axios.get('/GenerateCaptcha')
+                .then(function (response) {
+                    $('#captchaImage').attr('src', `data:image/gif;base64,${response.data.img}`);
+                    $('[name="CaptchaCode"]').val("");
+                    $('[name="UId"]').val(response.data.uId);
+                })
+                .catch(function (error) {
+                    console.error('Error refreshing captcha:', error);
+                });
+        }
+
+        RefreshCaptcha();
     </script>
 }

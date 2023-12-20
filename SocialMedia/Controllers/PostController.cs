@@ -11,24 +11,19 @@ namespace SocialMedia.Controllers
 {
     public class PostController : Controller
     {
-        private readonly ILogger<PostController> _logger;
         private readonly IPostService _postService;
         private readonly IReplyService _replyService;
         private readonly ITopicService _topicService;
+        private readonly IValidationService _validationService;
         private readonly ISession? _session;
 
-        public PostController(ILogger<PostController> logger, IPostService postService, IReplyService replyService, ITopicService topicService, IHttpContextAccessor httpContextAccessor)
+        public PostController(IPostService postService, IReplyService replyService, ITopicService topicService, IValidationService validationService, IHttpContextAccessor httpContextAccessor)
         {
-            _logger = logger;
             _postService = postService;
             _replyService = replyService;
             _topicService = topicService;
+            _validationService = validationService;
             _session = httpContextAccessor.HttpContext?.Session;
-        }
-
-        public IActionResult Index()
-        {
-            return View();
         }
 
         [TypeFilter(typeof(AuthenticationFilter))]
@@ -51,7 +46,7 @@ namespace SocialMedia.Controllers
         [HttpPost]
         public async Task<IActionResult> CreatePost(PostViewModel postVM)
         {
-            List<string> result = await _postService.ValidatePostAsync(postVM);
+            List<string> result = await _validationService.ValidatePostAsync(postVM);
 
             if (result[0] != "")
             {
@@ -70,11 +65,12 @@ namespace SocialMedia.Controllers
         }
 
         [TypeFilter(typeof(AuthenticationFilter))]
+        [HttpPost("DeletePost")]
         public async Task<IActionResult> DeletePost(int postId)
         {
             await _postService.DeletePostAsync(postId);
 
-            return RedirectToAction("MyPost", "Post");
+            return Ok();
         }
 
         public async Task<IActionResult> DetailPost(int postId)
@@ -99,7 +95,7 @@ namespace SocialMedia.Controllers
         [HttpPost]
         public async Task<IActionResult> EditPost(PostViewModel postVM, int postId)
         {
-            List<string> result = await _postService.ValidatePostAsync(postVM);
+            List<string> result = await _validationService.ValidatePostAsync(postVM);
 
             if (result[0] != "")
             {
@@ -118,14 +114,15 @@ namespace SocialMedia.Controllers
         }
 
         [TypeFilter(typeof(AuthenticationFilter))]
-        [HttpPost]
+        [HttpPost("AddReply")]
         public async Task<IActionResult> AddReply(ReplyViewModel replyVM)
         {
             await _replyService.CreateReplyAsync(replyVM);
 
-            return RedirectToAction("DetailPost", "Post", new { replyVM.PostId });
+            return Ok();
         }
 
+        [HttpGet("GetPosts")]
         public async Task<IActionResult> GetPosts(string postsType = "all", int userId = 0, int currentPage = 1)
         {
             if (currentPage < 1)
@@ -145,12 +142,6 @@ namespace SocialMedia.Controllers
             int totalPages = (int)Math.Ceiling((double)totalPosts / pageSize);
 
             return Json(new { postsVM, currentPage, totalPages });
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }

@@ -99,7 +99,7 @@
                                         </a>
                                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                                             <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Logout">Logout</a>
-                                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Settings">Settings</a>
+                                        <a class="nav-link text-dark" href="/Setting/Settings">Settings</a>
                                         </div>
                                     </div>
                                 </li>
@@ -126,10 +126,6 @@
         <script src="~/js/Views/Shared/CheckLogin.js" asp-append-version="true"></script>
         
         <script>
-            $(function () {
-                GetAllFriends();
-            });
-
             async function GetAllFriends() {
                 try {
                     const response = await $.ajax({
@@ -143,14 +139,10 @@
                 }
             }
 
-            $(function () {
-                GetNotifications();
-            });
-
             async function GetNotifications() {
                 try {
                     const response = await $.ajax({
-                        url: '/User/ReceiveMessage',
+                        url: '/GetNotification',
                         method: 'GET'
                     });
 
@@ -159,6 +151,9 @@
                     console.error('Error loading notifications:', error);
                 }
             }
+
+            GetAllFriends();
+            GetNotifications();
         </script>
 
         @await RenderSectionAsync("Scripts", required: false)

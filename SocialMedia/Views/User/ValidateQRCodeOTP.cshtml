@@ -1,7 +1,7 @@
 ﻿@{
     ViewData["Title"] = "ValidateQRCodeOTP";
 }
-@model Service.ViewModels.UserViewModel
+@model Service.ViewModels.QRCodeOTPViewModel
 
 <style>
     .card {
@@ -37,9 +37,11 @@
                 <div class="card-body">
                     <form asp-action="ValidateQRCodeOTP" method="post">
                         <div class="mb-3">
-                            <label asp-for="ConfirmQRCodeOTP" class="form-label">Confirm QR Code OTP</label>
-                            <input asp-for="ConfirmQRCodeOTP" class="form-control" />
-                            <span asp-validation-for="ConfirmQRCodeOTP" class="text-danger"></span>
+                            <label asp-for="QRCodeOTP" class="form-label">Confirm QR Code OTP</label>
+                            <input asp-for="QRCodeOTP" class="form-control" />
+                            <span asp-validation-for="QRCodeOTP" class="text-danger"></span>
+
+                            <input type="hidden" name="userId" value=@Model.UserId />
                         </div>
 
                         <button type="submit" class="btn btn-primary btn-block">Confirm</button>

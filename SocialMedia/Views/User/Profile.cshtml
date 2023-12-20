@@ -108,7 +108,7 @@
         {
             if (friendshipStatus == null)
             {
-                    <button type="button" id="button" class="btn btn-primary add-friend">
+                <button type="button" id="button" class="btn btn-primary add-friend" onclick="AddFriend(@userId2)">
                         Add Friend
                     </button>
             }
@@ -118,24 +118,24 @@
                         <button type="button" id="button" class="btn btn-success">
                             Friend
                         </button>
-                    <button type="button" class="btn btn-danger unfriend" onclick="checkLogin(); location.href='/RejectFriendRequest/?userId2=' + @userId2;">
+                        <button type="button" class="btn btn-danger unfriend" onclick="RejectFriendRequest(@userId2);">
                             Unfriend
                         </button>
                     </div>
             }
             else if ((int)friendshipStatus == 2)
             {
-                <button type="button" id="button" class="btn btn-primary pending" onclick="checkLogin(); location.href='/RejectFriendRequest/?userId2=' + @userId2;">
-                        Pending
-                    </button>
+                <button type="button" id="button" class="btn btn-primary pending" onclick="RejectFriendRequest(@userId2);">
+                    Pending
+                </button>
             }
             else if ((int)friendshipStatus == 3)
             {
                     <div style="display: flex; justify-content: space-between;">
-                        <button type="button" id="button" class="btn btn-success confirm">
+                        <button type="button" id="button" class="btn btn-success confirm" onclick="AcceptFriendRequest(@userId2)">
                             Accept
                         </button>
-                    <button type="button" class="btn btn-danger deny" onclick="checkLogin(); location.href='/RejectFriendRequest/?userId2=' + @userId2;">
+                        <button type="button" class="btn btn-danger deny" onclick="RejectFriendRequest(@userId2);">
                             Reject
                         </button>
                     </div>
@@ -176,48 +176,6 @@
 
 <script src="~/js/signalr/dist/browser/signalr.js"></script>
 @section Scripts {
-    <script>
-        checkLogin();
-
-        var groupId = "@userId2";
-        var userId2 = @userId2;
-        var message = "";
-    </script>
-    @if (friendshipStatus == null)
-    {
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                var addFriendBtn = document.querySelector(".btn.btn-primary.add-friend");
-
-                addFriendBtn.addEventListener("click", function (event) {
-                    message = "@loggedInUsername want to be your friend!";
-                    connection.invoke("DirectMessage", groupId, userId2, message).catch(function (err) {
-                        return console.error(err.toString());
-                    });
-
-                    location.href = '/AddFriend/?userId2=' + @userId2;
-                });
-            });
-        </script>
-    }
-    else if ((int)friendshipStatus == 3)
-    {
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                var confirmBtn = document.querySelector(".btn.btn-success.confirm");
-
-                confirmBtn.addEventListener("click", function (event) {
-                    message = "@loggedInUsername and you are friends now!"
-                    connection.invoke("DirectMessage", groupId, userId2, message).catch(function (err) {
-                        return console.error(err.toString());
-                    });
-
-                    location.href = '/AcceptFriendRequest/?userId2=' + @userId2;
-                });
-            });
-        </script>
-    }
-
     <script src="~/js/Views/Post/GetPosts.js" asp-append-version="true"></script>
     <script>
         const vm = appGetPosts.mount('#userPosts');
@@ -225,11 +183,70 @@
         function externalFunction() {
             vm.postsType = 'user';
             vm.userId = @userId2;
-            vm.apiPath = '/Post/GetPosts';
+            vm.apiPath = '/GetPosts';
             const page = 1;
             vm.getPosts(vm.postsType, vm.userId, vm.apiPath, page);
         }
 
         externalFunction();
+
+        var groupId = "@userId2";
+        var userId2 = @userId2;
+        var message = "";
+
+        function AddFriend(userId2) {
+            message = "@loggedInUsername want to be your friend!";
+            connection.invoke("DirectMessage", groupId, userId2, message).catch(function (err) {
+                console.error(err.toString());
+            });
+
+            axios.post('/AddFriend', { userId2: userId2 }, {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                }
+            })
+                .then(response => {
+                    console.log(response.data);
+                    window.location.href = '/Profile?userId2=' + userId2;
+                })
+                .catch(error => {
+                    console.error('There was an error with the Axios request:', error);
+                });
+        }
+
+        function AcceptFriendRequest(userId2) {
+            message = "@loggedInUsername and you are friends now!"
+            connection.invoke("DirectMessage", groupId, userId2, message).catch(function (err) {
+                return console.error(err.toString());
+            });
+
+            axios.post('/AcceptFriendRequest', { userId2: userId2 }, {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                }
+            })
+                .then(response => {
+                    console.log(response.data);
+                    window.location.href = '/Profile?userId2=' + userId2;
+                })
+                .catch(error => {
+                    console.error('There was an error with the Axios request:', error);
+                });
+        }
+
+        function RejectFriendRequest(userId2) {
+            axios.post('/RejectFriendRequest', { userId2: userId2 }, {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                }
+            })
+                .then(response => {
+                    console.log(response.data);
+                    window.location.href = '/Profile?userId2=' + userId2;
+                })
+                .catch(error => {
+                    console.error('There was an error with the Axios request:', error);
+                });
+        }
     </script>
 }

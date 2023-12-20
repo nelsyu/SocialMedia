@@ -19,48 +19,12 @@ namespace Service.Services.Implements
         private readonly SocialMediaContext _dbContext;
         private readonly IMapper _mapper;
         private readonly ISession? _session;
-        private readonly ICaptcha _captcha;
 
-        public UserService(SocialMediaContext dbContext, IMapper mapper, IHttpContextAccessor httpContextAccessor, ICaptcha captcha)
+        public UserService(SocialMediaContext dbContext, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _session = httpContextAccessor.HttpContext?.Session;
-            _captcha = captcha;
-        }
-
-        public async Task<List<string>> ValidateRegisterAsync(UserViewModel userVM)
-        {
-            string IsEmailValidate = IsValidEmailAsync(userVM.Email);
-            bool IsUsernameInvalid = await _dbContext.Users.AnyAsync(u => u.Username == userVM.Username) || userVM.Username == null;
-            bool IsPasswordInvalid = string.IsNullOrEmpty(userVM.Password);
-            bool IsConfirmPasswordInvalid = string.IsNullOrEmpty(userVM.ConfirmPassword) || userVM.Password != userVM.ConfirmPassword;
-            List<string> result = new();
-
-            if (IsEmailValidate != "true")
-            {
-                result.Add("Email");
-                result.Add(IsEmailValidate);
-            }
-            else if (IsUsernameInvalid)
-            {
-                result.Add("Username");
-                result.Add("Username is invalid.");
-            }
-            else if (IsPasswordInvalid)
-            {
-                result.Add("Password");
-                result.Add("Password is invalid.");
-            }
-            else if (IsConfirmPasswordInvalid)
-            {
-                result.Add("ConfirmPassword");
-                result.Add("ConfirmPassword is invalid.");
-            }
-            else
-                result.Add("");
-
-            return result;
         }
 
         public async Task RegisterAsync(UserViewModel userVM)
@@ -68,37 +32,6 @@ namespace Service.Services.Implements
             User userEnt = _mapper.Map<User>(userVM);
             _dbContext.Users.Add(userEnt);
             await _dbContext.SaveChangesAsync();
-        }
-
-        public async Task<List<string>> ValidateLoginAsync(UserViewModel userVM)
-        {
-            bool IsEmailInvalid = !await _dbContext.Users.AnyAsync(u => u.Email == userVM.Email);
-            bool IsPasswordInvalid = !await _dbContext.Users.AnyAsync(u => u.Email == userVM.Email && u.Password == userVM.Password);
-            bool IsConfirmCaptchaInvalid = !_captcha.Validate(userVM.UId, userVM.CaptchaCode);
-
-            List<string> result = new();
-
-            if (IsEmailInvalid)
-            {
-                result.Add("Email");
-                result.Add("Email is invalid.");
-            }
-            else if (IsPasswordInvalid)
-            {
-                result.Add("Password");
-                result.Add("Password is invalid.");
-            }
-            else if (IsConfirmCaptchaInvalid)
-            {
-                result.Add("Captcha");
-                result.Add("Captcha is invalid");
-            }
-            else
-            {
-                result.Add("");
-            }
-
-            return result;
         }
 
         public async Task LoginSuccessfulAsync(int? userId)
@@ -158,32 +91,34 @@ namespace Service.Services.Implements
             }
         }
 
-        public async Task<string> IsQRCodeOTPSecretKeyAsync(int? userId)
+        public async Task<bool> HasQRCodeOTPSKAsync(int userId)
         {
-            string qRCodeOTPSecretKey = await _dbContext.Users
-                .Where(u => u.Id == userId)
-                .Select(u => u.Totp)
-                .FirstOrDefaultAsync() ?? "";
+            bool hasQRCodeOTPSK = !string.IsNullOrEmpty(
+                await _dbContext.Users
+                    .Where(u => u.Id == userId)
+                    .Select(u => u.Totp)
+                    .FirstOrDefaultAsync()
+                );
 
-            return qRCodeOTPSecretKey;
+            return hasQRCodeOTPSK;
         }
 
-        public async Task<List<string>> VerifyQRCodeOTPAsync(int? userId, string confirmQRCodeOTP)
+        public async Task<List<string>> VerifyQRCodeOTPAsync(int userId, string QRCodeOTP)
         {
-            string? qRCodeOTPSecretKey = await _dbContext.Users
+            string? qRCodeOTPSK = await _dbContext.Users
                 .Where(u => u.Id == userId)
                 .Select(u => u.Totp)
                 .FirstOrDefaultAsync();
 
-            Totp qRCodeOTP = new(Base32Encoding.ToBytes((string)(qRCodeOTPSecretKey ?? "")));
-            bool isConfirmQRCodeOTPInvalid = !qRCodeOTP.VerifyTotp(confirmQRCodeOTP, out _);
+            Totp tOTP = new(Base32Encoding.ToBytes((string)(qRCodeOTPSK ?? "")));
+            bool isQRCodeOTPInvalid = string.IsNullOrEmpty(QRCodeOTP) || !tOTP.VerifyTotp(QRCodeOTP, out _);
 
             List<string> result = new();
 
-            if (isConfirmQRCodeOTPInvalid)
+            if (isQRCodeOTPInvalid)
             {
-                result.Add("ConfirmQRCodeOTP");
-                result.Add("ConfirmQRCodeOTP is invalid");
+                result.Add("QRCodeOTP");
+                result.Add("QRCodeOTP is invalid");
             }
             else
             {
@@ -236,7 +171,7 @@ namespace Service.Services.Implements
             return userIdEnt;
         }
 
-        public async Task<List<NotificationViewModel>> GetNotificationsAsync()
+        public async Task<List<NotificationViewModel>> GetNotificationAsync()
         {
             List<Notification>? notificationsEnt = null;
             UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
@@ -252,41 +187,5 @@ namespace Service.Services.Implements
             
             return notificationsVM;
         }
-
-        #region private methods
-        private string IsValidEmailAsync(string email)
-        {
-            string emailPattern = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
-
-            if (string.IsNullOrWhiteSpace(email))
-            {
-                return "電子郵件地址不能為空。";
-            }
-
-            if (_dbContext.Users.Any(u => u.Email == email))
-            {
-                return "電子郵件地址已被註冊。";
-            }
-
-            int atIndex = email.IndexOf('@');
-            if (atIndex == -1)
-            {
-                return "電子郵件地址缺少 '@' 符號。";
-            }
-
-            int dotIndex = email.LastIndexOf('.');
-            if (dotIndex == -1 || dotIndex < atIndex)
-            {
-                return "電子郵件地址缺少點（.），或點（.）的位置不正確。";
-            }
-
-            if (!Regex.IsMatch(email, emailPattern))
-            {
-                return "電子郵件地址格式無效。";
-            }
-
-            return "true";
-        }
-        #endregion
     }
 }

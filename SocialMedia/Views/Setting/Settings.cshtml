@@ -1,8 +1,6 @@
 ﻿@{
     ViewData["Title"] = "Settings";
 }
-@using Service.ViewModels
-@model OTPViewModel
 
 <style>
     .custom-btn {
@@ -85,21 +83,21 @@
                 </div>
                 <div class="modal-body">
                     <!-- QRCodeOTP Image -->
-                    <img src="data:image/png;base64,@Convert.ToBase64String(Model.OTPQRCode)" alt="qRCodeOTP Image" style="max-width: 100%; height: auto;" />
+                    <img alt="qRCodeOTP Image" style="max-width: 100%; height: auto;" />
                     <!-- QRCodeOTP SK -->
                     <form id="qRCodeOTPForm" asp-controller="User" asp-action="SaveQRCodeOTP" method="post">
-                        <input type="text" name="QRCodeOTPSK" id="qRCodeOTPSK" value="@Model.OTPQRCodeSK" style="margin-left: 30px; width: 350px;" readonly />
-                        <button type="button" id="copyQRCodeOTPSK">Copy</button>
+                        <input type="text" name="QRCodeOTPSK" id="qRCodeOTPSK" style="margin-left: 30px; width: 350px;" readonly />
+                        <button type="button" id="copyQRCodeOTPSK" onclick="CopyQRCodeOTPSK()">Copy</button>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <!-- Regenerate QR Code Button -->
-                    <button type="button" class="btn btn-success" id="regenerateQRCodeOTP">
+                    <button type="button" class="btn btn-success" id="regenerateQRCodeOTP" onclick="GetQRCodeOTP()">
                         Regenerate QR Code
                     </button>
                     <!-- Save and Enable OTP Button -->
-                    <button type="button" class="btn btn-danger" id="saveQRCodeOTP">Save and Enable OTP</button>
+                    <button type="button" class="btn btn-danger" id="saveQRCodeOTP" onclick="SaveQRCodeOTP()">Save and Enable OTP</button>
                 </div>
             </div>
         </div>
@@ -108,11 +106,9 @@
 
 @section Scripts {
     <script>
-        $('#saveQRCodeOTP').on('click', () => $('#qRCodeOTPForm').submit());
-
-        $('#regenerateQRCodeOTP').on('click', async () => {
+        async function GetQRCodeOTP() {
             try {
-                const response = await axios.get('/Home/GetOTPQRCode');
+                const response = await axios.get('/GetQRCodeOTP');
                 const { oTPQRCode, oTPQRCodeSK } = response.data;
 
                 $('#qRCodeOTPModal img').attr('src', `data:image/png;base64,${oTPQRCode}`);
@@ -122,8 +118,17 @@
             } catch (error) {
                 console.error('Failed to regenerate QR code.', error);
             }
-        });
+        }
 
-        $('#copyQRCodeOTPSK').on('click', () => $('#qRCodeOTPSK').select().focus() && document.execCommand('copy'));
+        function SaveQRCodeOTP() {
+            $('#qRCodeOTPForm').submit();
+        }
+
+        function CopyQRCodeOTPSK() {
+            $('#qRCodeOTPSK').select().focus();
+            document.execCommand('copy');
+        }
+
+        GetQRCodeOTP();
     </script>
 }

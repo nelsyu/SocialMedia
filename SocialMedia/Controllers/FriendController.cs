@@ -6,56 +6,45 @@ using SocialMedia.Filters;
 
 namespace SocialMedia.Controllers
 {
+    [TypeFilter(typeof(AuthenticationFilter))]
     public class FriendController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
         private readonly IFriendService _friendService;
-        private readonly SocialMediaContext _dbContext;
 
-        public FriendController(ILogger<HomeController> logger, IFriendService friendService, SocialMediaContext dbContext)
+        public FriendController(IFriendService friendService)
         {
-            _logger = logger;
             _friendService = friendService;
-            _dbContext = dbContext;
         }
 
-        public IActionResult Index()
-        {
-            return View();
-        }
-
-        [Route("GetAllFriends")]
+        [HttpGet("GetAllFriends")]
         public async Task<IActionResult> GetAllFriends()
         {
             List<UserViewModel> usersVM = await _friendService.GetAllFriendsAsync();
             return PartialView("_FriendsPartial", usersVM);
         }
 
-        [TypeFilter(typeof(AuthenticationFilter))]
-        [Route("AddFriend")]
+        [HttpPost("AddFriend")]
         public async Task<IActionResult> AddFriend(int userId2)
         {
             await _friendService.AddFriend(userId2);
 
-            return Redirect($"/Profile?userId2={userId2}");
+            return Ok();
         }
 
-        [TypeFilter(typeof(AuthenticationFilter))]
-        [Route("AcceptFriendRequest")]
+        [HttpPost("AcceptFriendRequest")]
         public async Task<IActionResult> AcceptFriendRequest(int userId2)
         {
             await _friendService.AcceptFriendRequest(userId2);
 
-            return Redirect($"/Profile?userId2={userId2}");
+            return Ok();
         }
 
-        [TypeFilter(typeof(AuthenticationFilter))]
-        [Route("RejectFriendRequest")]
+        [HttpPost("RejectFriendRequest")]
         public async Task<IActionResult> RejectFriendRequest(int userId2)
         {
             await _friendService.RejectFriendRequest(userId2);
 
-            return Redirect($"/Profile?userId2={userId2}");
+            return Ok();
         }
     }
 }
