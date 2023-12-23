@@ -125,7 +125,7 @@
     <script>
         const vm = appGetPosts.mount('#myPosts');
 
-        function externalFunction() {
+        function callGetPosts() {
             vm.postsType = 'my';
             vm.userId = 0;
             vm.apiPath = '/GetPosts';
@@ -133,7 +133,7 @@
             vm.getPosts(vm.postsType, vm.userId, vm.apiPath, page);
         }
 
-        externalFunction();
+        callGetPosts();
     </script>
 }
 

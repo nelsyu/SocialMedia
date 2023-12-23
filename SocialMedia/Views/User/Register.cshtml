@@ -42,26 +42,26 @@
                 <div class="card-body">
                     <form asp-action="Register" method="post">
                         <div class="mb-3">
-                            <label asp-for="Email" class="form-label">Email</label>
-                            <input asp-for="Email" class="form-control" />
+                            <label for="Email" class="form-label">Email</label>
+                            <input type="email" id="email" name="Email" class="form-control" required />
                             <span asp-validation-for="Email" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="Username" class="form-label">Username</label>
-                            <input asp-for="Username" class="form-control" />
+                            <label for="Username" class="form-label">Username</label>
+                            <input type="text" id="username" name="Username" class="form-control" required />
                             <span asp-validation-for="Username" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="Password" class="form-label">Password</label>
-                            <input asp-for="Password" type="password" class="form-control" />
+                            <label for="Password" class="form-label">Password</label>
+                            <input type="password" id="password" name="Password" class="form-control" required />
                             <span asp-validation-for="Password" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="ConfirmPassword" class="form-label">Confirm Password</label>
-                            <input asp-for="ConfirmPassword" type="password" class="form-control" />
+                            <label for="ConfirmPassword" class="form-label">Confirm Password</label>
+                            <input type="password" id="confirmPassword" name="ConfirmPassword" class="form-control" required />
                             <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                         </div>
 

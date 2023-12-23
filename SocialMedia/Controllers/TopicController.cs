@@ -36,26 +36,19 @@ namespace SocialMedia.Controllers
             return View(topicsVM);
         }
 
-        public async Task<IActionResult> DetailTopic(int topicId, int currentPage = 1)
+        public async Task<IActionResult> DetailTopic(int topicId)
         {
-            if (currentPage < 1)
-                return RedirectToAction("Index", "Home");
-            int pageSize = 5;
-            List<PostViewModel> postsVM = await _postService.GetAllPostsAsync(topicId);
-            int totalPosts = postsVM.Count;
-            postsVM = await _postService.PagingAsync(postsVM, currentPage, pageSize);
-            int totalPages = (int)Math.Ceiling((double)totalPosts / pageSize);
+            ViewData[ParameterKeys.TopicId] = topicId;
 
-            PageViewModel pageVM = new()
-            {
-                CurrentPage = currentPage,
-                PageSize = pageSize,
-                TotalPages = totalPages
-            };
+            return View();
+        }
 
-            TempData["Id"] = topicId;
+        [HttpGet("GetTopics")]
+        public async Task<IActionResult> GetTopics()
+        {
+            List<TopicViewModel> topicsVM = await _topicService.GetAllTopicsAsync();
 
-            return View((postsVM, pageVM));
+            return Json(new { topicsVM });
         }
 
         [TypeFilter(typeof(AuthenticationFilter))]

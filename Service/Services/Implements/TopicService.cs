@@ -54,12 +54,11 @@ namespace Service.Services.Implements
                 if(postsEnt.Count > 0)
                 {
                     foreach (Post postEnt in postsEnt)
-                        postEnt.TopicId = 0;
+                        postEnt.TopicId = 1;
                 }
                 _dbContext.Remove(topicEnt);
                 await _dbContext.SaveChangesAsync();
             }
         }
-
     }
 }

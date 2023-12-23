@@ -6,7 +6,6 @@
         {
             Likes = new HashSet<LikeViewModel>();
             Replies = new HashSet<ReplyViewModel>();
-            Topics = new HashSet<TopicViewModel>();
         }
 
         public int Id { get; set; }
@@ -21,9 +20,5 @@
         public virtual UserViewModel? User { get; set; }
         public virtual ICollection<LikeViewModel> Likes { get; set; }
         public virtual ICollection<ReplyViewModel> Replies { get; set; }
-
-        #region My Property
-        public ICollection<TopicViewModel> Topics { get; set; }
-        #endregion My Property
     }
 }

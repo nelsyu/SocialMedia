@@ -1,8 +1,7 @@
 ﻿@{
     ViewData["Title"] = "DetailTopic";
 }
-@using Service.ViewModels
-@model (List<PostViewModel> postsVM, PageViewModel pageVM)
+@using Library.Constants
 
 <style>
     body {
@@ -95,7 +94,7 @@
     }
 </style>
 
-<div class="container">
+<div id="topicPosts" class="container">
     <h2>All Posts</h2>
     <table class="table">
         <thead>
@@ -107,36 +106,39 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var postVM in Model.postsVM)
-            {
-                <tr onclick="window.location.href='@Url.Action("DetailPost", "Post", new { postId = postVM.Id })';" style="cursor:pointer;">
-                    <td class="username">
-                        @(postVM.User?.Username ?? "Deleted User")
-                    </td>
-                    <td class="title">
-                        @postVM.Title
-                    </td>
-                    <td class="content">
-                        @postVM.Content
-                    </td>
-                    <td class="post-date">
-                        @postVM.CreateDate.ToString("yyyy-MM-dd HH:mm:ss")
-                    </td>
-                </tr>
-            }
-
+            <tr v-for="post in posts" :key="post.id" v-on:click="goToPostDetail(post.id)" style="cursor:pointer;">
+                <td class="username">{{ post.user ? post.user.username : 'Deleted User' }}</td>
+                <td class="title">{{ post.title }}</td>
+                <td class="content">{{ post.content }}</td>
+                <td class="post-date">{{ new Date(post.createDate).toLocaleString() }}</td>
+            </tr>
         </tbody>
     </table>
 
     <!-- Pagination Section -->
     <nav>
         <ul class="pagination">
-            @for (int i = 1; i <= Model.pageVM.TotalPages; i++)
-            {
-                <li class="page-item @(Model.pageVM.CurrentPage == i ? "active" : "")">
-                    <a class="page-link" href="?currentPage=@i&topicId=@TempData["Id"]">@i</a>
-                </li>
-            }
+            <li v-for="page in totalPages" :key="page" :class="{ 'page-item': true, 'active': page === currentPage }">
+                <button class="page-link" v-on:click="getPosts(postsType, topicId, apiPath, page)">{{ page }}</button>
+            </li>
         </ul>
     </nav>
 </div>
+
+@section scripts {
+    <script src="~/js/Views/Post/GetPosts.js" asp-append-version="true"></script>
+
+    <script>
+        const vm = appGetPosts.mount('#topicPosts');
+
+        function callGetPosts() {
+            vm.postsType = 'topic';
+            vm.topicId = @ViewData[ParameterKeys.TopicId];
+            vm.apiPath = '/GetPosts';
+            const page = 1;
+            vm.getPosts(vm.postsType, vm.topicId, vm.apiPath, page);
+        }
+
+        callGetPosts();
+    </script>
+}

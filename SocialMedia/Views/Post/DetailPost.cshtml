@@ -167,7 +167,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary btn-rounded" onclick="SubmitReply()">Submit Reply</button>
+                        <button type="button" class="btn btn-primary btn-rounded" onclick="SubmitReply(@Model.PostVM.Id)">Submit Reply</button>
                     </div>
                 </form>
             </div>
@@ -198,23 +198,6 @@
 
 @section Scripts{
     <script>
-        function SubmitReply() {
-            var formData = new FormData(document.getElementById('replyForm'));
-
-            axios.post('/AddReply', formData, {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                }
-            })
-                .then(function (response) {
-                    console.log(response);
-                    window.location.href = '/Post/DetailPost?postId=' + formData.get('PostId');
-                })
-                .catch(function (error) {
-                    console.error(error);
-                });
-        }
-
         function DeletePost(postId) {
             axios.post('/DeletePost', { postId: postId }, {
                 headers: {
@@ -227,6 +210,23 @@
                 })
                 .catch(error => {
                     console.error('There was an error with the Axios request:', error);
+                });
+        }
+
+        function SubmitReply(postId) {
+            var formData = new FormData(document.getElementById('replyForm'));
+
+            axios.post('/AddReply', formData, {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                }
+            })
+                .then(function (response) {
+                    console.log(response);
+                    window.location.href = '/Post/DetailPost?postId=' + postId;
+                })
+                .catch(function (error) {
+                    console.error(error);
                 });
         }
     </script>

@@ -57,36 +57,30 @@
 <div class="form-container">
     <h2>Create Post</h2>
 
-    <form asp-action="CreatePost" method="post" class="needs-validation" novalidate>
+    <form asp-action="CreatePost" method="post">
         <div class="mb-3">
             <label for="topicId" class="form-label">Topic:</label>
-            @if (Model.Topics != null && Model.Topics.Any())
-            {
-                <select id="topicId" name="TopicId" class="form-select" required>
-                    <option value="" disabled selected>Select a topic</option>
-                    @foreach (var topic in Model.Topics)
-                    {
-                        <option value="@topic.Id">@topic.Title</option>
-                    }
+            <div id="allTopics">
+                <select v-model="selectedTopicId" class="form-select">
+                    <option v-if="topics.length === 0" value="" disabled>No Topics available.</option>
+                    <option v-if="topics.length > 0" value="" disabled>Select a topic</option>
+                    <option v-if="topics.length > 0" v-for="topic in topics" :key="topic.id" :value="topic.id">{{ topic.title }}</option>
                 </select>
-                <div class="invalid-feedback">Please select a topic.</div>
-            }
-            else
-            {
-                <p class="text-muted">No Topics available.</p>
-            }
+                <input type="hidden" name="TopicId" v-model="selectedTopicId" required>
+                <span asp-validation-for="TopicId" class="text-danger"></span>
+            </div>
         </div>
 
         <div class="mb-3">
             <label for="title" class="form-label">Title:</label>
-            <input type="text" id="title" name="Title" class="form-control" required />
-            <div class="invalid-feedback">Please provide a title.</div>
+            <input type="text" id="title" name="Title" value="@Model.Title" class="form-control" required>
+            <span asp-validation-for="Title" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
             <label for="content" class="form-label">Content:</label>
-            <textarea id="content" name="Content" class="form-control" rows="10" required></textarea>
-            <div class="invalid-feedback">Please provide content.</div>
+            <textarea id="content" name="Content" class="form-control" rows="10" required>@Model.Content</textarea>
+            <span asp-validation-for="Content" class="text-danger"></span>
         </div>
 
         <button type="submit" class="btn btn-primary">Confirm</button>
@@ -95,4 +89,15 @@
 
 @section Scripts {
     <script src="~/js/Views/Post/AfterSubmit.js" asp-append-version="true"></script>
+    <script src="~/js/Views/Topic/GetTopics.js" asp-append-version="true"></script>
+
+    <script>
+        const vm = appGetTopics.mount('#allTopics');
+
+        function callGetTopics() {
+            vm.getTopics();
+        }
+
+        callGetTopics();
+    </script>
 }

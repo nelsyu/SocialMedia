@@ -59,38 +59,33 @@
 
         <div class="mb-3">
             <label for="topicId" class="form-label">Topic:</label>
-            @if (Model.Topics != null)
-            {
-                <select id="topicId" name="TopicId" class="form-select">
-                    <option value="" disabled>Select a topic</option>
-                    @foreach (var topic in Model.Topics)
-                    {
-                        <option value="@topic.Id" selected="@(Model.TopicId == topic.Id)">@topic.Title</option>
-                    }
+            <div id="allTopics">
+                <select v-model="selectedTopicId" class="form-select">
+                    <option v-if="topics.length === 0" value="" disabled>No Topics available.</option>
+                    <option v-if="topics.length > 0" value="" disabled>Select a topic</option>
+                    <option v-if="topics.length > 0" v-for="topic in topics" :key="topic.id" :value="topic.id">{{ topic.title }}</option>
                 </select>
-            }
-            else
-            {
-                <p>No Topics available.</p>
-            }
+                <input type="hidden" name="TopicId" v-model="selectedTopicId" />
+                <span asp-validation-for="TopicId" class="text-danger"></span>
+            </div>
         </div>
 
         <div class="mb-3">
             <label for="title" class="form-label">Title:</label>
             <input type="text" id="title" name="Title" value="@Model.Title" class="form-control" required />
-            <div class="invalid-feedback">Please provide a title.</div>
+            <span asp-validation-for="Title" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
             <label for="content" class="form-label">Content:</label>
             <textarea id="content" name="Content" class="form-control" rows="10" required>@Model.Content</textarea>
-            <div class="invalid-feedback">Please provide content.</div>
+            <span asp-validation-for="Content" class="text-danger"></span>
         </div>
 
 
         <div class="mb-3">
-            <label for="lastEditDate" class="form-label">Last Edit Date:</label>
-            <input type="text" id="lastEditDate" name="LastEditDate" value="@Model.EditDate" class="form-control" readonly />
+            <label for="editDate" class="form-label">Edit Date:</label>
+            <input type="text" id="editDate" name="EditDate" value="@Model.EditDate" class="form-control" readonly />
         </div>
 
         <button type="submit" class="btn btn-primary">Confirm</button>
@@ -99,4 +94,17 @@
 
 @section Scripts {
     <script src="~/js/Views/Post/AfterSubmit.js" asp-append-version="true"></script>
+    <script src="~/js/Views/Topic/GetTopics.js" asp-append-version="true"></script>
+
+    <script>
+        const vm = appGetTopics.mount('#allTopics');
+
+        function callGetTopics() {
+            vm.selectedTopicId = @Model.TopicId;
+            vm.getTopics();
+        }
+
+        callGetTopics();
+    </script>
+
 }

@@ -10,12 +10,6 @@ namespace Service.ViewModels
         public string Password { get; set; } = null!;
         public string? Totp { get; set; }
 
-        #region My property
-        public string ConfirmPassword { get; set; } = null!;
-        public string UId { get; set; } = null!;
-        public string CaptchaCode { get; set; } = null!;
-        #endregion
-
         public virtual ICollection<FriendshipViewModel> FriendshipUserId1Navigations { get; set; } = new List<FriendshipViewModel>();
         public virtual ICollection<FriendshipViewModel> FriendshipUserId2Navigations { get; set; } = new List<FriendshipViewModel>();
         public virtual ICollection<LikeViewModel> Likes { get; set; } = new HashSet<LikeViewModel>();
@@ -25,5 +19,11 @@ namespace Service.ViewModels
         public virtual ICollection<ReplyViewModel> Replies { get; set; } = new HashSet<ReplyViewModel>();
         public virtual ICollection<TopicViewModel> Topics { get; set; } = new HashSet<TopicViewModel>();
         public virtual ICollection<RoleViewModel> Roles { get; set; } = new List<RoleViewModel>();
+
+        #region My property
+        public string ConfirmPassword { get; set; } = null!;
+        public string UId { get; set; } = null!;
+        public string CaptchaCode { get; set; } = null!;
+        #endregion
     }
 }

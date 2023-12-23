@@ -51,26 +51,25 @@
                 <div class="card-body">
                     <form asp-action="Login" method="post">
                         <div class="mb-3">
-                            <label asp-for="Email" class="form-label">Email</label>
-                            <input asp-for="Email" class="form-control" />
+                            <label for="Email" class="form-label">Email</label>
+                            <input type="email" id="email" name="Email" class="form-control" required />
                             <span asp-validation-for="Email" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="Password" class="form-label">Password</label>
-                            <input asp-for="Password" type="password" class="form-control" />
+                            <label for="Password" class="form-label">Password</label>
+                            <input type="password" id="password" name="Password" class="form-control" required />
                             <span asp-validation-for="Password" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="CaptchaCode" class="form-label">Confirm Captcha</label>
-
+                            <label for="CaptchaCode" class="form-label">Captcha Code</label>
                             <div class="input-group">
-                                <input type="hidden" asp-for="UId" />
-                                <input asp-for="CaptchaCode" class="form-control" />
+                                <input type="hidden" id="uId" name="UId" />
+                                <input type="text" id="captchaCode" name="CaptchaCode" class="form-control" required />
                                 <img id="captchaImage" alt="Captcha Image" class="captcha-image rounded" style="max-width: 100px; height: auto;" />
+                                <span asp-validation-for="CaptchaCode" class="text-danger"></span>
                             </div>
-                            <span asp-validation-for="CaptchaCode" class="text-danger"></span>
                         </div>
 
                         <div class="d-flex justify-content-between">

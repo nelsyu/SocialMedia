@@ -111,38 +111,44 @@ namespace SocialMedia.Controllers
         [HttpPost]
         public async Task<IActionResult> Register(UserViewModel userVM)
         {
-            List<string> result = await _validationService.ValidateRegisterAsync(userVM);
+            List<(string key, string errorMessage)> errors = await _validationService.ValidateRegisterAsync(userVM);
 
-            if (result[0] != "")
-            {
-                ModelState.AddModelError(result[0], result[1]);
-
-                return View(userVM);
-            }
-            else
+            if (errors.Count == 0)
             {
                 await _userService.RegisterAsync(userVM);
 
                 return RedirectToAction("Index", "Home");
+            }
+            else
+            {
+                foreach (var (key, errorMessage) in errors)
+                {
+                    ModelState.AddModelError(key, errorMessage);
+                }
+
+                return View(userVM);
             }
         }
 
         [HttpPost]
         public async Task<IActionResult> Login(UserViewModel userVM)
         {
-            List<string> result = await _validationService.ValidateLoginAsync(userVM);
+            List<(string key, string errorMessage)> errors = await _validationService.ValidateLoginAsync(userVM);
 
-            if (result[0] != "")
-            {
-                ModelState.AddModelError(result[0], result[1]);
-
-                return View(userVM);
-            }
-            else
+            if (errors.Count == 0)
             {
                 int userId = await _userService.FindUserId(userVM.Email);
 
                 return RedirectToAction("ValidateQRCodeOTP", "User", new { userId });
+            }
+            else
+            {
+                foreach (var (key, errorMessage) in errors)
+                {
+                    ModelState.AddModelError(key, errorMessage);
+                }
+
+                return View(userVM);
             }
         }
 

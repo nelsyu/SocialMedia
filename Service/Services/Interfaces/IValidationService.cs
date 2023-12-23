@@ -4,8 +4,8 @@ namespace Service.Services.Interfaces
 {
     public interface IValidationService
     {
-        Task<List<string>> ValidateRegisterAsync(UserViewModel userVM);
-        Task<List<string>> ValidateLoginAsync(UserViewModel userVM);
-        Task<List<string>> ValidatePostAsync(PostViewModel postVM);
+        Task<List<(string key, string errorMessage)>> ValidateRegisterAsync(UserViewModel userVM);
+        Task<List<(string key, string errorMessage)>> ValidateLoginAsync(UserViewModel userVM);
+        Task<List<(string key, string errorMessage)>> ValidatePostAsync(PostViewModel postVM);
     }
 }

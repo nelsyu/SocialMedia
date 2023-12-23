@@ -18,100 +18,85 @@ namespace Service.Services.Implements
             _captcha = captcha;
         }
 
-        public async Task<List<string>> ValidateRegisterAsync(UserViewModel userVM)
+        public async Task<List<(string key, string errorMessage)>> ValidateRegisterAsync(UserViewModel userVM)
         {
             string IsEmailValidate = await IsValidEmailAsync(userVM.Email);
             bool IsUsernameInvalid = await _dbContext.Users.AnyAsync(u => u.Username == userVM.Username) || userVM.Username == null;
             bool IsPasswordInvalid = string.IsNullOrEmpty(userVM.Password);
             bool IsConfirmPasswordInvalid = string.IsNullOrEmpty(userVM.ConfirmPassword) || userVM.Password != userVM.ConfirmPassword;
-            List<string> result = new();
+            List<(string key, string errorMessage)> errors = new();
 
             if (IsEmailValidate != "true")
             {
-                result.Add("Email");
-                result.Add(IsEmailValidate);
+                errors.Add(("Email", IsEmailValidate));
             }
-            else if (IsUsernameInvalid)
-            {
-                result.Add("Username");
-                result.Add("Username is invalid.");
-            }
-            else if (IsPasswordInvalid)
-            {
-                result.Add("Password");
-                result.Add("Password is invalid.");
-            }
-            else if (IsConfirmPasswordInvalid)
-            {
-                result.Add("ConfirmPassword");
-                result.Add("ConfirmPassword is invalid.");
-            }
-            else
-                result.Add("");
 
-            return result;
+            if (IsUsernameInvalid)
+            {
+                errors.Add(("Username", "Username is invalid."));
+            }
+
+            if (IsPasswordInvalid)
+            {
+                errors.Add(("Password", "Password is invalid."));
+            }
+
+            if (IsConfirmPasswordInvalid)
+            {
+                errors.Add(("ConfirmPassword", "ConfirmPassword is invalid."));
+            }
+
+            return errors;
         }
 
-        public async Task<List<string>> ValidateLoginAsync(UserViewModel userVM)
+        public async Task<List<(string key, string errorMessage)>> ValidateLoginAsync(UserViewModel userVM)
         {
             bool IsEmailInvalid = !await _dbContext.Users.AnyAsync(u => u.Email == userVM.Email);
             bool IsPasswordInvalid = !await _dbContext.Users.AnyAsync(u => u.Email == userVM.Email && u.Password == userVM.Password);
             bool IsConfirmCaptchaInvalid = !_captcha.Validate(userVM.UId, userVM.CaptchaCode);
-
-            List<string> result = new();
+            List<(string key, string errorMessage)> errors = new();
 
             if (IsEmailInvalid)
             {
-                result.Add("Email");
-                result.Add("Email is invalid.");
+                errors.Add(("Email", "Email is invalid."));
             }
-            else if (IsPasswordInvalid)
+            
+            if (IsPasswordInvalid)
             {
-                result.Add("Password");
-                result.Add("Password is invalid.");
+                errors.Add(("Password", "Password is invalid."));
             }
-            else if (IsConfirmCaptchaInvalid)
+            
+            if (IsConfirmCaptchaInvalid)
             {
-                result.Add("Captcha");
-                result.Add("Captcha is invalid");
-            }
-            else
-            {
-                result.Add("");
+                errors.Add(("CaptchaCode", "Captcha Code is invalid"));
             }
 
-            return result;
+            return errors;
         }
 
-        public async Task<List<string>> ValidatePostAsync(PostViewModel postVM)
+        public async Task<List<(string key, string errorMessage)>> ValidatePostAsync(PostViewModel postVM)
         {
             bool isTopicIdInvalid = !await _dbContext.Topics.AnyAsync(t => t.Id == postVM.TopicId);
             bool isTitleInvalid = string.IsNullOrEmpty(postVM.Title);
             bool isContentInvalid = string.IsNullOrEmpty(postVM.Content);
-
-            List<string> result = new();
+            List<(string key, string errorMessage)> errors = new();
 
             if (isTopicIdInvalid)
             {
-                result.Add("Id");
-                result.Add("Id is invalid.");
+                errors.Add(("Id", "Id is invalid."));
             }
-            else if (isTitleInvalid)
+            
+            if (isTitleInvalid)
             {
-                result.Add("Title");
-                result.Add("Title is invalid.");
+                errors.Add(("Title", "Title is invalid."));
             }
-            else if (isContentInvalid)
+            
+            if (isContentInvalid)
             {
-                result.Add("Content");
-                result.Add("Content is invalid");
-            }
-            else
-            {
-                result.Add("");
+                errors.Add(("Content", "Content is invalid"));
             }
 
-            return result;
+            return errors;
         }
 
         #region private methods
