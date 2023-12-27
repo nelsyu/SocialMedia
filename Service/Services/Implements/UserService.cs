@@ -38,7 +38,7 @@ namespace Service.Services.Implements
         {
             UserLoggedIn? userLoggedIn = await _dbContext.Users
                 .Where(u => u.Id == userId)
-                .Select(u => new UserLoggedIn { UserId = u.Id, Username = u.Username, Email = u.Email })
+                .Select(u => new UserLoggedIn { UserId = u.Id, Username = u.Username, Email = u.Email, RolesId = u.Roles.Select(r => r.Id).ToList() })
                 .FirstOrDefaultAsync();
 
             if (userLoggedIn != null)
@@ -142,23 +142,6 @@ namespace Service.Services.Implements
             await Task.CompletedTask;
 
             return (image, secretKey);
-        }
-
-        public async Task<bool> FindRole(int? userId, int roleId)
-        {
-            var userEnt = await _dbContext.Users
-                .Where(u => u.Id == userId)
-                .Include(u => u.Roles)
-                .FirstOrDefaultAsync();
-
-            if (userEnt == null)
-            {
-                return false;
-            }
-
-            bool isRoleExists = userEnt.Roles.Any(r => r.Id == roleId);
-
-            return isRoleExists;
         }
 
         public async Task<int> FindUserId(string userVMEmail)

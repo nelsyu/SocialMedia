@@ -5,7 +5,7 @@ namespace Service.Services.Interfaces
     public interface ITopicService
     {
         Task<List<TopicViewModel>> GetAllTopicsAsync();
-        Task CreateTopicAsync(TopicViewModel topicVM, string title);
+        Task CreateTopicAsync(string title);
         Task DeleteTopicAsync(int topicId);
     }
 }

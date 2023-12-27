@@ -1,4 +1,4 @@
-﻿const appGetPosts = Vue.createApp({
+﻿const getPostsMixin = {
     data() {
         return {
             posts: [],
@@ -24,4 +24,6 @@
     },
     created() {
     }
-});
+};
+
+export default getPostsMixin;

@@ -121,18 +121,27 @@
 </div>
 
 @section scripts {
-    <script src="~/js/Views/Post/GetPosts.js" asp-append-version="true"></script>
-    <script>
-        const vm = appGetPosts.mount('#allPosts');
+    <script type="module">
+        import getPostsMixin from '/js/views/post/get-posts.js';
 
-        function callGetPosts() {
-            vm.postsType = 'all';
-            vm.userId = 0;
-            vm.apiPath = '/GetPosts';
-            const page = 1;
-            vm.getPosts(vm.postsType, vm.userId, vm.apiPath, page);
-        }
+        const appPosts = Vue.createApp({
+            mixins: [getPostsMixin],
+            data() {
+                return {
 
-        callGetPosts();
+                };
+            },
+            methods: {
+
+            },
+        });
+
+        const vm = appPosts.mount('#allPosts');
+
+        vm.postsType = 'all';
+        vm.userId = 0;
+        vm.apiPath = '/GetPosts';
+        const page = 1;
+        vm.getPosts(vm.postsType, vm.userId, vm.apiPath, page);
     </script>
 }

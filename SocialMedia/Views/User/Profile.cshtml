@@ -89,164 +89,176 @@
         width: 30%;
     }
 </style>
+<div id="profile">
 
-<div class="container">
-    <h2>
-        @TempData[ParameterKeys.Username2]
-    </h2>
-    @{
-        var friendshipStatus = TempData[ParameterKeys.FriendshipStatus];
-        var loggedInUserId = TempData[ParameterKeys.LoggedInUserId];
-        var loggedInUsername = TempData[ParameterKeys.LoggedInUsername];
-        var userId2 = TempData[ParameterKeys.UserId2];
+    <div class="container">
+        <h2>
+            @TempData[ParameterKeys.Username2]
+        </h2>
+        @{
+            var friendshipStatus = TempData[ParameterKeys.FriendshipStatus];
+            var loggedInUserId = TempData[ParameterKeys.LoggedInUserId];
+            var loggedInUsername = TempData[ParameterKeys.LoggedInUsername];
+            var userId2 = TempData[ParameterKeys.UserId2];
 
-        if (userId2 != null && (int)userId2 == 0)
-        {
-            <p>User not found.</p>
-        }
-        else if (loggedInUserId != null && userId2 != null && (int)loggedInUserId != (int)userId2)
-        {
-            if (friendshipStatus == null)
+            if (userId2 != null && (int)userId2 == 0)
             {
-                <button type="button" id="button" class="btn btn-primary add-friend" onclick="addFriend(@userId2)">
+                <p>User not found.</p>
+            }
+            else if (loggedInUserId != null && userId2 != null && (int)loggedInUserId != (int)userId2)
+            {
+                if (friendshipStatus == null)
+                {
+                    <button type="button" id="button" class="btn btn-primary add-friend" v-on:click="addFriend(userId2)">
                         Add Friend
                     </button>
-            }
-            else if ((int)friendshipStatus == 1)
-            {
-                    <div style="display: flex; justify-content: space-between;">
-                        <button type="button" id="button" class="btn btn-success">
-                            Friend
-                        </button>
-                        <button type="button" class="btn btn-danger unfriend" onclick="rejectFriendRequest(@userId2);">
-                            Unfriend
-                        </button>
-                    </div>
-            }
-            else if ((int)friendshipStatus == 2)
-            {
-                <button type="button" id="button" class="btn btn-primary pending" onclick="rejectFriendRequest(@userId2);">
-                    Pending
-                </button>
-            }
-            else if ((int)friendshipStatus == 3)
-            {
-                    <div style="display: flex; justify-content: space-between;">
-                        <button type="button" id="button" class="btn btn-success confirm" onclick="acceptFriendRequest(@userId2)">
-                            Accept
-                        </button>
-                        <button type="button" class="btn btn-danger deny" onclick="rejectFriendRequest(@userId2);">
-                            Reject
-                        </button>
-                    </div>
+                }
+                else if ((int)friendshipStatus == 1)
+                {
+                        <div style="display: flex; justify-content: space-between;">
+                            <button type="button" id="button" class="btn btn-success">
+                                Friend
+                            </button>
+                            <button type="button" class="btn btn-danger unfriend" v-on:click="rejectFriendRequest(@userId2);">
+                                Unfriend
+                            </button>
+                        </div>
+                }
+                else if ((int)friendshipStatus == 2)
+                {
+                    <button type="button" id="button" class="btn btn-primary pending" v-on:click="rejectFriendRequest(@userId2);">
+                        Pending
+                    </button>
+                }
+                else if ((int)friendshipStatus == 3)
+                {
+                        <div style="display: flex; justify-content: space-between;">
+                            <button type="button" id="button" class="btn btn-success confirm" v-on:click="acceptFriendRequest(@userId2)">
+                                Accept
+                            </button>
+                            <button type="button" class="btn btn-danger deny" v-on:click="rejectFriendRequest(@userId2);">
+                                Reject
+                            </button>
+                        </div>
+                }
             }
         }
-    }
-</div>
+    </div>
 
-<div id="userPosts" class="container">
-    <table class="table">
-        <thead>
-            <tr>
-                <th scope="col" class="username">Username</th>
-                <th scope="col" class="title">Title</th>
-                <th scope="col" class="content">Content</th>
-                <th scope="col" class="post-date">Post Date</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr v-for="post in posts" :key="post.id" v-on:click="goToPostDetail(post.id)" style="cursor:pointer;">
-                <td class="username">{{ post.user ? post.user.username : 'Deleted User' }}</td>
-                <td class="title">{{ post.title }}</td>
-                <td class="content">{{ post.content }}</td>
-                <td class="post-date">{{ new Date(post.createDate).toLocaleString() }}</td>
-            </tr>
-        </tbody>
-    </table>
+    <div id="userPosts" class="container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col" class="username">Username</th>
+                    <th scope="col" class="title">Title</th>
+                    <th scope="col" class="content">Content</th>
+                    <th scope="col" class="post-date">Post Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="post in posts" :key="post.id" v-on:click="goToPostDetail(post.id)" style="cursor:pointer;">
+                    <td class="username">{{ post.user ? post.user.username : 'Deleted User' }}</td>
+                    <td class="title">{{ post.title }}</td>
+                    <td class="content">{{ post.content }}</td>
+                    <td class="post-date">{{ new Date(post.createDate).toLocaleString() }}</td>
+                </tr>
+            </tbody>
+        </table>
 
-    <!-- Pagination Section -->
-    <nav>
-        <ul class="pagination">
-            <li v-for="page in totalPages" :key="page" :class="{ 'page-item': true, 'active': page === currentPage }">
-                <button class="page-link" v-on:click="getPosts(postsType, userId, apiPath, page)">{{ page }}</button>
-            </li>
-        </ul>
-    </nav>
+        <nav>
+            <ul class="pagination">
+                <li v-for="page in totalPages" :key="page" :class="{ 'page-item': true, 'active': page === currentPage }">
+                    <button class="page-link" v-on:click="getPosts(postsType, userId, apiPath, page)">{{ page }}</button>
+                </li>
+            </ul>
+        </nav>
+    </div>
 </div>
 
 <script src="~/js/signalr/dist/browser/signalr.js"></script>
 @section Scripts {
-    <script src="~/js/Views/Post/GetPosts.js" asp-append-version="true"></script>
-    <script>
-        const vm = appGetPosts.mount('#userPosts');
-
-        function callGetPosts() {
-            vm.postsType = 'user';
-            vm.userId = @userId2;
-            vm.apiPath = '/GetPosts';
-            const page = 1;
-            vm.getPosts(vm.postsType, vm.userId, vm.apiPath, page);
-        }
-
-        callGetPosts();
+    <script type="module">
+        import getUserLoggedInMixin from '/js/views/user/get-user-logged-in.js';
+        import getPostsMixin from '/js/views/post/get-posts.js';
 
         var groupId = "@userId2";
         var userId2 = @userId2;
         var message = "";
 
-        function addFriend(userId2) {
-            message = "@loggedInUsername want to be your friend!";
-            connection.invoke("DirectMessage", groupId, userId2, message).catch(function (err) {
-                console.error(err.toString());
-            });
+        const appPosts = Vue.createApp({
+            mixins: [getUserLoggedInMixin, getPostsMixin],
+            data() {
+                return {
+                    groupId: '@userId2',
+                    userId2: @userId2,
+                    message: ''
+                };
+            },
+            mounted() {
+                this.getUserLoggedIn();
+            },
+            methods: {
+                addFriend(userId2) {
+                    message = "@loggedInUsername want to be your friend!";
+                    connection.invoke("DirectMessage", groupId, userId2, message).catch(function (err) {
+                        console.error(err.toString());
+                    });
 
-            axios.post('/AddFriend', { userId2: userId2 }, {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                }
-            })
-                .then(response => {
-                    console.log(response.data);
-                    window.location.href = '/Profile?userId2=' + userId2;
-                })
-                .catch(error => {
-                    console.error('There was an error with the Axios request:', error);
-                });
-        }
+                    axios.post('/AddFriend', { userId2: userId2 }, {
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        }
+                    })
+                        .then(response => {
+                            console.log(response.data);
+                            window.location.href = '/Profile?userId2=' + userId2;
+                        })
+                        .catch(error => {
+                            console.error('There was an error with the Axios request:', error);
+                        });
+                },
+                acceptFriendRequest(userId2) {
+                    message = "@loggedInUsername and you are friends now!"
+                    connection.invoke("DirectMessage", groupId, userId2, message).catch(function (err) {
+                        return console.error(err.toString());
+                    });
 
-        function acceptFriendRequest(userId2) {
-            message = "@loggedInUsername and you are friends now!"
-            connection.invoke("DirectMessage", groupId, userId2, message).catch(function (err) {
-                return console.error(err.toString());
-            });
+                    axios.post('/AcceptFriendRequest', { userId2: userId2 }, {
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        }
+                    })
+                        .then(response => {
+                            console.log(response.data);
+                            window.location.href = '/Profile?userId2=' + userId2;
+                        })
+                        .catch(error => {
+                            console.error('There was an error with the Axios request:', error);
+                        });
+                },
+                rejectFriendRequest(userId2) {
+                    axios.post('/RejectFriendRequest', { userId2: userId2 }, {
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        }
+                    })
+                        .then(response => {
+                            console.log(response.data);
+                            window.location.href = '/Profile?userId2=' + userId2;
+                        })
+                        .catch(error => {
+                            console.error('There was an error with the Axios request:', error);
+                        });
+                },
+            },
+        });
 
-            axios.post('/AcceptFriendRequest', { userId2: userId2 }, {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                }
-            })
-                .then(response => {
-                    console.log(response.data);
-                    window.location.href = '/Profile?userId2=' + userId2;
-                })
-                .catch(error => {
-                    console.error('There was an error with the Axios request:', error);
-                });
-        }
+        const vm = appPosts.mount('#profile');
 
-        function rejectFriendRequest(userId2) {
-            axios.post('/RejectFriendRequest', { userId2: userId2 }, {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                }
-            })
-                .then(response => {
-                    console.log(response.data);
-                    window.location.href = '/Profile?userId2=' + userId2;
-                })
-                .catch(error => {
-                    console.error('There was an error with the Axios request:', error);
-                });
-        }
+        vm.postsType = 'user';
+        vm.userId = @userId2;
+        vm.apiPath = '/GetPosts';
+        const page = 1;
+        vm.getPosts(vm.postsType, vm.userId, vm.apiPath, page);
     </script>
 }

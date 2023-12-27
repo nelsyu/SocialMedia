@@ -109,21 +109,18 @@ namespace Service.Services.Implements
             }
         }
 
-        public async Task<int?> FriendshipStatus(int userId2)
+        public async Task<int?> FriendshipStatus(int userId, int userId2)
         {
             Friendship? friendshipEnt = null;
-            UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
 
-            if (sessionUserLoggedIn != null)
-                friendshipEnt = await _dbContext.Friendships
-                    .FirstOrDefaultAsync(f => (f.UserId1 == sessionUserLoggedIn.UserId && f.UserId2 == userId2));
+            friendshipEnt = await _dbContext.Friendships
+                .FirstOrDefaultAsync(f => (f.UserId1 == userId && f.UserId2 == userId2));
 
             if (friendshipEnt != null)
                 return friendshipEnt.FriendshipStatusId;
 
-            if (sessionUserLoggedIn != null)
-                friendshipEnt = await _dbContext.Friendships
-                    .FirstOrDefaultAsync(f => (f.UserId1 == userId2 && f.UserId2 == sessionUserLoggedIn.UserId));
+            friendshipEnt = await _dbContext.Friendships
+                .FirstOrDefaultAsync(f => (f.UserId1 == userId2 && f.UserId2 == userId));
 
             if (friendshipEnt != null)
             {

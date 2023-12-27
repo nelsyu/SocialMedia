@@ -1,8 +1,8 @@
-﻿const appGetTopics = Vue.createApp({
+﻿const getTopicsMixin = {
     data() {
         return {
             topics: [],
-            selectedTopicId: ''
+            selectedTopicId: null
         };
     },
     methods: {
@@ -15,4 +15,6 @@
     },
     created() {
     }
-});
+};
+
+export default getTopicsMixin;

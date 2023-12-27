@@ -13,7 +13,6 @@ namespace Service.Services.Interfaces
         Task<bool> HasQRCodeOTPSKAsync(int userId);
         Task<List<string>> VerifyQRCodeOTPAsync(int userId, string myQRCodeOTP);
         Task<(byte[], string)> GetOTPQRCodeAsync();
-        Task<bool> FindRole(int? userId, int roleId);
         Task<int> FindUserId(string userVMEmail);
         Task<List<NotificationViewModel>> GetNotificationAsync();
     }

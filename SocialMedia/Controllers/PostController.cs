@@ -1,13 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Library.Constants;
+using Microsoft.AspNetCore.Mvc;
 using Service.Services.Interfaces;
 using Service.ViewModels;
-using SocialMedia.Models;
 using SocialMedia.Filters;
-using System.Diagnostics;
-using Library.Extensions;
-using Library.Constants;
-using Data.Entities;
-using Service.Services.Implements;
 
 namespace SocialMedia.Controllers
 {
@@ -16,14 +11,12 @@ namespace SocialMedia.Controllers
         private readonly IPostService _postService;
         private readonly IReplyService _replyService;
         private readonly IValidationService _validationService;
-        private readonly ISession? _session;
 
-        public PostController(IPostService postService, IReplyService replyService, IValidationService validationService, IHttpContextAccessor httpContextAccessor)
+        public PostController(IPostService postService, IReplyService replyService, IValidationService validationService)
         {
             _postService = postService;
             _replyService = replyService;
             _validationService = validationService;
-            _session = httpContextAccessor.HttpContext?.Session;
         }
 
         [TypeFilter(typeof(AuthenticationFilter))]
@@ -40,6 +33,7 @@ namespace SocialMedia.Controllers
             return View(postVM);
         }
 
+        [TypeFilter(typeof(AuthenticationFilter))]
         [HttpPost]
         public async Task<IActionResult> CreatePost(PostViewModel postVM)
         {
@@ -63,25 +57,6 @@ namespace SocialMedia.Controllers
         }
 
         [TypeFilter(typeof(AuthenticationFilter))]
-        [HttpPost("DeletePost")]
-        public async Task<IActionResult> DeletePost(int postId)
-        {
-            await _postService.DeletePostAsync(postId);
-
-            return Ok();
-        }
-
-        public async Task<IActionResult> DetailPost(int postId)
-        {
-            UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
-            TempData[ParameterKeys.LoggedInUsername] = sessionUserLoggedIn?.Username;
-            PostViewModel postVM = await _postService.GetPostAsync(postId);
-            ReplyViewModel replyVM = new();
-            
-            return View((postVM, replyVM));
-        }
-
-        [TypeFilter(typeof(AuthenticationFilter))]
         public async Task<IActionResult> EditPost(int postId)
         {
             PostViewModel postVM = await _postService.GetPostAsync(postId);
@@ -89,6 +64,7 @@ namespace SocialMedia.Controllers
             return View(postVM);
         }
 
+        [TypeFilter(typeof(AuthenticationFilter))]
         [HttpPost]
         public async Task<IActionResult> EditPost(PostViewModel postVM, int postId)
         {
@@ -98,7 +74,7 @@ namespace SocialMedia.Controllers
             {
                 await _postService.UpdatePostAsync(postVM, postId);
 
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("DetailPost", "Post", new { postId });
             }
             else
             {
@@ -109,6 +85,22 @@ namespace SocialMedia.Controllers
 
                 return View(postVM);
             }
+        }
+
+        public async Task<IActionResult> DetailPost(int postId)
+        {
+            ViewData[ParameterKeys.PostId] = postId;
+
+            return View();
+        }
+
+        [TypeFilter(typeof(AuthenticationFilter))]
+        [HttpPost("DeletePost")]
+        public async Task<IActionResult> DeletePost(int postId)
+        {
+            await _postService.DeletePostAsync(postId);
+
+            return Ok();
         }
 
         [TypeFilter(typeof(AuthenticationFilter))]
@@ -143,6 +135,14 @@ namespace SocialMedia.Controllers
             int totalPages = (int)Math.Ceiling((double)totalPosts / pageSize);
 
             return Json(new { postsVM, currentPage, totalPages });
+        }
+
+        [HttpGet("GetPost")]
+        public async Task<IActionResult> GetPost(int postId)
+        {
+            PostViewModel postVM = await _postService.GetPostAsync(postId);
+
+            return Json(new {postVM });
         }
     }
 }

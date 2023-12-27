@@ -93,18 +93,27 @@
 </div>
 
 @section Scripts {
-    <script src="~/js/Views/Post/AfterSubmit.js" asp-append-version="true"></script>
-    <script src="~/js/Views/Topic/GetTopics.js" asp-append-version="true"></script>
+    <script src="~/js/views/post/after-submit.js" asp-append-version="true"></script>
 
-    <script>
-        const vm = appGetTopics.mount('#allTopics');
+    <script type="module">
+        import getTopicsMixin from '/js/views/topic/get-topics.js';
 
-        function callGetTopics() {
-            vm.selectedTopicId = @Model.TopicId;
-            vm.getTopics();
-        }
+        const appTopics = Vue.createApp({
+            mixins: [getTopicsMixin],
+            data() {
+                return {
+                    
+                };
+            },
+            methods: {
+                
+            },
+        });
 
-        callGetTopics();
+        const vm = appTopics.mount('#allTopics');
+
+        vm.selectedTopicId = @Model.TopicId;
+        vm.getTopics();
     </script>
 
 }

@@ -32,16 +32,22 @@ namespace Service.Services.Implements
             return topicsVM;
         }
 
-        public async Task CreateTopicAsync(TopicViewModel topicVM, string title)
+        public async Task CreateTopicAsync(string title)
         {
             UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
+            
             if (sessionUserLoggedIn != null)
-                topicVM.UserId = sessionUserLoggedIn.UserId;
-            topicVM.Title = title;
+            {
+                TopicViewModel topicVM = new()
+                {
+                    UserId = sessionUserLoggedIn.UserId,
+                    Title = title
+                };
 
-            var topicEnt = _mapper.Map<Topic>(topicVM);
-            await _dbContext.AddAsync(topicEnt);
-            await _dbContext.SaveChangesAsync();
+                var topicEnt = _mapper.Map<Topic>(topicVM);
+                await _dbContext.AddAsync(topicEnt);
+                await _dbContext.SaveChangesAsync();
+            }
         }
 
         public async Task DeleteTopicAsync(int topicId)

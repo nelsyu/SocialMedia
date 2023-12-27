@@ -126,19 +126,27 @@
 </div>
 
 @section scripts {
-    <script src="~/js/Views/Post/GetPosts.js" asp-append-version="true"></script>
+    <script type="module">
+        import getPostsMixin from '/js/views/post/get-posts.js';
 
-    <script>
-        const vm = appGetPosts.mount('#topicPosts');
+        const appPosts = Vue.createApp({
+            mixins: [getPostsMixin],
+            data() {
+                return {
+                    
+                };
+            },
+            methods: {
 
-        function callGetPosts() {
-            vm.postsType = 'topic';
-            vm.topicId = @ViewData[ParameterKeys.TopicId];
-            vm.apiPath = '/GetPosts';
-            const page = 1;
-            vm.getPosts(vm.postsType, vm.topicId, vm.apiPath, page);
-        }
+            },
+        });
 
-        callGetPosts();
+        const vm = appPosts.mount('#topicPosts');
+
+        vm.postsType = 'topic';
+        vm.topicId = @ViewData[ParameterKeys.TopicId];
+        vm.apiPath = '/GetPosts';
+        const page = 1;
+        vm.getPosts(vm.postsType, vm.topicId, vm.apiPath, page);
     </script>
 }
