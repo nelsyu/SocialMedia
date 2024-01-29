@@ -7,6 +7,7 @@ using Service.ViewModels;
 using System.Linq.Expressions;
 using Library.Extensions;
 using Library.Constants;
+using Library.Models;
 
 namespace Service.Services.Implements
 {

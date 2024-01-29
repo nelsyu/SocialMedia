@@ -1,7 +1,6 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Data.Entities;
 using Library.Config;
-using Library.Constants;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -9,10 +8,50 @@ using Service.Mapper;
 using Service.Services.Implements;
 using Service.Services.Interfaces;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Identity;
+using SocialMedia.Data;
+using SocialMedia.Areas.Identity.Data;
+using Library.Models;
+using Extensions.Models;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+#region Identity相關設定
+var connectionString = builder.Configuration.GetConnectionString("IdentityContextConnection") ?? throw new InvalidOperationException("Connection string 'IdentityContextConnection' not found.");
+
+builder.Services.AddDbContext<IdentityContext>(options =>
+    options.UseSqlServer(connectionString));
+
+builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+builder.Services.AddDefaultIdentity<SocialMediaUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<IdentityContext>();
+
+builder.Services.AddRazorPages();
+
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    // Password settings.
+    options.Password.RequireDigit = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequiredLength = 1;
+    options.Password.RequiredUniqueChars = 1;
+
+    // Lockout settings.
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.AllowedForNewUsers = true;
+
+    // User settings.
+    options.User.AllowedUserNameCharacters =
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+    options.User.RequireUniqueEmail = false;
+});
+#endregion
 
 // 將 Controllers 服務添加到容器，並配置 JSON 選項以忽略對象參考循環
 builder.Services.AddControllersWithViews().AddJsonOptions(option =>
@@ -33,11 +72,14 @@ builder.Services.AddSingleton(config);
 builder.Services.AddScoped<IMapper, Mapper>();
 
 #region 將介面和實現進行關聯，並將其添加到 ASP.NET Core 的 DI 容器中，使得在應用程序中能夠方便地使用依賴注入
+//builder.Services.AddTransient<IEmailSender, EmailSender>();
+//builder.Services.Configure<AuthMessageSenderOptions>(builder.Configuration);
+
+builder.Services.AddScoped<IFriendService, FriendService>();
 builder.Services.AddScoped<IPostService, PostService>();
-builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IReplyService, ReplyService>();
 builder.Services.AddScoped<ITopicService, TopicService>();
-builder.Services.AddScoped<IFriendService, FriendService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IValidationService, ValidationService>();
 #endregion
 
@@ -100,5 +142,7 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.UseCookiePolicy();
+
+app.MapRazorPages();
 
 app.Run();

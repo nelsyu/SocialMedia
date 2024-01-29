@@ -1,4 +1,5 @@
-﻿using Service.ViewModels;
+﻿using Library.Models;
+using Service.ViewModels;
 
 namespace Service.Services.Interfaces
 {
@@ -13,7 +14,8 @@ namespace Service.Services.Interfaces
         Task<bool> HasQRCodeOTPSKAsync(int userId);
         Task<List<string>> VerifyQRCodeOTPAsync(int userId, string myQRCodeOTP);
         Task<(byte[], string)> GetOTPQRCodeAsync();
-        Task<int> FindUserId(string userVMEmail);
+        Task<int> FindUserIdAsync(string userVMEmail);
         Task<List<NotificationViewModel>> GetNotificationAsync();
+        Task<UserLoggedIn> GetUserInfoAsync(int userId);
     }
 }

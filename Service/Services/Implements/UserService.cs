@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using Microsoft.IdentityModel.Tokens;
 using Library.Constants;
 using Lazy.Captcha.Core;
+using Library.Models;
 
 namespace Service.Services.Implements
 {
@@ -144,7 +145,7 @@ namespace Service.Services.Implements
             return (image, secretKey);
         }
 
-        public async Task<int> FindUserId(string userVMEmail)
+        public async Task<int> FindUserIdAsync(string userVMEmail)
         {
             int userIdEnt = await _dbContext.Users
                 .Where(u => u.Email == userVMEmail)
@@ -169,6 +170,16 @@ namespace Service.Services.Implements
             List<NotificationViewModel> notificationsVM = _mapper.Map<List<NotificationViewModel>>(notificationsEnt);
             
             return notificationsVM;
+        }
+
+        public async Task<UserLoggedIn> GetUserInfoAsync(int userId)
+        {
+            UserLoggedIn? userInfo = await _dbContext.Users
+                .Where(u => u.Id == userId)
+                .Select(u => new UserLoggedIn { UserId = u.Id, Username = u.Username, Email = u.Email, RolesId = u.Roles.Select(r => r.Id).ToList() })
+                .FirstOrDefaultAsync();
+
+            return userInfo ?? new UserLoggedIn();
         }
     }
 }

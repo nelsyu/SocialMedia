@@ -177,10 +177,10 @@
 
 @section Scripts{
     <script type="module">
-        import getUserLoggedInMixin from '/js/views/user/get-user-logged-in.js';
+        import getUserInfoMixin from '/js/views/user/get-user-info.js';
 
         const appDetailPost = Vue.createApp({
-            mixins: [getUserLoggedInMixin],
+            mixins: [getUserInfoMixin],
             data() {
                 return {
                     postVM: null

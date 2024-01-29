@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Data.Entities;
 using Library.Constants;
 using Lazy.Captcha.Core;
+using Library.Models;
 
 namespace SocialMedia.Controllers
 {
@@ -31,24 +32,12 @@ namespace SocialMedia.Controllers
             _captcha = captcha;
         }
 
-        [Route("Profile")]
         public async Task<IActionResult> Profile(int userId2)
         {
-            UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
-            TempData[ParameterKeys.LoggedInUserId] = sessionUserLoggedIn?.UserId;
-            TempData[ParameterKeys.LoggedInUsername] = sessionUserLoggedIn?.Username;
-
             TempData[ParameterKeys.UserId2] = await _dbContext.Users
                 .Where(u => u.Id == userId2)
                 .Select(u => u.Id)
                 .FirstOrDefaultAsync();
-            TempData[ParameterKeys.Username2] = await _dbContext.Users
-                .Where(u => u.Id == userId2)
-                .Select(u => u.Username)
-                .FirstOrDefaultAsync();
-
-            if(sessionUserLoggedIn != null)
-                TempData[ParameterKeys.FriendshipStatus] = await _friendService.FriendshipStatus(sessionUserLoggedIn.UserId, userId2);
 
             return View();
         }
@@ -98,7 +87,7 @@ namespace SocialMedia.Controllers
 
             if (errors.Count == 0)
             {
-                int userId = await _userService.FindUserId(userVM.Email);
+                int userId = await _userService.FindUserIdAsync(userVM.Email);
 
                 return RedirectToAction("ValidateQRCodeOTP", "User", new { userId });
             }
@@ -202,11 +191,24 @@ namespace SocialMedia.Controllers
             return PartialView("_NoticesPartial", notificationsVM);
         }
 
-        [HttpGet("GetUserLoggedIn")]
-        public async Task<IActionResult> GetUserLoggedIn()
+        [HttpGet("GetUserInfo")]
+        public async Task<IActionResult> GetUserInfo(int? userId)
         {
-            UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
-            return Json(new { sessionUserLoggedIn });
+            UserLoggedIn? userInfo = null;
+
+            if (userId == null)
+                userInfo = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
+            else
+                userInfo = await _userService.GetUserInfoAsync(userId.Value);
+            return Json(new { userInfo });
+        }
+
+        [HttpGet("GetFriendshipStatus")]
+        public async Task<IActionResult> GetFriendshipStatus(int userId, int userId2)
+        {
+            int? friendshipStatus = await _friendService.FriendshipStatus(userId, userId2);
+
+            return Json(new { friendshipStatus });
         }
     }
 }

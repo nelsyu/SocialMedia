@@ -6,6 +6,7 @@ using Service.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using Library.Extensions;
 using Library.Constants;
+using Library.Models;
 
 namespace Service.Services.Implements
 {

@@ -1,6 +1,6 @@
 ﻿using System.Data;
 
-namespace Library.Constants
+namespace Library.Models
 {
     public class UserLoggedIn
     {

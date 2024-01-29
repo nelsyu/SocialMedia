@@ -92,56 +92,36 @@
 <div id="profile">
 
     <div class="container">
-        <h2>
-            @TempData[ParameterKeys.Username2]
-        </h2>
         @{
-            var friendshipStatus = TempData[ParameterKeys.FriendshipStatus];
-            var loggedInUserId = TempData[ParameterKeys.LoggedInUserId];
-            var loggedInUsername = TempData[ParameterKeys.LoggedInUsername];
             var userId2 = TempData[ParameterKeys.UserId2];
 
-            if (userId2 != null && (int)userId2 == 0)
-            {
-                <p>User not found.</p>
-            }
-            else if (loggedInUserId != null && userId2 != null && (int)loggedInUserId != (int)userId2)
-            {
-                if (friendshipStatus == null)
-                {
-                    <button type="button" id="button" class="btn btn-primary add-friend" v-on:click="addFriend(userId2)">
-                        Add Friend
+            <h2 v-if="user2 !== null && user2.userId === 0">User not found.</h2>
+            <h2 v-if="user2 !== null && user2.userId !== 0">{{ user2.username }}</h2>
+            <template v-if="userLoggedIn !== null && user2 !== null && userLoggedIn.userId !== user2.userId">
+                {{ getFriendshipStatus(userLoggedIn.userId, user2.userId) }}
+                <button v-if="friendshipStatus === null" v-on:click="addFriend(user2.userId)" class="btn btn-primary add-friend">
+                    Add Friend
+                </button>
+                <div v-else-if="friendshipStatus === 1" style="display: flex; justify-content: space-between;">
+                    <button class="btn btn-success">
+                        Friend
                     </button>
-                }
-                else if ((int)friendshipStatus == 1)
-                {
-                        <div style="display: flex; justify-content: space-between;">
-                            <button type="button" id="button" class="btn btn-success">
-                                Friend
-                            </button>
-                            <button type="button" class="btn btn-danger unfriend" v-on:click="rejectFriendRequest(@userId2);">
-                                Unfriend
-                            </button>
-                        </div>
-                }
-                else if ((int)friendshipStatus == 2)
-                {
-                    <button type="button" id="button" class="btn btn-primary pending" v-on:click="rejectFriendRequest(@userId2);">
-                        Pending
+                    <button v-on:click="rejectFriendRequest(user2.userId)" class="btn btn-danger unfriend">
+                        Unfriend
                     </button>
-                }
-                else if ((int)friendshipStatus == 3)
-                {
-                        <div style="display: flex; justify-content: space-between;">
-                            <button type="button" id="button" class="btn btn-success confirm" v-on:click="acceptFriendRequest(@userId2)">
-                                Accept
-                            </button>
-                            <button type="button" class="btn btn-danger deny" v-on:click="rejectFriendRequest(@userId2);">
-                                Reject
-                            </button>
-                        </div>
-                }
-            }
+                </div>
+                <button v-else-if="friendshipStatus === 2" v-on:click="rejectFriendRequest(user2.userId)" class="btn btn-primary pending">
+                    Pending
+                </button>
+                <div v-else-if="friendshipStatus === 3" style="display: flex; justify-content: space-between;">
+                    <button v-on:click="acceptFriendRequest(user2.userId)" class="btn btn-success confirm">
+                        Accept
+                    </button>
+                    <button v-on:click="rejectFriendRequest(user2.userId)" class="btn btn-danger deny">
+                        Reject
+                    </button>
+                </div>
+            </template>
         }
     </div>
 
@@ -178,7 +158,7 @@
 <script src="~/js/signalr/dist/browser/signalr.js"></script>
 @section Scripts {
     <script type="module">
-        import getUserLoggedInMixin from '/js/views/user/get-user-logged-in.js';
+        import getUserInfoMixin from '/js/views/user/get-user-info.js';
         import getPostsMixin from '/js/views/post/get-posts.js';
 
         var groupId = "@userId2";
@@ -186,20 +166,22 @@
         var message = "";
 
         const appPosts = Vue.createApp({
-            mixins: [getUserLoggedInMixin, getPostsMixin],
+            mixins: [getUserInfoMixin, getPostsMixin],
             data() {
                 return {
                     groupId: '@userId2',
                     userId2: @userId2,
-                    message: ''
+                    message: '',
+                    friendshipStatus: null
                 };
             },
             mounted() {
                 this.getUserLoggedIn();
+                this.getUserInfo(userId2);
             },
             methods: {
                 addFriend(userId2) {
-                    message = "@loggedInUsername want to be your friend!";
+                    message = `${this.userLoggedIn.username} want to be your friend!`;
                     connection.invoke("DirectMessage", groupId, userId2, message).catch(function (err) {
                         console.error(err.toString());
                     });
@@ -218,7 +200,7 @@
                         });
                 },
                 acceptFriendRequest(userId2) {
-                    message = "@loggedInUsername and you are friends now!"
+                    message = `${this.userLoggedIn.username} and you are friends now!`
                     connection.invoke("DirectMessage", groupId, userId2, message).catch(function (err) {
                         return console.error(err.toString());
                     });
@@ -250,6 +232,15 @@
                             console.error('There was an error with the Axios request:', error);
                         });
                 },
+                getFriendshipStatus(userId, userId2) {
+                    axios.get('/GetFriendshipStatus', { params: { userId: userId, userId2: userId2 } })
+                        .then(response => {
+                            this.friendshipStatus = response.data.friendshipStatus;
+                        })
+                        .catch(error => {
+                            console.error('Error fetching friendshipStatus:', error);
+                        });
+                }
             },
         });
 
