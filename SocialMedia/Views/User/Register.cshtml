@@ -31,6 +31,14 @@
         border-radius: 15px;
         border: none;
     }
+
+    .btn-secondary {
+        background-color: orange;
+    }
+
+        .btn-secondary:hover {
+            background-color: darkorange;
+        }
 </style>
 
 <div class="container mt-5">
@@ -65,10 +73,42 @@
                             <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                         </div>
 
-                        <button type="submit" class="btn btn-primary btn-block">Register</button>
+                        <div class="mb-3">
+                            <label for="CaptchaCode" class="form-label">Captcha Code</label>
+                            <div class="input-group">
+                                <input type="hidden" id="uId" name="UId" />
+                                <input type="text" id="captchaCode" name="CaptchaCode" class="form-control" required />
+                                <img id="captchaImage" alt="Captcha Image" class="captcha-image rounded" style="max-width: 100px; height: auto;" />
+                                <span asp-validation-for="CaptchaCode" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <button type="submit" class="btn btn-primary btn-block">Register</button>
+                            <button type="button" class="btn btn-secondary btn-block mb-3" id="btnRefreshCaptcha" onclick="RefreshCaptcha()">Refresh Captcha</button>
+                        </div>
+
                     </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        function RefreshCaptcha() {
+            axios.get('/GenerateCaptcha')
+                .then(function (response) {
+                    $('#captchaImage').attr('src', `data:image/gif;base64,${response.data.img}`);
+                    $('[name="CaptchaCode"]').val("");
+                    $('[name="UId"]').val(response.data.uId);
+                })
+                .catch(function (error) {
+                    console.error('Error refreshing captcha:', error);
+                });
+        }
+
+        RefreshCaptcha();
+    </script>
+}

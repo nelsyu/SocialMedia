@@ -24,6 +24,7 @@ namespace Service.Services.Implements
             bool IsUsernameInvalid = await _dbContext.Users.AnyAsync(u => u.Username == userVM.Username) || userVM.Username == null;
             bool IsPasswordInvalid = string.IsNullOrEmpty(userVM.Password);
             bool IsConfirmPasswordInvalid = string.IsNullOrEmpty(userVM.ConfirmPassword) || userVM.Password != userVM.ConfirmPassword;
+            bool IsConfirmCaptchaInvalid = !_captcha.Validate(userVM.UId, userVM.CaptchaCode);
             List<(string key, string errorMessage)> errors = new();
 
             if (IsEmailValidate != "true")
@@ -44,6 +45,11 @@ namespace Service.Services.Implements
             if (IsConfirmPasswordInvalid)
             {
                 errors.Add(("ConfirmPassword", "ConfirmPassword is invalid."));
+            }
+
+            if (IsConfirmCaptchaInvalid)
+            {
+                errors.Add(("CaptchaCode", "Captcha Code is invalid"));
             }
 
             return errors;
