@@ -30,9 +30,41 @@
                 color: white !important;
             }
 
+            .card {
+                border: none;
+                border-radius: 30px;
+                overflow: hidden;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            .card-header {
+                border-radius: 15px 15px 15px 15px;
+            }
+
+            .form-label {
+                font-weight: bold;
+            }
+
+            .form-control {
+                border-radius: 15px 15px 15px 15px;
+            }
+
             button {
                 border-radius: 15px !important;
             }
+
+            .btn {
+                border-radius: 15px 15px 15px 15px;
+                border: none;
+            }
+
+            .btn-secondary {
+                background-color: orange;
+            }
+
+                .btn-secondary:hover {
+                    background-color: darkorange;
+                }
         </style>
     </head>
     <body>
@@ -47,7 +79,6 @@
                         <ul class="navbar-nav flex-grow-1">
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                                @* <partial name="_LoginPartial" /> *@
                             </li>
                             <li class="nav-item">
                                 <div class="nav-item dropdown">
@@ -61,6 +92,12 @@
                                     </div>
                                 </div>
                             </li>
+                        <form action="/User/Search" method="GET">
+                        <li style="display: flex;">
+                            <input style="margin-top: 10px; margin-bottom: 10px;" type="text" id="search" class="form-control" name="userName" required />
+                            <button style="margin-top: 10px; margin-bottom: 10px;" type="submit" class="btn btn-primary btn-block mb-3">Search</button>
+                            </li>
+                        </form>
                             @* <partial name="_LoginPartial" /> *@
                         </ul>
                         <ul class="navbar-nav ml-auto">

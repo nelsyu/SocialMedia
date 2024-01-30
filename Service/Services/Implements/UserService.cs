@@ -145,12 +145,24 @@ namespace Service.Services.Implements
             return (image, secretKey);
         }
 
-        public async Task<int> FindUserIdAsync(string userVMEmail)
+        public async Task<int> FindUserIdAsync(string userInfo)
         {
-            int userIdEnt = await _dbContext.Users
-                .Where(u => u.Email == userVMEmail)
-                .Select(u => u.Id)
-                .FirstOrDefaultAsync();
+            int userIdEnt = 0;
+
+            if (userInfo.Contains('@'))
+            {
+                userIdEnt = await _dbContext.Users
+                    .Where(u => u.Email == userInfo)
+                    .Select(u => u.Id)
+                    .FirstOrDefaultAsync();
+            }
+            else
+            {
+                userIdEnt = await _dbContext.Users
+                    .Where(u => u.Username == userInfo)
+                    .Select(u => u.Id)
+                    .FirstOrDefaultAsync();
+            }
 
             return userIdEnt;
         }

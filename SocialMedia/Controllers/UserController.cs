@@ -32,6 +32,14 @@ namespace SocialMedia.Controllers
             _captcha = captcha;
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Search(string userName)
+        {
+            int userId = await _userService.FindUserIdAsync(userName);
+
+            return RedirectToAction("Profile", "User", new { userId2 = userId });
+        }
+
         public async Task<IActionResult> Profile(int userId2)
         {
             TempData[ParameterKeys.UserId2] = await _dbContext.Users

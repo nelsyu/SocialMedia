@@ -14,7 +14,7 @@ namespace Service.Services.Interfaces
         Task<bool> HasQRCodeOTPSKAsync(int userId);
         Task<List<string>> VerifyQRCodeOTPAsync(int userId, string myQRCodeOTP);
         Task<(byte[], string)> GetOTPQRCodeAsync();
-        Task<int> FindUserIdAsync(string userVMEmail);
+        Task<int> FindUserIdAsync(string userInfo);
         Task<List<NotificationViewModel>> GetNotificationAsync();
         Task<UserLoggedIn> GetUserInfoAsync(int userId);
     }
