@@ -6,16 +6,16 @@ namespace SocialMedia.Filters
 {
     public class AuthenticationFilter : IAuthorizationFilter
     {
-        private readonly IUserService _userService;
+        private readonly HttpContext _httpContext;
 
-        public AuthenticationFilter(IUserService userService)
+        public AuthenticationFilter(IHttpContextAccessor httpContextAccessor)
         {
-            _userService = userService;
+            _httpContext = httpContextAccessor.HttpContext!;
         }
 
         public async void OnAuthorization(AuthorizationFilterContext context)
         {
-            if (!await _userService.IsLoginAsync())
+            if (!_httpContext!.User.Identity!.IsAuthenticated)
             {
                 context.Result = new RedirectToActionResult("Login", "User", null);
             }

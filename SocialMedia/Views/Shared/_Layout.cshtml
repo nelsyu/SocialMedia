@@ -98,11 +98,10 @@
                             <button style="margin-top: 10px; margin-bottom: 10px;" type="submit" class="btn btn-primary btn-block mb-3">Search</button>
                             </li>
                         </form>
-                            @* <partial name="_LoginPartial" /> *@
                         </ul>
                         <ul class="navbar-nav ml-auto">
                             
-                        @if (string.IsNullOrEmpty(TempData[ParameterKeys.LoggedInUsername]?.ToString()))
+                        @if (string.IsNullOrEmpty(TempData[ParameterKeys.UsernameLoggedIn]?.ToString()))
                             {
                                 <li class="nav-item">
                                     <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Login">Login</a>
@@ -134,7 +133,7 @@
                                 <li class="nav-item">
                                     <div class="nav-item dropdown">
                                         <a class="nav-link text-dark dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        @(TempData[ParameterKeys.LoggedInUsername]?.ToString())
+                                        @(TempData[ParameterKeys.UsernameLoggedIn]?.ToString())
                                         </a>
                                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                                             <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Logout">Logout</a>

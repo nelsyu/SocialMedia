@@ -1,4 +1,5 @@
 ﻿using Library.Constants;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.Services.Interfaces;
 using Service.ViewModels;
@@ -19,13 +20,13 @@ namespace SocialMedia.Controllers
             _validationService = validationService;
         }
 
-        [TypeFilter(typeof(AuthenticationFilter))]
+        [Authorize]
         public IActionResult MyPost()
         {
             return View();
         }
 
-        [TypeFilter(typeof(AuthenticationFilter))]
+        [Authorize]
         public async Task<IActionResult> CreatePost()
         {
             PostViewModel postVM = new();
@@ -33,7 +34,7 @@ namespace SocialMedia.Controllers
             return View(postVM);
         }
 
-        [TypeFilter(typeof(AuthenticationFilter))]
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreatePost(PostViewModel postVM)
         {
@@ -56,7 +57,7 @@ namespace SocialMedia.Controllers
             }
         }
 
-        [TypeFilter(typeof(AuthenticationFilter))]
+        [Authorize]
         public async Task<IActionResult> EditPost(int postId)
         {
             PostViewModel postVM = await _postService.GetPostAsync(postId);
@@ -64,7 +65,7 @@ namespace SocialMedia.Controllers
             return View(postVM);
         }
 
-        [TypeFilter(typeof(AuthenticationFilter))]
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> EditPost(PostViewModel postVM, int postId)
         {
@@ -94,7 +95,7 @@ namespace SocialMedia.Controllers
             return View();
         }
 
-        [TypeFilter(typeof(AuthenticationFilter))]
+        [Authorize]
         [HttpPost("DeletePost")]
         public async Task<IActionResult> DeletePost(int postId)
         {
@@ -103,7 +104,7 @@ namespace SocialMedia.Controllers
             return Ok();
         }
 
-        [TypeFilter(typeof(AuthenticationFilter))]
+        [Authorize]
         [HttpPost("AddReply")]
         public async Task<IActionResult> AddReply(ReplyViewModel replyVM)
         {

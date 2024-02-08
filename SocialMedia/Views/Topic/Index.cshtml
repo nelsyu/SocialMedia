@@ -87,18 +87,22 @@
             },
             methods: {
                 createTopic(title) {
-                    axios.post('/CreateTopic', { title: title }, {
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        }
-                    })
-                        .then(response => {
-                            console.log(response.data);
-                            this.getTopics();
+                    if (this.title.trim() !== '') {
+                        axios.post('/CreateTopic', { title: title }, {
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            }
                         })
-                        .catch(error => {
-                            console.error(error);
-                        });
+                            .then(response => {
+                                console.log(response.data);
+                                this.getTopics();
+                            })
+                            .catch(error => {
+                                console.error(error);
+                            });
+                    } else {
+                        alert('Please enter a topic.');
+                    }
                 },
                 deleteTopic(topicId) {
                     axios.post('/Topic/DeleteTopic', { topicId: topicId }, {
@@ -108,7 +112,11 @@
                     })
                         .then(response => {
                             console.log(response.data);
-                            this.getTopics();
+                            if (response.data.deleteSuccessful == false) {
+                                alert('This topic contains posts, so it cannot be deleted.');
+                            } else {
+                                this.getTopics();
+                            }
                         })
                         .catch(error => {
                             console.error(error);

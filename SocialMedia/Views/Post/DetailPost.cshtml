@@ -145,6 +145,9 @@
                             <input type="hidden" name="PostId" :value="postVM.id" />
                             <div class="form-group">
                                 <textarea class="form-control" id="replyContent" name="Content" rows="3" placeholder="Type your reply here..." required></textarea>
+                                <div class="invalid-feedback">
+                                    Please enter a reply.
+                                </div>
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -202,21 +205,31 @@
                         });
                 },
                 submitReply(postId) {
-                    var formData = new FormData(document.getElementById('replyForm'));
+                    var replyContent = document.getElementById('replyContent').value.trim();
 
-                    axios.post('/AddReply', formData, {
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
+                    if (replyContent !== '') {
+                        if (this.userLoggedIn !== null) {
+                            var formData = new FormData(document.getElementById('replyForm'));
+
+                            axios.post('/AddReply', formData, {
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                }
+                            })
+                                .then(response => {
+                                    console.log(response);
+                                    this.getPost();
+                                    document.getElementById('replyContent').value = '';
+                                })
+                                .catch(error => {
+                                    console.error(error);
+                                });
+                        } else {
+                            window.location.href = '/User/Login';
                         }
-                    })
-                        .then(response => {
-                            console.log(response);
-                            this.getPost();
-                            document.getElementById('replyContent').value = '';
-                        })
-                        .catch(error => {
-                            console.error(error);
-                        });
+                    } else {
+                        alert('Please enter a reply.');
+                    }
                 },
                 deletePost(postId) {
                     axios.post('/DeletePost', { postId: postId }, {

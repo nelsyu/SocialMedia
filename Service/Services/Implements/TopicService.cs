@@ -7,6 +7,7 @@ using Service.ViewModels;
 using Library.Extensions;
 using Library.Constants;
 using Library.Models;
+using System.Security.Claims;
 
 namespace Service.Services.Implements
 {
@@ -14,13 +15,13 @@ namespace Service.Services.Implements
     {
         private readonly SocialMediaContext _dbContext;
         private readonly IMapper _mapper;
-        private readonly ISession? _session;
+        private readonly HttpContext _httpContext;
 
         public TopicService(SocialMediaContext dbContext, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
             _dbContext = dbContext;
             _mapper = mapper;
-            _session = httpContextAccessor.HttpContext?.Session;
+            _httpContext = httpContextAccessor.HttpContext!;
         }
 
         public async Task<List<TopicViewModel>> GetAllTopicsAsync()
@@ -35,37 +36,32 @@ namespace Service.Services.Implements
 
         public async Task CreateTopicAsync(string title)
         {
-            UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
-            
-            if (sessionUserLoggedIn != null)
+            TopicViewModel topicVM = new()
             {
-                TopicViewModel topicVM = new()
-                {
-                    UserId = sessionUserLoggedIn.UserId,
-                    Title = title
-                };
+                UserId = Convert.ToInt32(_httpContext.User.FindFirstValue(ParameterKeys.UserIdLoggedIn)!),
+                Title = title
+            };
 
-                var topicEnt = _mapper.Map<Topic>(topicVM);
-                await _dbContext.AddAsync(topicEnt);
-                await _dbContext.SaveChangesAsync();
-            }
+            var topicEnt = _mapper.Map<Topic>(topicVM);
+            await _dbContext.AddAsync(topicEnt);
+            await _dbContext.SaveChangesAsync();
         }
 
-        public async Task DeleteTopicAsync(int topicId)
+        public async Task<bool> DeleteTopicAsync(int topicId)
         {
-            Topic? topicEnt = await _dbContext.Topics.FirstOrDefaultAsync(t => t.Id == topicId);
-            if (topicEnt != null)
-            {
-                List<Post> postsEnt = await _dbContext.Posts.Where(p => p.TopicId == topicId).ToListAsync();
+            List<Post> postsEnt = await _dbContext.Posts.Where(p => p.TopicId == topicId).ToListAsync();
                 
-                if(postsEnt.Count > 0)
-                {
-                    foreach (Post postEnt in postsEnt)
-                        postEnt.TopicId = 1;
-                }
-                _dbContext.Remove(topicEnt);
+            if(postsEnt.Count == 0)
+            {
+                Topic? topicEnt = await _dbContext.Topics.FirstOrDefaultAsync(t => t.Id == topicId);
+            
+                _dbContext.Remove(topicEnt!);
                 await _dbContext.SaveChangesAsync();
+
+                return true;
             }
+            else
+                return false;
         }
     }
 }

@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using Library.Constants;
 using Lazy.Captcha.Core;
 using Library.Models;
+using System.Security.Claims;
 
 namespace Service.Services.Implements
 {
@@ -19,13 +20,13 @@ namespace Service.Services.Implements
     {
         private readonly SocialMediaContext _dbContext;
         private readonly IMapper _mapper;
-        private readonly ISession? _session;
+        private readonly HttpContext _httpContext;
 
         public UserService(SocialMediaContext dbContext, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
             _dbContext = dbContext;
             _mapper = mapper;
-            _session = httpContextAccessor.HttpContext?.Session;
+            _httpContext = httpContextAccessor.HttpContext!;
         }
 
         public async Task RegisterAsync(UserViewModel userVM)
@@ -35,55 +36,23 @@ namespace Service.Services.Implements
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task LoginSuccessfulAsync(int? userId)
-        {
-            UserLoggedIn? userLoggedIn = await _dbContext.Users
-                .Where(u => u.Id == userId)
-                .Select(u => new UserLoggedIn { UserId = u.Id, Username = u.Username, Email = u.Email, RolesId = u.Roles.Select(r => r.Id).ToList() })
-                .FirstOrDefaultAsync();
-
-            if (userLoggedIn != null)
-                _session?.SetObject(ParameterKeys.UserLoggedIn, userLoggedIn);
-        }
-
-        public Task<bool> IsLoginAsync()
-        {
-            UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
-            bool isLogin = !string.IsNullOrEmpty(sessionUserLoggedIn?.Username);
-            return Task.FromResult(isLogin);
-        }
-
-        public Task LogoutAsync()
-        {
-            _session?.Remove(ParameterKeys.UserLoggedIn);
-            return Task.CompletedTask;
-        }
-
         public async Task DeleteAccountAsync(UserViewModel userVM)
         {
-            UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
-            User? userEnt = null;
-
-            if (sessionUserLoggedIn != null)
-                userEnt = await _dbContext.Users
-                    .Where(u => u.Id == sessionUserLoggedIn.UserId)
-                    .FirstOrDefaultAsync();
+            User? userEnt = await _dbContext.Users
+                .Where(u => u.Email == _httpContext.User.Identity!.Name)
+                .FirstOrDefaultAsync();
 
             if (userEnt != null)
             {
                 _dbContext.Users.Remove(userEnt);
                 await _dbContext.SaveChangesAsync();
-                _session?.Remove(ParameterKeys.UserLoggedIn);
             }
         }
 
         public async Task SaveQRCodeOTPAsync(string QRCodeOTPSK)
         {
-            User? userEnt = null;
-            UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
-
-            if (sessionUserLoggedIn != null)
-                userEnt = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == sessionUserLoggedIn.UserId);
+            User? userEnt = await _dbContext.Users
+                .FirstOrDefaultAsync(u => u.Email == _httpContext.User.Identity!.Name);
 
             if (userEnt != null)
             {
@@ -131,11 +100,10 @@ namespace Service.Services.Implements
 
         public async Task<(byte[], string)> GetOTPQRCodeAsync()
         {
-            UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
             string secretKey = Base32Encoding.ToString(OtpNet.KeyGeneration.GenerateRandomKey());
 
             string issuer = "SocialMedia";
-            string label = sessionUserLoggedIn?.Username ?? "";
+            string label = _httpContext.User.FindFirst(ParameterKeys.UsernameLoggedIn)!.Value;
             string keyUri = new OtpUri(OtpType.Totp, secretKey, label, issuer).ToString();
 
             byte[] image = PngByteQRCodeHelper.GetQRCode(keyUri, QRCodeGenerator.ECCLevel.Q, 10);
@@ -169,29 +137,24 @@ namespace Service.Services.Implements
 
         public async Task<List<NotificationViewModel>> GetNotificationAsync()
         {
-            List<Notification>? notificationsEnt = null;
-            UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
+            List<Notification>? notificationsEnt  = await _dbContext.Notifications
+                .Where(n => n.ReceiverUserId == Convert.ToInt32(_httpContext.User.FindFirstValue(ParameterKeys.UserIdLoggedIn)!))
+                .OrderByDescending(n => n.CreateTime)
+                .ToListAsync();
 
-            if(sessionUserLoggedIn != null)
-            {
-                notificationsEnt = await _dbContext.Notifications
-                    .Where(n => n.ReceiverUserId == sessionUserLoggedIn.UserId)
-                    .OrderByDescending(n => n.CreateTime)
-                    .ToListAsync();
-            }
             List<NotificationViewModel> notificationsVM = _mapper.Map<List<NotificationViewModel>>(notificationsEnt);
             
             return notificationsVM;
         }
 
-        public async Task<UserLoggedIn> GetUserInfoAsync(int userId)
+        public async Task<UserLoggedIn?> GetUserInfoAsync(int userId)
         {
             UserLoggedIn? userInfo = await _dbContext.Users
                 .Where(u => u.Id == userId)
                 .Select(u => new UserLoggedIn { UserId = u.Id, Username = u.Username, Email = u.Email, RolesId = u.Roles.Select(r => r.Id).ToList() })
                 .FirstOrDefaultAsync();
 
-            return userInfo ?? new UserLoggedIn();
+            return userInfo;
         }
     }
 }

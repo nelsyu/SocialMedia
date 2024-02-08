@@ -8,50 +8,25 @@ using Service.Mapper;
 using Service.Services.Implements;
 using Service.Services.Interfaces;
 using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Identity;
-using SocialMedia.Data;
-using SocialMedia.Areas.Identity.Data;
 using Library.Models;
-using Extensions.Models;
-using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Builder;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-#region Identity相關設定
-var connectionString = builder.Configuration.GetConnectionString("IdentityContextConnection") ?? throw new InvalidOperationException("Connection string 'IdentityContextConnection' not found.");
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
+        options.SlidingExpiration = true;
+        options.AccessDeniedPath = "/Forbidden/";
 
-builder.Services.AddDbContext<IdentityContext>(options =>
-    options.UseSqlServer(connectionString));
-
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-
-builder.Services.AddDefaultIdentity<SocialMediaUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<IdentityContext>();
+        options.LoginPath = new PathString("/User/Login");
+    });
 
 builder.Services.AddRazorPages();
-
-builder.Services.Configure<IdentityOptions>(options =>
-{
-    // Password settings.
-    options.Password.RequireDigit = false;
-    options.Password.RequireLowercase = false;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequireUppercase = false;
-    options.Password.RequiredLength = 1;
-    options.Password.RequiredUniqueChars = 1;
-
-    // Lockout settings.
-    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-    options.Lockout.MaxFailedAccessAttempts = 5;
-    options.Lockout.AllowedForNewUsers = true;
-
-    // User settings.
-    options.User.AllowedUserNameCharacters =
-    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
-    options.User.RequireUniqueEmail = false;
-});
-#endregion
 
 // 將 Controllers 服務添加到容器，並配置 JSON 選項以忽略對象參考循環
 builder.Services.AddControllersWithViews().AddJsonOptions(option =>
@@ -133,6 +108,8 @@ app.UseSession();
 
 app.UseRouting();
 
+app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapHub<SignalRService>("/chatHub");
@@ -141,7 +118,12 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-app.UseCookiePolicy();
+var cookiePolicyOptions = new CookiePolicyOptions
+{
+    MinimumSameSitePolicy = SameSiteMode.Strict,
+};
+
+app.UseCookiePolicy(cookiePolicyOptions);
 
 app.MapRazorPages();
 

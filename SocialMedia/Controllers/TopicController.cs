@@ -7,24 +7,24 @@ using Microsoft.AspNetCore.Mvc;
 using Service.Services.Interfaces;
 using Service.ViewModels;
 using SocialMedia.Filters;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SocialMedia.Controllers
 {
     public class TopicController : Controller
     {
         private readonly ITopicService _topicService;
-        private readonly ISession? _session;
+        private readonly HttpContext _httpContext;
 
         public TopicController(ITopicService topicService, IHttpContextAccessor httpContextAccessor)
         {
             _topicService = topicService;
-            _session = httpContextAccessor.HttpContext?.Session;
+            _httpContext = httpContextAccessor.HttpContext!;
         }
 
         public async Task<IActionResult> Index()
         {
-            UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
-            ViewData[ParameterKeys.IsAdministrator] = sessionUserLoggedIn?.RolesId?.Any(i => i == 2);
+            ViewData[ParameterKeys.IsAdministrator] = _httpContext.User.IsInRole("2");
 
             return View();
         }
@@ -36,6 +36,7 @@ namespace SocialMedia.Controllers
             return View();
         }
 
+        [AllowAnonymous]
         [HttpGet("GetTopics")]
         public async Task<IActionResult> GetTopics()
         {
@@ -44,7 +45,7 @@ namespace SocialMedia.Controllers
             return Json(new { topicsVM });
         }
 
-        [TypeFilter(typeof(AuthenticationFilter))]
+        [Authorize(Roles = "2")]
         [HttpPost("CreateTopic")]
         public async Task<IActionResult> CreateTopic(string title)
         {
@@ -53,13 +54,13 @@ namespace SocialMedia.Controllers
             return Ok();
         }
 
-        [TypeFilter(typeof(AuthenticationFilter))]
+        [Authorize(Roles = "2")]
         [HttpPost]
         public async Task<IActionResult> DeleteTopic(int topicId)
         {
-            await _topicService.DeleteTopicAsync(topicId);
+            bool deleteSuccessful = await _topicService.DeleteTopicAsync(topicId);
 
-            return Ok();
+            return Ok(new { deleteSuccessful });
         }
     }
 }

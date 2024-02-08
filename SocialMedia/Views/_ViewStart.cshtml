@@ -6,7 +6,7 @@
 @using Library.Extensions
 @inject IHttpContextAccessor httpContextAccessor
 @{
-    ISession? _session = httpContextAccessor.HttpContext?.Session;
-    UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
-    TempData[ParameterKeys.LoggedInUsername] = sessionUserLoggedIn?.Username;
+    HttpContext _httpContext = httpContextAccessor.HttpContext!;
+    if (_httpContext!.User.Identity!.IsAuthenticated)
+        TempData[ParameterKeys.UsernameLoggedIn] = _httpContext.User.FindFirst(ParameterKeys.UsernameLoggedIn)!.Value;
 }

@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using Library.Extensions;
 using Library.Constants;
 using Library.Models;
+using System.Security.Claims;
 
 namespace Service.Services.Implements
 {
@@ -15,13 +16,13 @@ namespace Service.Services.Implements
     {
         private readonly SocialMediaContext _dbContext;
         private readonly IMapper _mapper;
-        private readonly ISession? _session;
+        private readonly HttpContext _httpContext;
 
         public PostService(SocialMediaContext dbContext, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
             _dbContext = dbContext;
             _mapper = mapper;
-            _session = httpContextAccessor.HttpContext?.Session;
+            _httpContext = httpContextAccessor.HttpContext!;
         }
 
         public async Task<PostViewModel> GetPostAsync(int postId)
@@ -49,11 +50,7 @@ namespace Service.Services.Implements
 
         public async Task<List<PostViewModel>> GetMyPostsAsync()
         {
-            UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
-            if (sessionUserLoggedIn != null)
-                return await GetPostsAsync(p => p.User != null && p.User.Id == sessionUserLoggedIn.UserId);
-            else
-                return new List<PostViewModel>();
+            return await GetPostsAsync(p => p.User != null && p.User.Id == Convert.ToInt32(_httpContext.User.FindFirstValue(ParameterKeys.UserIdLoggedIn)!));
         }
 
         public async Task<List<PostViewModel>> GetMyPostsAsync(int userId)
@@ -75,18 +72,13 @@ namespace Service.Services.Implements
 
         public async Task CreatePostAsync(PostViewModel postVM)
         {
-            UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
+            postVM.UserId = Convert.ToInt32(_httpContext.User.FindFirstValue(ParameterKeys.UserIdLoggedIn)!);
+            postVM.CreateDate = DateTime.Now;
+            postVM.EditDate = DateTime.Now;
 
-            if (sessionUserLoggedIn != null)
-            {
-                postVM.UserId = sessionUserLoggedIn.UserId;
-                postVM.CreateDate = DateTime.Now;
-                postVM.EditDate = DateTime.Now;
-
-                var postEnt = _mapper.Map<Post>(postVM);
-                _dbContext.Posts.Add(postEnt);
-                await _dbContext.SaveChangesAsync();
-            }
+            var postEnt = _mapper.Map<Post>(postVM);
+            _dbContext.Posts.Add(postEnt);
+            await _dbContext.SaveChangesAsync();
         }
 
         public async Task DeletePostAsync(int postId)

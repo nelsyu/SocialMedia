@@ -6,26 +6,26 @@ using Library.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using Service.ViewModels;
+using System.Security.Claims;
 
 namespace Service.Services.Implements
 {
     public class SignalRService : Hub
     {
-        private readonly ISession? _session;
         private readonly SocialMediaContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly HttpContext _httpContext;
 
         public SignalRService(IHttpContextAccessor httpContextAccessor, SocialMediaContext socialMediaContext, IMapper mapper)
         {
-            _session = httpContextAccessor.HttpContext?.Session;
             _dbContext = socialMediaContext;
             _mapper = mapper;
+            _httpContext = httpContextAccessor.HttpContext!;
         }
 
         public override async Task OnConnectedAsync()
         {
-            UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
-            string groupId = sessionUserLoggedIn?.UserId.ToString() ?? "";
+            string groupId = _httpContext.User.FindFirstValue(ParameterKeys.UserIdLoggedIn) ?? "";
             await Groups.AddToGroupAsync(Context.ConnectionId, groupId);
         }
 
@@ -47,21 +47,16 @@ namespace Service.Services.Implements
 
         private async Task SaveToDBAsync(int userId2, string message, DateTime sendTime)
         {
-            UserLoggedIn? sessionUserLoggedIn = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
-
-            if (sessionUserLoggedIn != null)
+            NotificationViewModel notificationVM = new()
             {
-                NotificationViewModel notificationVM = new()
-                {
-                    ReceiverUserId = userId2,
-                    Message = message,
-                    CreateTime = sendTime,
-                    SenderUserId = sessionUserLoggedIn.UserId
-                };
+                ReceiverUserId = userId2,
+                Message = message,
+                CreateTime = sendTime,
+                SenderUserId = Convert.ToInt32(_httpContext.User.FindFirstValue(ParameterKeys.UserIdLoggedIn)),
+            };
 
-                Notification notificationEnt = _mapper.Map<Notification>(notificationVM);
-                _dbContext.Notifications.Add(notificationEnt);
-            }
+            Notification notificationEnt = _mapper.Map<Notification>(notificationVM);
+            _dbContext.Notifications.Add(notificationEnt);
 
             await _dbContext.SaveChangesAsync();
         }

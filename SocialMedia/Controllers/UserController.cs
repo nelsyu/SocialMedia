@@ -10,6 +10,10 @@ using Data.Entities;
 using Library.Constants;
 using Lazy.Captcha.Core;
 using Library.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SocialMedia.Controllers
 {
@@ -19,8 +23,8 @@ namespace SocialMedia.Controllers
         private readonly IValidationService _validationService;
         private readonly IFriendService _friendService;
         private readonly SocialMediaContext _dbContext;
-        private readonly ISession? _session;
         private readonly ICaptcha _captcha;
+        private readonly HttpContext _httpContext;
 
         public UserController(IUserService userService, IValidationService validationService, IFriendService friendService, SocialMediaContext dbContext, IHttpContextAccessor httpContextAccessor, ICaptcha captcha)
         {
@@ -28,8 +32,8 @@ namespace SocialMedia.Controllers
             _validationService = validationService;
             _friendService = friendService;
             _dbContext = dbContext;
-            _session = httpContextAccessor.HttpContext?.Session;
             _captcha = captcha;
+            _httpContext = httpContextAccessor.HttpContext!;
         }
 
         [HttpGet]
@@ -52,7 +56,7 @@ namespace SocialMedia.Controllers
 
         public async Task<IActionResult> Register()
         {
-            if (await _userService.IsLoginAsync())
+            if (_httpContext!.User.Identity!.IsAuthenticated)
                 return RedirectToAction("Index", "Home");
 
             return View();
@@ -82,7 +86,7 @@ namespace SocialMedia.Controllers
 
         public async Task<IActionResult> Login()
         {
-            if (await _userService.IsLoginAsync())
+            if (_httpContext!.User.Identity!.IsAuthenticated)
                 return RedirectToAction("Index", "Home");
 
             return View();
@@ -112,8 +116,7 @@ namespace SocialMedia.Controllers
 
         public async Task<IActionResult> ValidateQRCodeOTP(int userId)
         {
-            if (userId == 0)
-                return RedirectToAction("Login", "User");
+
 
             QRCodeOTPViewModel QRCodeOTPVM = new QRCodeOTPViewModel
             {
@@ -126,29 +129,58 @@ namespace SocialMedia.Controllers
                 return View(QRCodeOTPVM);
             }
             else
-            { 
-                await _userService.LoginSuccessfulAsync(userId);
+            {
+                UserLoggedIn? userInfo = await _userService.GetUserInfoAsync(userId);
+
+                if (userInfo != null)
+                {
+                    var claims = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.Name, userInfo.Email!),
+                        new Claim(ParameterKeys.UserIdLoggedIn, userInfo.UserId.ToString()),
+                        new Claim(ParameterKeys.UsernameLoggedIn, userInfo.Username!),
+                    };
+
+                    foreach (var temp in userInfo.RolesId!)
+                    {
+                        claims.Add(new Claim(ClaimTypes.Role, temp.ToString()));
+                    }
+
+                    var claimsIdentity = new ClaimsIdentity(
+                        claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                    var authProperties = new AuthenticationProperties
+                    {
+                        //AllowRefresh = <bool>,
+                        // Refreshing the authentication session should be allowed.
+
+                        //ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(10),
+                        // The time at which the authentication ticket expires. A 
+                        // value set here overrides the ExpireTimeSpan option of 
+                        // CookieAuthenticationOptions set with AddCookie.
+
+                        //IsPersistent = true,
+                        // Whether the authentication session is persisted across 
+                        // multiple requests. When used with cookies, controls
+                        // whether the cookie's lifetime is absolute (matching the
+                        // lifetime of the authentication ticket) or session-based.
+
+                        //IssuedUtc = <DateTimeOffset>,
+                        // The time at which the authentication ticket was issued.
+
+                        //RedirectUri = <string>
+                        // The full path or absolute URI to be used as an http 
+                        // redirect response value.
+                    };
+
+                    await HttpContext.SignInAsync(
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        new ClaimsPrincipal(claimsIdentity),
+                        authProperties);
+                }
 
                 return RedirectToAction("Index", "Home");
             }
-        }
-
-        [TypeFilter(typeof(AuthenticationFilter))]
-        public async Task<IActionResult> Logout()
-        {
-            await _userService.LogoutAsync();
-
-            return RedirectToAction("Index", "Home");
-        }
-
-        [HttpGet("GenerateCaptcha")]
-        public IActionResult GenerateCaptcha()
-        {
-            string uId = Guid.NewGuid().ToString().Replace("-", "");
-            CaptchaData captchaImage = _captcha.Generate(uId);
-            var captcha = new { uId, img = captchaImage.Base64 };
-
-            return Ok(captcha);
         }
 
         [HttpPost]
@@ -167,10 +199,76 @@ namespace SocialMedia.Controllers
             }
             else
             {
-                await _userService.LoginSuccessfulAsync(qRCodeOTPVM.UserId);
+                UserLoggedIn? userInfo = await _userService.GetUserInfoAsync(qRCodeOTPVM.UserId);
+
+                if (userInfo != null)
+                {
+                    var claims = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.Name, userInfo.Email!),
+                        new Claim(ParameterKeys.UserIdLoggedIn, userInfo.UserId.ToString()),
+                        new Claim(ParameterKeys.UsernameLoggedIn, userInfo.Username!),
+                    };
+
+                    foreach (var temp in userInfo.RolesId!)
+                    {
+                        claims.Add(new Claim(ClaimTypes.Role, temp.ToString()));
+                    }
+
+                    var claimsIdentity = new ClaimsIdentity(
+                        claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                    var authProperties = new AuthenticationProperties
+                    {
+                        //AllowRefresh = <bool>,
+                        // Refreshing the authentication session should be allowed.
+
+                        //ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(10),
+                        // The time at which the authentication ticket expires. A 
+                        // value set here overrides the ExpireTimeSpan option of 
+                        // CookieAuthenticationOptions set with AddCookie.
+
+                        //IsPersistent = true,
+                        // Whether the authentication session is persisted across 
+                        // multiple requests. When used with cookies, controls
+                        // whether the cookie's lifetime is absolute (matching the
+                        // lifetime of the authentication ticket) or session-based.
+
+                        //IssuedUtc = <DateTimeOffset>,
+                        // The time at which the authentication ticket was issued.
+
+                        //RedirectUri = <string>
+                        // The full path or absolute URI to be used as an http 
+                        // redirect response value.
+                    };
+
+                    await HttpContext.SignInAsync(
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        new ClaimsPrincipal(claimsIdentity),
+                        authProperties);
+                }
 
                 return RedirectToAction("Index", "Home");
             }
+        }
+
+        [TypeFilter(typeof(AuthenticationFilter))]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme);
+
+            return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet("GenerateCaptcha")]
+        public IActionResult GenerateCaptcha()
+        {
+            string uId = Guid.NewGuid().ToString().Replace("-", "");
+            CaptchaData captchaImage = _captcha.Generate(uId);
+            var captcha = new { uId, img = captchaImage.Base64 };
+
+            return Ok(captcha);
         }
 
         [TypeFilter(typeof(AuthenticationFilter))]
@@ -188,9 +286,13 @@ namespace SocialMedia.Controllers
         {
             await _userService.DeleteAccountAsync(userVM);
 
+            await HttpContext.SignOutAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme);
+
             return RedirectToAction("Index", "Home");
         }
 
+        [TypeFilter(typeof(AuthenticationFilter))]
         [Route("GetNotification")]
         public async Task<IActionResult> GetNotification()
         {
@@ -202,10 +304,9 @@ namespace SocialMedia.Controllers
         [HttpGet("GetUserInfo")]
         public async Task<IActionResult> GetUserInfo(int? userId)
         {
-            UserLoggedIn? userInfo = null;
-
+            UserLoggedIn? userInfo;
             if (userId == null)
-                userInfo = _session?.GetObject<UserLoggedIn>(ParameterKeys.UserLoggedIn);
+                userInfo = await _userService.GetUserInfoAsync(Convert.ToInt32(_httpContext.User.FindFirstValue(ParameterKeys.UserIdLoggedIn)));
             else
                 userInfo = await _userService.GetUserInfoAsync(userId.Value);
             return Json(new { userInfo });

@@ -2,8 +2,8 @@
 {
     public static class ParameterKeys
     {
-        public static string LoggedInUserId => "LoggedInUserId";
-        public static string LoggedInUsername => "LoggedInUsername";
+        public static string UserIdLoggedIn => "UserIdLoggedIn";
+        public static string UsernameLoggedIn => "UsernameLoggedIn";
         public static string TopicId => "TopicId";
         public static string IsAdministrator => "IsAdministrator";
         public static string UserId2 => "UserId2";
