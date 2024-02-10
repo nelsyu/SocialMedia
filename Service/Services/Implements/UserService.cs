@@ -44,6 +44,12 @@ namespace Service.Services.Implements
 
             if (userEnt != null)
             {
+                var friendshipsEnt = _dbContext.Friendships
+                    .Where(f => f.UserId1 == userEnt.Id || f.UserId2 == userEnt.Id)
+                    .ToList();
+
+                _dbContext.Friendships.RemoveRange(friendshipsEnt);
+
                 _dbContext.Users.Remove(userEnt);
                 await _dbContext.SaveChangesAsync();
             }

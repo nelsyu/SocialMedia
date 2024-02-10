@@ -54,7 +54,6 @@ public partial class SocialMediaContext : DbContext
 
             entity.HasOne(d => d.UserId1Navigation).WithMany(p => p.FriendshipUserId1Navigations)
                 .HasForeignKey(d => d.UserId1)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Friendship_UserId1_User_Id");
 
             entity.HasOne(d => d.UserId2Navigation).WithMany(p => p.FriendshipUserId2Navigations)
@@ -106,15 +105,9 @@ public partial class SocialMediaContext : DbContext
 
             entity.Property(e => e.CreateTime).HasColumnType("datetime");
 
-            entity.HasOne(d => d.ReceiverUser).WithMany(p => p.NotificationReceiverUsers)
+            entity.HasOne(d => d.ReceiverUser).WithMany(p => p.Notifications)
                 .HasForeignKey(d => d.ReceiverUserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Notification_ReceiverUserId_User_Id");
-
-            entity.HasOne(d => d.SenderUser).WithMany(p => p.NotificationSenderUsers)
-                .HasForeignKey(d => d.SenderUserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Notification_SenderUserId_User_Id");
         });
 
         modelBuilder.Entity<Post>(entity =>

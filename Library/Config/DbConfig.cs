@@ -11,9 +11,10 @@ namespace Library.Config
     {
         public static string GetConnectionString()
         {
-            IConfigurationBuilder builder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json");
-            IConfigurationRoot configurationRoot = builder.Build();
-            return configurationRoot.GetConnectionString("SocialMedia") ?? "";
+            IConfigurationRoot config = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json").Build();
+            string connectionString = config.GetConnectionString("SocialMedia") ?? "";
+
+            return connectionString;
         }
     }
 }

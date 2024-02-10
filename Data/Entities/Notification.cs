@@ -16,6 +16,4 @@ public partial class Notification
     public int SenderUserId { get; set; }
 
     public virtual User ReceiverUser { get; set; } = null!;
-
-    public virtual User SenderUser { get; set; } = null!;
 }

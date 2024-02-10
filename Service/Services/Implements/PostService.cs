@@ -101,7 +101,7 @@ namespace Service.Services.Implements
                 postEnt.TopicId = postVM.TopicId;
                 postEnt.Title = postVM.Title;
                 postEnt.Content = postVM.Content;
-                //postEnt.EditDate = DateTime.Now; 已用trigger取代
+                postEnt.EditDate = DateTime.Now;
 
                 await _dbContext.SaveChangesAsync();
             }

@@ -35,8 +35,8 @@ builder.Services.AddControllersWithViews().AddJsonOptions(option =>
     option.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
 
-builder.Services.AddDbContext<SocialMediaContext>(
-    options => options.UseSqlServer(DbConfig.GetConnectionString()));
+builder.Services.AddDbContext<SocialMediaContext>( options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("SocialMedia")));
 
 AutoMapper.IConfigurationProvider config = new MapperConfiguration(cfg =>
 {

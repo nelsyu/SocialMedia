@@ -93,7 +93,7 @@
             </div>
             <div class="card-footer">
                 <span class="username">{{ postVM.user ? postVM.user.username : "Deleted User" }}&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                <span class="post-date">{{ postVM.createDate }}</span>
+                <span class="post-date">{{ new Date(postVM.createDate).toLocaleString() }}</span>
                 <div class="float-end">
                     <div v-if="userLoggedIn && userLoggedIn.userId === postVM.userId">
                         <a class="btn btn-warning btn-rounded text-white" :href="'/Post/EditPost?postId=' + postVM.id">Edit</a>
@@ -170,7 +170,7 @@
                         <p class="card-text">{{ reply.content }}</p>
                     </div>
                     <div class="card-footer">
-                        <span class="reply-date">{{ reply.createDate.toLocaleString() }}</span>
+                        <span class="reply-date">{{ new Date(reply.createDate).toLocaleString() }}</span>
                     </div>
                 </div>
             </div>

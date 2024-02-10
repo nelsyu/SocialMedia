@@ -21,9 +21,7 @@ public partial class User
 
     public virtual ICollection<Like> Likes { get; set; } = new List<Like>();
 
-    public virtual ICollection<Notification> NotificationReceiverUsers { get; set; } = new List<Notification>();
-
-    public virtual ICollection<Notification> NotificationSenderUsers { get; set; } = new List<Notification>();
+    public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
     public virtual ICollection<Post> Posts { get; set; } = new List<Post>();
 
