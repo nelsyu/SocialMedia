@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,12 +10,24 @@ namespace Library.Config
 {
     public static class DbConfig
     {
-        public static string GetConnectionString()
+        public static DbContextOptionsBuilder ConfigureDbContext(DbContextOptionsBuilder options)
         {
             IConfigurationRoot config = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json").Build();
-            string connectionString = config.GetConnectionString("SocialMedia") ?? "";
+            string dbType = config.GetConnectionString("DatabaseType") ?? "";
+            string connectionString;
 
-            return connectionString;
+            switch (dbType.ToLower())
+            {
+                case "sqlserver":
+                    connectionString = config.GetConnectionString("SqlServer") ?? "";
+                    return options.UseSqlServer(connectionString);
+                case "postgresql":
+                    connectionString = config.GetConnectionString("PostgreSql") ?? "";
+                    return options.UseNpgsql(connectionString);
+                default:
+                    connectionString = config.GetConnectionString("SqlServer") ?? "";
+                    return options.UseSqlServer(connectionString);
+            }
         }
     }
 }

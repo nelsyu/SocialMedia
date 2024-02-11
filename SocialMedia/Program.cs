@@ -11,6 +11,7 @@ using System.Text.Json.Serialization;
 using Library.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,7 +37,7 @@ builder.Services.AddControllersWithViews().AddJsonOptions(option =>
 });
 
 builder.Services.AddDbContext<SocialMediaContext>( options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("SocialMedia")));
+    DbConfig.ConfigureDbContext(options));
 
 AutoMapper.IConfigurationProvider config = new MapperConfiguration(cfg =>
 {

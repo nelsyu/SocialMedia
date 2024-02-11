@@ -37,7 +37,7 @@ public partial class SocialMediaContext : DbContext
     public virtual DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer(DbConfig.GetConnectionString());
+        => DbConfig.ConfigureDbContext(optionsBuilder);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
