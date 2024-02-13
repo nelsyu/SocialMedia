@@ -1,5 +1,5 @@
 ﻿@using Service.ViewModels
-@model List<UserViewModel>
+@model List<OtherUserViewModel>
 
 <style>
     .friends-list {
@@ -28,10 +28,10 @@
     @if (Model != null && Model.Any())
     {
         <div>
-            @foreach (var userVM in Model)
+            @foreach (var otherUserVM in Model)
             {
-                <button class="user-button" onclick="location.href='/User/Profile?userId2=' + @userVM.Id;">
-                    @userVM.Username
+                <button class="user-button" onclick="location.href='/User/Profile?userId2=' + @otherUserVM.Id;">
+                    @otherUserVM.Username
                 </button>
             }
         </div>

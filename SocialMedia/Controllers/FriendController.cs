@@ -19,8 +19,8 @@ namespace SocialMedia.Controllers
         [HttpGet("GetAllFriends")]
         public async Task<IActionResult> GetAllFriends()
         {
-            List<UserViewModel> usersVM = await _friendService.GetAllFriendsAsync();
-            return PartialView("_FriendsPartial", usersVM);
+            List<OtherUserViewModel> friendsVM = await _friendService.GetAllFriendsAsync();
+            return PartialView("_FriendsPartial", friendsVM);
         }
 
         [HttpPost("AddFriend")]

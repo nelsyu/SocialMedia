@@ -28,6 +28,8 @@ namespace Service.Mapper
                 .ReverseMap();
             CreateMap<User, UserViewModel>()
                 .ReverseMap();
+            CreateMap<User, OtherUserViewModel>()
+                .ReverseMap();
         }
     }
 }

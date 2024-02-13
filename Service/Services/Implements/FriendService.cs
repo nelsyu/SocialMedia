@@ -25,7 +25,7 @@ namespace Service.Services.Implements
             _httpContext = httpContextAccessor.HttpContext!;
         }
 
-        public async Task<List<UserViewModel>> GetAllFriendsAsync()
+        public async Task<List<OtherUserViewModel>> GetAllFriendsAsync()
         {
             int userIdLoggedIn = Convert.ToInt32(_httpContext.User.FindFirstValue(ParameterKeys.UserIdLoggedIn)!);
 
@@ -34,17 +34,17 @@ namespace Service.Services.Implements
                 .ToListAsync();
 
             List<FriendshipViewModel> friendshipsVM = _mapper.Map<List<FriendshipViewModel>>(friendshipsEnt);
-            List<UserViewModel> usersVM = new List<UserViewModel>();
+            List<OtherUserViewModel> otherUsersVM = new List<OtherUserViewModel>();
 
             foreach (var friendshipVM in friendshipsVM)
             {
                 int? userId2 = friendshipVM.UserId1 == userIdLoggedIn ? friendshipVM.UserId2 : friendshipVM.UserId1;
                 User? userEnt = await _dbContext.Users.FindAsync(userId2);
-                UserViewModel userVM = _mapper.Map<UserViewModel>(userEnt);
-                usersVM.Add(userVM);
+                OtherUserViewModel otherUserVM = _mapper.Map<OtherUserViewModel>(userEnt);
+                otherUsersVM.Add(otherUserVM);
             }
 
-            return usersVM;
+            return otherUsersVM;
         }
 
         public async Task AddFriend(int userId2)
