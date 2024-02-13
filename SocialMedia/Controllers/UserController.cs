@@ -63,6 +63,7 @@ namespace SocialMedia.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(UserViewModel userVM)
         {
             List<(string key, string errorMessage)> errors = await _validationService.ValidateRegisterAsync(userVM);
@@ -93,6 +94,7 @@ namespace SocialMedia.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(UserViewModel userVM)
         {
             List<(string key, string errorMessage)> errors = await _validationService.ValidateLoginAsync(userVM);
@@ -184,6 +186,7 @@ namespace SocialMedia.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ValidateQRCodeOTP([FromForm] QRCodeOTPViewModel qRCodeOTPVM)
         {
             if (qRCodeOTPVM.UserId == 0)
@@ -273,6 +276,7 @@ namespace SocialMedia.Controllers
 
         [TypeFilter(typeof(AuthenticationFilter))]
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> SaveQRCodeOTP([FromForm] string QRCodeOTPSK)
         {
              await _userService.SaveQRCodeOTPAsync(QRCodeOTPSK);

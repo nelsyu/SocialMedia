@@ -36,6 +36,7 @@ namespace SocialMedia.Controllers
 
         [Authorize]
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreatePost(PostViewModel postVM)
         {
             List<(string key, string errorMessage)> errors = await _validationService.ValidatePostAsync(postVM);
@@ -67,6 +68,7 @@ namespace SocialMedia.Controllers
 
         [Authorize]
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditPost(PostViewModel postVM, int postId)
         {
             List<(string key, string errorMessage)> errors = await _validationService.ValidatePostAsync(postVM);
@@ -106,6 +108,7 @@ namespace SocialMedia.Controllers
 
         [Authorize]
         [HttpPost("AddReply")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddReply(ReplyViewModel replyVM)
         {
             await _replyService.CreateReplyAsync(replyVM);

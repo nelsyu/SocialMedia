@@ -47,6 +47,7 @@ namespace SocialMedia.Controllers
 
         [Authorize(Roles = "2")]
         [HttpPost("CreateTopic")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateTopic(string title)
         {
             await _topicService.CreateTopicAsync(title);
